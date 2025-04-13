@@ -1,0 +1,32 @@
+{
+  "name": "Loaded Baked Potatoes",
+  "description": "Fluffy baked potatoes loaded with classic toppings.",
+  "status": "approved",
+  "baseYield": 4,
+  "baseYieldUnit": "potatoes",
+  "prepTime": "10 minutes",
+  "cookTime": "60-75 minutes (oven)",
+  "ingredients": [
+    { "name": "Russet Potatoes", "quantity": 4, "unit": "unit", "notes": "Large, scrubbed" },
+    { "name": "Olive Oil", "quantity": 15, "unit": "ml" },
+    { "name": "Salt", "quantity": 5, "unit": "g" },
+    { "name": "Butter", "quantity": 60, "unit": "g" },
+    { "name": "Sour Cream or Greek Yogurt", "quantity": 120, "unit": "g" },
+    { "name": "Shredded Cheddar Cheese", "quantity": 100, "unit": "g" },
+    { "name": "Cooked Bacon", "quantity": 50, "unit": "g", "notes": "Crumbled" },
+    { "name": "Green Onions", "quantity": 20, "unit": "g", "notes": "Sliced" }
+  ],
+  "proteinOptions": [],
+  "instructions": [
+    "Preheat oven to 200°C (400°F).",
+    "Prick potatoes all over with a fork.",
+    "Rub potatoes with olive oil and sprinkle generously with salt.",
+    "Place potatoes directly on the oven rack and bake for 60-75 minutes, or until tender when pierced with a fork.",
+    "Once baked, carefully slice the tops lengthwise.",
+    "Fluff the inside of the potatoes with a fork.",
+    "Top with butter, sour cream/yogurt, cheddar cheese, bacon bits, and green onions.",
+    "Serve immediately."
+  ],
+  "tags": ["potato", "comfort food", "side dish", "bacon"],
+  "timesPrepared": 0
+} 

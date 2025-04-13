@@ -1,0 +1,35 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Allow users to create, read, and update their own user document
+    match /users/{userId} {
+      // Allow creation only if the user is logged in and their UID matches the document ID
+      allow create: if request.auth != null && request.auth.uid == userId;
+      // Allow reading and updating only by the owner of the document
+      allow read, update: if request.auth != null && request.auth.uid == userId;
+      // Prevent deletion for now
+      allow delete: if false;
+    }
+
+    // Placeholder rule: Allow any authenticated user to read recipes for now
+    // We'll refine this later based on roles (admin, cook, etc.)
+    match /recipes/{recipeId} {
+       allow read: if request.auth != null;
+       // Allow create if user is logged in. We can restrict by role later.
+       allow create: if request.auth != null;
+       // Allow update/delete based on roles later (e.g., admin or original creator)
+       allow update, delete: if false; // Keep false for now
+    }
+
+    // Add rules for other collections (mealCycles, orders, votes, etc.) here as needed.
+    // It's crucial to define rules for every collection you use.
+
+    // Default Deny: Disallow read/write access to any other path not explicitly matched above.
+    // This is important for security.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
