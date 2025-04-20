@@ -23,6 +23,66 @@ service cloud.firestore {
        allow update, delete: if false; // Keep false for now
     }
 
+    // Meal Cycles: Allow read by logged-in users, create by logged-in users (restrict later)
+    match /mealCycles/{cycleId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null; // TODO: Restrict to admin role
+      // Allow update for status, chosenRecipe, assignments etc.
+      // Let's allow any logged-in user to update for now, but needs refinement by role/status
+      allow update: if request.auth != null;
+      allow delete: if false;
+    }
+
+    // Votes: Allow read own vote, create one vote per cycle if cycle is open, LIST votes for a cycle
+    match /votes/{voteId} {
+      // Allow reading own specific vote document
+      allow read: if request.auth != null && resource.data.userId == request.auth.uid;
+
+      // Allow LISTING votes for a specific cycle if logged in
+      // This is needed for the onSnapshot listener in the dashboard
+      allow list: if request.auth != null; // Maybe restrict further later if needed (e.g., only list for active cycles)
+
+      // Allow creating a vote if:
+      // 1. User is logged in.
+      // 2. The vote belongs to the logged-in user (userId matches auth.uid).
+      // 3. The corresponding mealCycle exists and has status 'voting_open'.
+      allow create: if request.auth != null
+                      && request.resource.data.userId == request.auth.uid
+                      && get(/databases/$(database)/documents/mealCycles/$(request.resource.data.cycleId)).data.status == 'voting_open';
+
+      // Disallow update/delete for now
+      allow update, delete: if false;
+    }
+
+    // Orders
+    match /orders/{orderId} {
+      // Allow reading own order(s)
+      // TODO: Allow admin/cook/shopper to read orders relevant to the cycle?
+      allow read: if request.auth != null && resource.data.userId == request.auth.uid;
+
+      // Allow creating an order if:
+      // 1. User is logged in.
+      // 2. The order belongs to the logged-in user (userId matches auth.uid).
+      // 3. The corresponding mealCycle exists and has status 'ordering_open'.
+      // 4. Order timestamp is set correctly.
+      // 5. User hasn't already ordered in this cycle (checked via client query / complex rule).
+      allow create: if request.auth != null
+                      && request.resource.data.userId == request.auth.uid
+                      && request.resource.data.orderTimestamp == request.time // Use server timestamp usually
+                      // Check cycle status and maybe deadline
+                      && get(/databases/$(database)/documents/mealCycles/$(request.resource.data.cycleId)).data.status == 'ordering_open';
+                      // Optional: && request.time < get(/databases/$(database)/documents/mealCycles/$(request.resource.data.cycleId)).data.orderDeadline.toMillis()
+                      // TODO: Add rule to check uniqueness: !exists(...)
+
+      // Allow updating own order *status* (by admin/cook) or details (by user *before* deadline)
+      // Simplified for now: Allow owner to update anything (refine later!)
+      // TODO: Refine update rules based on role, status, and deadline
+      allow update: if request.auth != null && request.resource.data.userId == request.auth.uid;
+
+      // Disallow delete for now (or restrict to user before deadline)
+      allow delete: if false;
+    }
+
     // Add rules for other collections (mealCycles, orders, votes, etc.) here as needed.
     // It's crucial to define rules for every collection you use.
 

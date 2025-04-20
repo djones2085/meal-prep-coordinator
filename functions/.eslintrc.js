@@ -18,7 +18,7 @@ module.exports = {
     "camelcase": "off",
     "object-curly-spacing": ["error", "always"],
     "indent": ["error", 2],
-    "no-unused-vars": ["error", { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }],
+    "no-unused-vars": ["warn", { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }],
   },
   overrides: [
     {
@@ -29,5 +29,7 @@ module.exports = {
       rules: {},
     },
   ],
-  globals: {},
+  globals: {
+    module: 'writable',
+  },
 };

@@ -11,6 +11,8 @@ import {
   Container,
   Box,
   CircularProgress, // For loading state
+  // Import Admin icon if desired
+  // import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 } from '@mui/material';
 
 function Layout() {
@@ -37,6 +39,9 @@ function Layout() {
     );
   }
 
+  // TODO: Fetch user role and conditionally show Admin button
+  const isAdmin = true; // Placeholder - Replace with actual role check logic later
+
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       <AppBar position="static">
@@ -55,7 +60,18 @@ function Layout() {
               <Button color="inherit" component={RouterLink} to="/add-recipe">Add Recipe</Button>
               <Button color="inherit" component={RouterLink} to="/meal-cycle">Meal Cycle</Button>
 
-              {/* Add other authenticated links here */}
+              {/* Admin Link - Conditionally render based on role later */}
+              {isAdmin && (
+                 <Button
+                    color="inherit"
+                    component={RouterLink}
+                    to="/admin"
+                    // startIcon={<AdminPanelSettingsIcon />} // Optional icon
+                 >
+                    Admin
+                 </Button>
+              )}
+
               <Button color="inherit" onClick={handleLogout}>Logout ({currentUser.email})</Button>
             </>
           ) : (

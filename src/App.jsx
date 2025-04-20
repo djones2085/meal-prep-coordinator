@@ -14,6 +14,9 @@ import RecipesPage from './pages/RecipesPage'
 import RecipeDetailPage from './pages/RecipeDetailPage'
 import MealCyclePage from './pages/MealCyclePage'
 import AddRecipePage from './pages/AddRecipePage'
+import MealPlanningPage from './pages/admin/MealPlanningPage'
+import MealCycleManagementPage from './pages/admin/MealCycleManagementPage'
+import AdminHomePage from './pages/admin/AdminHomePage'
 
 function NotFoundPage() {
     // Maybe use MUI Typography here later
@@ -44,6 +47,9 @@ function App() {
                 <Route path="/recipes" element={<RecipesPage />} />
                 <Route path="/recipes/:recipeId" element={<RecipeDetailPage />} />
                 <Route path="/add-recipe" element={<AddRecipePage />} />
+                <Route path="/admin" element={<AdminHomePage />} />
+                <Route path="/admin/planning" element={<MealPlanningPage />} />
+                <Route path="/admin/cycles" element={<MealCycleManagementPage />} />
                 <Route path="/meal-cycle" element={<MealCyclePage />} />
                 {/* Add other protected routes inside Layout here */}
             </Route>
