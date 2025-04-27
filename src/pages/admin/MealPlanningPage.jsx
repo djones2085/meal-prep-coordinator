@@ -10,24 +10,68 @@ import {
     CircularProgress,
     Alert,
     Grid,
-    List,
-    ListItem,
-    ListItemText,
-    Checkbox,
-    Paper
+    Paper,
+    Select,
+    MenuItem,
+    FormControl,
+    InputLabel
 } from '@mui/material';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 
+// Helper function to calculate default dates
+const getDefaultDates = () => {
+    const now = new Date();
+    // Use UTC internally to avoid local timezone issues during calculation
+    const nowUtc = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), now.getMinutes(), now.getSeconds()));
+
+    // Target Thursday Noon Central (Use 17:00 UTC for Noon CDT, UTC-5)
+    const targetDay = 4; // Thursday (0=Sun, 1=Mon, ..., 6=Sat)
+    const targetHourUtc = 17; // Noon CDT = 17:00 UTC. (If CST, this will be 11 AM CST - might need adjustment later)
+
+    const currentUtcDay = nowUtc.getUTCDay();
+    let daysToAdd = (targetDay - currentUtcDay + 7) % 7;
+
+    // If today *is* Thursday and it's already past Noon Central (targetHourUtc), aim for next week's Thursday
+    if (daysToAdd === 0 && nowUtc.getUTCHours() >= targetHourUtc) {
+        daysToAdd = 7;
+    }
+
+    const nextThursdayUtc = new Date(Date.UTC(nowUtc.getUTCFullYear(), nowUtc.getUTCMonth(), nowUtc.getUTCDate() + daysToAdd));
+    nextThursdayUtc.setUTCHours(targetHourUtc, 0, 0, 0);
+
+    // Target the Sunday *after* that Thursday
+    const nextSundayUtc = new Date(nextThursdayUtc);
+    // Add 3 days to get from Thursday (4) to Sunday (0/7)
+    nextSundayUtc.setUTCDate(nextSundayUtc.getUTCDate() + 4);
+    nextSundayUtc.setUTCHours(0, 0, 0, 0); // Set to start of the day UTC
+
+    // --- DEBUG LOGS --- Start
+    console.log("Current UTC Time:", nowUtc.toISOString());
+    console.log("Calculated UTC Deadline:", nextThursdayUtc.toISOString()); 
+    console.log("Calculated UTC Cook Date:", nextSundayUtc.toISOString()); 
+    // --- DEBUG LOGS --- End
+
+    // Return local Date objects expected by MUI pickers
+    const defaultOrderDeadline = new Date(nextThursdayUtc.getTime());
+    const defaultTargetCookDate = new Date(nextSundayUtc.getTime());
+
+    // --- DEBUG LOGS --- Start
+    console.log("Default Order Deadline (Local for Picker):", defaultOrderDeadline);
+    console.log("Default Target Cook Date (Local for Picker):", defaultTargetCookDate);
+    // --- DEBUG LOGS --- End
+
+    return { defaultOrderDeadline, defaultTargetCookDate };
+};
+
 function MealPlanningPage() {
     const navigate = useNavigate();
     const [availableRecipes, setAvailableRecipes] = useState([]);
-    const [selectedRecipes, setSelectedRecipes] = useState({}); // Use object { recipeId: recipeName }
-    const [votingDeadline, setVotingDeadline] = useState(null);
-    const [orderDeadline, setOrderDeadline] = useState(null);
-    const [targetCookDate, setTargetCookDate] = useState(null);
+    const [selectedRecipeId, setSelectedRecipeId] = useState(''); // Store only the ID of the single selected recipe
+    const [orderDeadline, setOrderDeadline] = useState(() => getDefaultDates().defaultOrderDeadline);
+    const [targetCookDate, setTargetCookDate] = useState(() => getDefaultDates().defaultTargetCookDate);
 
     const [loading, setLoading] = useState(false);
     const [fetchLoading, setFetchLoading] = useState(true); // Separate loading for fetch
@@ -58,80 +102,61 @@ function MealPlanningPage() {
         fetchAvailableRecipes();
     }, []);
 
-    const handleRecipeSelection = (recipeId, recipeName, isSelected) => {
-        setSelectedRecipes(prev => {
-            const updated = { ...prev };
-            if (isSelected) {
-                updated[recipeId] = recipeName;
-            } else {
-                delete updated[recipeId];
-            }
-            return updated;
-        });
-    };
-
     const handleSubmit = async (event) => {
         event.preventDefault();
         setError('');
         setSuccess('');
         setLoading(true);
 
-        const proposedRecipeArray = Object.entries(selectedRecipes).map(([id, name]) => ({ recipeId: id, recipeName: name }));
+        const selectedRecipe = availableRecipes.find(r => r.id === selectedRecipeId);
 
         // Validation
-        if (proposedRecipeArray.length === 0) {
-            setError("Please select at least one recipe to propose.");
+        if (!selectedRecipeId || !selectedRecipe) {
+            setError("Please select a recipe for the cycle.");
             setLoading(false);
             return;
         }
         // Validation: Ensure Date objects are not null
-        if (!votingDeadline || !orderDeadline || !targetCookDate) {
-            setError("Please select valid dates and times for all deadlines.");
+        if (!orderDeadline || !targetCookDate) {
+            setError("Please select valid dates for order deadline and cook date.");
             setLoading(false);
             return;
         }
 
-        // Check if dates are valid (MUI pickers usually ensure this, but double-check)
-        if (isNaN(votingDeadline.getTime()) || isNaN(orderDeadline.getTime()) || isNaN(targetCookDate.getTime())) {
+        // Check if dates are valid
+        if (isNaN(orderDeadline.getTime()) || isNaN(targetCookDate.getTime())) {
              setError("Invalid date detected. Please re-select the dates.");
              setLoading(false);
              return;
         }
 
-        // Optional: Add validation for deadlines (e.g., voting < ordering < cooking)
-         if (votingDeadline >= orderDeadline) {
-            setError("Voting deadline must be before the order deadline.");
-            setLoading(false);
-            return;
-         }
-          if (orderDeadline >= targetCookDate) {
+        // Optional: Add validation for deadlines
+         if (orderDeadline >= targetCookDate) {
             setError("Order deadline must be before the target cook date.");
             setLoading(false);
             return;
          }
 
         // Dates are already Date objects from MUI Pickers
-        // Convert to Firestore Timestamps explicitly for clarity if desired,
-        // but Firestore handles Date objects automatically.
         const cycleData = {
-            status: 'voting_open', // Initial status
-            proposedRecipes: proposedRecipeArray,
-            // Pass the Date objects directly
-            votingDeadline: votingDeadline,
+            status: 'planned', // Initial status: recipe chosen, ready for orders
+            chosenRecipe: { // Store the chosen recipe details
+                 recipeId: selectedRecipe.id,
+                 recipeName: selectedRecipe.name,
+            },
             orderDeadline: orderDeadline,
             targetCookDate: targetCookDate,
             creationDate: serverTimestamp(),
-            // Other fields like chosenRecipeId, assignments, totals will be set later
+            // Other fields like assignments, totals will be set later
         };
 
         try {
             const cyclesRef = collection(db, 'mealCycles');
             const docRef = await addDoc(cyclesRef, cycleData);
             console.log("Meal Cycle created with ID: ", docRef.id);
-            setSuccess(`New Meal Cycle created successfully (Status: Voting Open). ID: ${docRef.id}`);
+            setSuccess(`New Meal Cycle planned successfully with recipe: ${selectedRecipe.name}. ID: ${docRef.id}`);
             // Optionally clear form
-            setSelectedRecipes({});
-            setVotingDeadline(null);
+            setSelectedRecipeId('');
             setOrderDeadline(null);
             setTargetCookDate(null);
             setLoading(false);
@@ -153,30 +178,29 @@ function MealPlanningPage() {
 
                 <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
                     <Paper elevation={2} sx={{ p: 3, mb: 3 }}>
-                        <Typography variant="h6" gutterBottom>Select Proposed Recipes</Typography>
+                        <Typography variant="h6" gutterBottom>Select Recipe for the Cycle</Typography>
                         {fetchLoading && <CircularProgress size={24} />}
                         {!fetchLoading && availableRecipes.length === 0 && !error && (
                             <Typography color="text.secondary">No 'approved' or 'testing' recipes found.</Typography>
                         )}
                         {!fetchLoading && availableRecipes.length > 0 && (
-                             <List dense sx={{ maxHeight: 300, overflow: 'auto' }}>
-                                 {availableRecipes.map(recipe => (
-                                    <ListItem
-                                        key={recipe.id}
-                                        secondaryAction={
-                                            <Checkbox
-                                                edge="end"
-                                                onChange={(e) => handleRecipeSelection(recipe.id, recipe.name, e.target.checked)}
-                                                checked={!!selectedRecipes[recipe.id]} // Check if recipeId exists as key
-                                                disabled={loading}
-                                            />
-                                        }
-                                        disablePadding
-                                    >
-                                        <ListItemText primary={recipe.name} />
-                                    </ListItem>
-                                ))}
-                            </List>
+                             <FormControl fullWidth sx={{ mt: 1 }}>
+                                <InputLabel id="recipe-select-label">Recipe</InputLabel>
+                                <Select
+                                    labelId="recipe-select-label"
+                                    id="recipe-select"
+                                    value={selectedRecipeId}
+                                    label="Recipe"
+                                    onChange={(e) => setSelectedRecipeId(e.target.value)}
+                                    disabled={loading}
+                                >
+                                    {availableRecipes.map((recipe) => (
+                                        <MenuItem key={recipe.id} value={recipe.id}>
+                                            {recipe.name}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
                         )}
                          {error && !fetchLoading && <Alert severity="error" sx={{ mt: 1 }}>{error}</Alert>}
                     </Paper>
@@ -184,16 +208,7 @@ function MealPlanningPage() {
                     <Paper elevation={2} sx={{ p: 3 }}>
                         <Typography variant="h6" gutterBottom>Set Deadlines & Dates</Typography>
                          <Grid container spacing={3}>
-                            <Grid item xs={12} sm={4}>
-                                <DateTimePicker
-                                    label="Voting Deadline *"
-                                    value={votingDeadline}
-                                    onChange={(newValue) => setVotingDeadline(newValue)}
-                                    disabled={loading}
-                                    slotProps={{ textField: { fullWidth: true, required: true, helperText:"Select date and time" } }}
-                                />
-                            </Grid>
-                            <Grid item xs={12} sm={4}>
+                            <Grid item xs={12} sm={6}>
                                  <DateTimePicker
                                     label="Order Deadline *"
                                     value={orderDeadline}
@@ -202,7 +217,7 @@ function MealPlanningPage() {
                                     slotProps={{ textField: { fullWidth: true, required: true, helperText:"Select date and time" } }}
                                  />
                             </Grid>
-                             <Grid item xs={12} sm={4}>
+                             <Grid item xs={12} sm={6}>
                                 <DatePicker
                                     label="Target Cook Date *"
                                     value={targetCookDate}
@@ -221,11 +236,11 @@ function MealPlanningPage() {
                             type="submit"
                             variant="contained"
                             color="primary"
-                            disabled={loading || fetchLoading}
+                            disabled={loading || fetchLoading || !selectedRecipeId}
                             fullWidth
                             size="large"
                         >
-                            {loading ? <CircularProgress size={24} /> : 'Create Meal Cycle & Open Voting'}
+                            {loading ? <CircularProgress size={24} /> : 'Create Meal Cycle'}
                         </Button>
                     </Box>
                 </Box>
