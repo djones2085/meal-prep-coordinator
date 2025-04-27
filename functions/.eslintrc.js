@@ -13,7 +13,7 @@ module.exports = {
   rules: {
     "no-restricted-globals": ["error", "name", "length"],
     "prefer-arrow-callback": "error",
-    "quotes": ["error", "double", {"allowTemplateLiterals": true}],
+    "quotes": ["error", "double", { "allowTemplateLiterals": true }],
     "max-len": "off",
     "camelcase": "off",
     "object-curly-spacing": ["error", "always"],
@@ -30,6 +30,6 @@ module.exports = {
     },
   ],
   globals: {
-    module: 'writable',
+    module: "writable",
   },
 };
