@@ -6,6 +6,3 @@ admin.initializeApp();
 
 const db = admin.firestore();
 
-// Removed closeVotingForExpiredCycles function
-
-// You can add other functions below, like order closing, etc.

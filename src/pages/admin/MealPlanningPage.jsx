@@ -139,7 +139,7 @@ function MealPlanningPage() {
 
         // Dates are already Date objects from MUI Pickers
         const cycleData = {
-            status: 'planned', // Initial status: recipe chosen, ready for orders
+            status: 'ordering_open', // Updated initial status: ready for orders
             chosenRecipe: { // Store the chosen recipe details
                  recipeId: selectedRecipe.id,
                  recipeName: selectedRecipe.name,
@@ -154,7 +154,7 @@ function MealPlanningPage() {
             const cyclesRef = collection(db, 'mealCycles');
             const docRef = await addDoc(cyclesRef, cycleData);
             console.log("Meal Cycle created with ID: ", docRef.id);
-            setSuccess(`New Meal Cycle planned successfully with recipe: ${selectedRecipe.name}. ID: ${docRef.id}`);
+            setSuccess(`New Meal Cycle created (Status: Ordering Open) with recipe: ${selectedRecipe.name}. ID: ${docRef.id}`); // Updated success message
             // Optionally clear form
             setSelectedRecipeId('');
             setOrderDeadline(null);

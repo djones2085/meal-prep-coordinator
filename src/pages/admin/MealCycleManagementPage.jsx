@@ -7,9 +7,9 @@ import {
     Select, MenuItem, Button, FormControl
 } from '@mui/material';
 
-// Define possible statuses
+// Define possible statuses (Removed voting-related and planning statuses)
 const cycleStatuses = [
-    'planning', 'voting_open', 'voting_closed', 'ordering_open', 'ordering_closed',
+    'ordering_open', 'ordering_closed',
     'shopping', 'cooking', 'packaging', 'distributing', 'completed', 'cancelled'
 ];
 
@@ -35,7 +35,6 @@ function MealCycleManagementPage() {
                          ...data,
                          // Convert timestamps for display if needed
                          creationDate: data.creationDate?.toDate ? data.creationDate.toDate().toLocaleDateString() : 'N/A',
-                         votingDeadline: data.votingDeadline?.toDate ? data.votingDeadline.toDate().toLocaleString() : 'N/A',
                          orderDeadline: data.orderDeadline?.toDate ? data.orderDeadline.toDate().toLocaleString() : 'N/A',
                          targetCookDate: data.targetCookDate?.toDate ? data.targetCookDate.toDate().toLocaleDateString() : 'N/A',
                      }
@@ -96,9 +95,7 @@ function MealCycleManagementPage() {
                             <TableRow>
                                 <TableCell>ID</TableCell>
                                 <TableCell>Status</TableCell>
-                                <TableCell>Proposed Recipes</TableCell>
                                 <TableCell>Chosen Recipe</TableCell>
-                                <TableCell>Voting Deadline</TableCell>
                                 <TableCell>Order Deadline</TableCell>
                                 <TableCell>Cook Date</TableCell>
                                 <TableCell>Created</TableCell>
@@ -112,11 +109,7 @@ function MealCycleManagementPage() {
                                         {cycle.id}
                                     </TableCell>
                                     <TableCell>{cycle.status}</TableCell>
-                                     <TableCell>
-                                         {cycle.proposedRecipes?.map(r => r.recipeName).join(', ') || 'N/A'}
-                                    </TableCell>
-                                     <TableCell>{cycle.chosenRecipeId || 'N/A'}</TableCell> {/* TODO: Fetch name? */}
-                                     <TableCell>{cycle.votingDeadline}</TableCell>
+                                     <TableCell>{cycle.chosenRecipe?.recipeName || 'N/A'}</TableCell>
                                     <TableCell>{cycle.orderDeadline}</TableCell>
                                      <TableCell>{cycle.targetCookDate}</TableCell>
                                     <TableCell>{cycle.creationDate}</TableCell>
@@ -128,7 +121,7 @@ function MealCycleManagementPage() {
                                                 disabled={updatingStatus[cycle.id]}
                                              >
                                                 {cycleStatuses.map(status => (
-                                                     <MenuItem key={status} value={status}>{status}</MenuItem>
+                                                     <MenuItem key={status} value={status}>{status.replace('_', ' ')}</MenuItem>
                                                 ))}
                                             </Select>
                                             {updatingStatus[cycle.id] && <CircularProgress size={16} sx={{ position: 'absolute', top: '50%', left: '50%', marginTop: '-8px', marginLeft: '-8px' }} />}
