@@ -7,15 +7,27 @@ import {
     Container, Typography, Box, Paper, CircularProgress, Alert,
     TableContainer, Table, TableHead, TableRow, TableCell, TableBody,
     Select, MenuItem, Button, FormControl,
-    Snackbar // For feedback on manual trigger
+    Snackbar, // For feedback on manual trigger
+    Tooltip // Import Tooltip for potentially longer protein lists
 } from '@mui/material';
 import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline'; // Icon for trigger button
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'; // Optional: Icon for tooltip
 
 // Define possible statuses (Removed voting-related and planning statuses)
 const cycleStatuses = [
     'ordering_open', 'ordering_closed',
     'shopping', 'cooking', 'packaging', 'distributing', 'completed', 'cancelled'
 ];
+
+// Helper function to format protein counts
+const formatProteinCounts = (counts) => {
+    if (!counts || typeof counts !== 'object' || Object.keys(counts).length === 0) {
+        return '-'; // Return hyphen if no counts or invalid format
+    }
+    return Object.entries(counts)
+        .map(([protein, count]) => `${protein}: ${count}`)
+        .join(', ');
+};
 
 function MealCycleManagementPage() {
     const [cycles, setCycles] = useState([]);
@@ -151,6 +163,7 @@ function MealCycleManagementPage() {
                                 <TableCell>Status</TableCell>
                                 <TableCell>Chosen Recipe</TableCell>
                                 <TableCell>Total Servings</TableCell>
+                                <TableCell>Protein Counts</TableCell>
                                 <TableCell>Dine-In #</TableCell>
                                 <TableCell>Carry-Out #</TableCell>
                                 <TableCell>Order Deadline</TableCell>
@@ -160,52 +173,68 @@ function MealCycleManagementPage() {
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {cycles.map((cycle) => (
-                                <TableRow key={cycle.id}>
-                                    <TableCell component="th" scope="row" sx={{fontSize: '0.75rem'}}>
-                                        {cycle.id}
-                                    </TableCell>
-                                    <TableCell>{cycle.status}</TableCell>
-                                    <TableCell>{cycle.chosenRecipe?.recipeName || 'N/A'}</TableCell>
-                                    <TableCell>{cycle.totalMealCounts ?? '-'}</TableCell>
-                                    <TableCell>{cycle.dineInContainers ?? '-'}</TableCell>
-                                    <TableCell>{cycle.carryOutContainers ?? '-'}</TableCell>
-                                    <TableCell>{cycle.orderDeadline}</TableCell>
-                                    <TableCell>{cycle.targetCookDate}</TableCell>
-                                    <TableCell>{cycle.creationDate}</TableCell>
-                                    <TableCell>
-                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                            {/* Status Dropdown */}
-                                            <FormControl size="small" sx={{minWidth: 150}}>
-                                                <Select
-                                                   value={cycle.status}
-                                                   onChange={(e) => handleStatusChange(cycle.id, e.target.value)}
-                                                   disabled={updatingStatus[cycle.id]}
-                                                >
-                                                   {cycleStatuses.map(status => (
-                                                        <MenuItem key={status} value={status}>{status.replace('_', ' ')}</MenuItem>
-                                                   ))}
-                                               </Select>
-                                               {updatingStatus[cycle.id] && <CircularProgress size={16} sx={{ position: 'absolute', top: '50%', left: '50%', marginTop: '-8px', marginLeft: '-8px' }} />}
-                                           </FormControl>
-                                            {/* Manual Trigger Button - Show if aggregation fields are missing? Or specific statuses? */}
-                                            {/* Let's show if status is 'ordering_open' or 'ordering_closed' AND aggregation data missing */}
-                                            {(cycle.status === 'ordering_open' || cycle.status === 'ordering_closed') && cycle.totalMealCounts === undefined && (
-                                                <Button
-                                                    variant="outlined"
-                                                    size="small"
-                                                    startIcon={triggeringAggregation[cycle.id] ? <CircularProgress size={16} /> : <PlayCircleOutlineIcon />}
-                                                    onClick={() => handleManualTrigger(cycle.id)}
-                                                    disabled={triggeringAggregation[cycle.id] || updatingStatus[cycle.id]}
-                                                    sx={{ whiteSpace: 'nowrap' }} // Prevent wrapping
-                                                >
-                                                    {triggeringAggregation[cycle.id] ? 'Triggering...' : 'Aggregate'}
-                                                </Button>
+                            {cycles.map((cycle) => {
+                                const proteinCountsString = formatProteinCounts(cycle.totalCountsByProtein);
+                                return (
+                                    <TableRow key={cycle.id}>
+                                        <TableCell component="th" scope="row" sx={{ fontSize: '0.75rem' }}>
+                                            {cycle.id}
+                                        </TableCell>
+                                        <TableCell>{cycle.status}</TableCell>
+                                        <TableCell>{cycle.chosenRecipe?.recipeName || 'N/A'}</TableCell>
+                                        <TableCell>{cycle.totalMealCounts ?? '-'}</TableCell>
+                                        <TableCell>
+                                            {proteinCountsString.length > 25 ? (
+                                                 <Tooltip title={proteinCountsString} placement="top">
+                                                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                                                        <Typography variant="body2" noWrap sx={{ maxWidth: '150px', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                                            {proteinCountsString}
+                                                         </Typography>
+                                                     </Box>
+                                                 </Tooltip>
+                                            ) : (
+                                                proteinCountsString
                                             )}
-                                        </Box>
-                                    </TableCell>
-                                </TableRow>
-                            ))}
+                                        </TableCell>
+                                        <TableCell>{cycle.dineInContainers ?? '-'}</TableCell>
+                                        <TableCell>{cycle.carryOutContainers ?? '-'}</TableCell>
+                                        <TableCell>{cycle.orderDeadline}</TableCell>
+                                        <TableCell>{cycle.targetCookDate}</TableCell>
+                                        <TableCell>{cycle.creationDate}</TableCell>
+                                        <TableCell>
+                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                                {/* Status Dropdown */}
+                                                <FormControl size="small" sx={{minWidth: 150}}>
+                                                    <Select
+                                                       value={cycle.status}
+                                                       onChange={(e) => handleStatusChange(cycle.id, e.target.value)}
+                                                       disabled={updatingStatus[cycle.id]}
+                                                    >
+                                                       {cycleStatuses.map(status => (
+                                                            <MenuItem key={status} value={status}>{status.replace('_', ' ')}</MenuItem>
+                                                       ))}
+                                                   </Select>
+                                                   {updatingStatus[cycle.id] && <CircularProgress size={16} sx={{ position: 'absolute', top: '50%', left: '50%', marginTop: '-8px', marginLeft: '-8px' }} />}
+                                               </FormControl>
+                                                {/* Manual Trigger Button - Show if aggregation fields are missing? Or specific statuses? */}
+                                                {/* Let's show if status is 'ordering_open' or 'ordering_closed' AND aggregation data missing */}
+                                                {(cycle.status === 'ordering_open' || cycle.status === 'ordering_closed') && cycle.totalMealCounts === undefined && (
+                                                    <Button
+                                                        variant="outlined"
+                                                        size="small"
+                                                        startIcon={triggeringAggregation[cycle.id] ? <CircularProgress size={16} /> : <PlayCircleOutlineIcon />}
+                                                        onClick={() => handleManualTrigger(cycle.id)}
+                                                        disabled={triggeringAggregation[cycle.id] || updatingStatus[cycle.id]}
+                                                        sx={{ whiteSpace: 'nowrap' }} // Prevent wrapping
+                                                    >
+                                                        {triggeringAggregation[cycle.id] ? 'Triggering...' : 'Aggregate'}
+                                                    </Button>
+                                                )}
+                                            </Box>
+                                        </TableCell>
+                                    </TableRow>
+                                );
+                            })}
                         </TableBody>
                     </Table>
                 </TableContainer>
