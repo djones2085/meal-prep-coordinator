@@ -39,6 +39,7 @@ function SignUpPage() {
         email: user.email,
         displayName: displayName.trim(), // Use the name from the form
         roles: ['eater'], // Default role
+        locationStatus: 'carry_out', // Default location preference
         householdId: null, // Not assigned initially
         creationDate: serverTimestamp(), // Use server timestamp
         notificationPrefs: {}, // Default empty preferences

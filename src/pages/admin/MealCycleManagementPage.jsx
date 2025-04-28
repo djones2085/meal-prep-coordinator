@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { collection, getDocs, query, orderBy, doc, updateDoc } from 'firebase/firestore';
-import { db } from '../../firebaseConfig';
+// Import Firebase functions instance for calling callable functions
+import { getFunctions, httpsCallable } from "firebase/functions"; 
+import { db, functions as functionsInstance } from '../../firebaseConfig'; // Import functionsInstance
 import {
     Container, Typography, Box, Paper, CircularProgress, Alert,
     TableContainer, Table, TableHead, TableRow, TableCell, TableBody,
-    Select, MenuItem, Button, FormControl
+    Select, MenuItem, Button, FormControl,
+    Snackbar // For feedback on manual trigger
 } from '@mui/material';
+import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline'; // Icon for trigger button
 
 // Define possible statuses (Removed voting-related and planning statuses)
 const cycleStatuses = [
@@ -18,6 +22,10 @@ function MealCycleManagementPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [updatingStatus, setUpdatingStatus] = useState({}); // Track loading state per cycle { cycleId: boolean }
+    const [triggeringAggregation, setTriggeringAggregation] = useState({}); // Track loading state for manual trigger { cycleId: boolean }
+    const [snackbarOpen, setSnackbarOpen] = useState(false);
+    const [snackbarMessage, setSnackbarMessage] = useState('');
+    const [snackbarSeverity, setSnackbarSeverity] = useState('success'); // 'success' or 'error'
 
     useEffect(() => {
         const fetchCycles = async () => {
@@ -77,6 +85,52 @@ function MealCycleManagementPage() {
         }
     };
 
+    // Function to call the HTTPS callable function
+    const handleManualTrigger = async (cycleId) => {
+        if (!cycleId) return;
+
+        setTriggeringAggregation(prev => ({ ...prev, [cycleId]: true }));
+        setError(''); // Clear general errors
+
+        try {
+            const requestManualAggregation = httpsCallable(functionsInstance, 'requestManualAggregation');
+            const result = await requestManualAggregation({ mealCycleId: cycleId });
+
+            console.log("Manual aggregation trigger result:", result.data);
+            setSnackbarMessage(result.data.message || 'Aggregation successfully requested.');
+            setSnackbarSeverity('success');
+            setSnackbarOpen(true);
+
+        } catch (err) {
+            console.error(`Error triggering manual aggregation for cycle ${cycleId}:`, err);
+            let userMessage = `Failed to trigger aggregation for cycle ${cycleId}.`;
+            if (err instanceof Error && 'code' in err && 'message' in err) {
+                // Handle specific HttpsError codes if needed
+                if (err.code === 'permission-denied') {
+                    userMessage = 'Permission denied. You must be an admin.';
+                } else {
+                    userMessage = `${userMessage} (${err.message})`;
+                }
+            } else if (err instanceof Error) {
+                 userMessage = `${userMessage} (${err.message})`;
+            }
+            
+            setSnackbarMessage(userMessage);
+            setSnackbarSeverity('error');
+            setSnackbarOpen(true);
+            // Keep the main error display for persistent errors if needed
+            // setError(userMessage);
+        } finally {
+            setTriggeringAggregation(prev => ({ ...prev, [cycleId]: false }));
+        }
+    };
+
+     const handleCloseSnackbar = (event, reason) => {
+        if (reason === 'clickaway') {
+        return;
+        }
+        setSnackbarOpen(false);
+    };
 
     return (
         <Container maxWidth="lg">
@@ -96,6 +150,9 @@ function MealCycleManagementPage() {
                                 <TableCell>ID</TableCell>
                                 <TableCell>Status</TableCell>
                                 <TableCell>Chosen Recipe</TableCell>
+                                <TableCell>Total Servings</TableCell>
+                                <TableCell>Dine-In #</TableCell>
+                                <TableCell>Carry-Out #</TableCell>
                                 <TableCell>Order Deadline</TableCell>
                                 <TableCell>Cook Date</TableCell>
                                 <TableCell>Created</TableCell>
@@ -109,30 +166,61 @@ function MealCycleManagementPage() {
                                         {cycle.id}
                                     </TableCell>
                                     <TableCell>{cycle.status}</TableCell>
-                                     <TableCell>{cycle.chosenRecipe?.recipeName || 'N/A'}</TableCell>
+                                    <TableCell>{cycle.chosenRecipe?.recipeName || 'N/A'}</TableCell>
+                                    <TableCell>{cycle.totalMealCounts ?? '-'}</TableCell>
+                                    <TableCell>{cycle.dineInContainers ?? '-'}</TableCell>
+                                    <TableCell>{cycle.carryOutContainers ?? '-'}</TableCell>
                                     <TableCell>{cycle.orderDeadline}</TableCell>
-                                     <TableCell>{cycle.targetCookDate}</TableCell>
+                                    <TableCell>{cycle.targetCookDate}</TableCell>
                                     <TableCell>{cycle.creationDate}</TableCell>
                                     <TableCell>
-                                         <FormControl size="small" sx={{minWidth: 150}}>
-                                             <Select
-                                                value={cycle.status}
-                                                onChange={(e) => handleStatusChange(cycle.id, e.target.value)}
-                                                disabled={updatingStatus[cycle.id]}
-                                             >
-                                                {cycleStatuses.map(status => (
-                                                     <MenuItem key={status} value={status}>{status.replace('_', ' ')}</MenuItem>
-                                                ))}
-                                            </Select>
-                                            {updatingStatus[cycle.id] && <CircularProgress size={16} sx={{ position: 'absolute', top: '50%', left: '50%', marginTop: '-8px', marginLeft: '-8px' }} />}
-                                        </FormControl>
-                                     </TableCell>
+                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                            {/* Status Dropdown */}
+                                            <FormControl size="small" sx={{minWidth: 150}}>
+                                                <Select
+                                                   value={cycle.status}
+                                                   onChange={(e) => handleStatusChange(cycle.id, e.target.value)}
+                                                   disabled={updatingStatus[cycle.id]}
+                                                >
+                                                   {cycleStatuses.map(status => (
+                                                        <MenuItem key={status} value={status}>{status.replace('_', ' ')}</MenuItem>
+                                                   ))}
+                                               </Select>
+                                               {updatingStatus[cycle.id] && <CircularProgress size={16} sx={{ position: 'absolute', top: '50%', left: '50%', marginTop: '-8px', marginLeft: '-8px' }} />}
+                                           </FormControl>
+                                            {/* Manual Trigger Button - Show if aggregation fields are missing? Or specific statuses? */}
+                                            {/* Let's show if status is 'ordering_open' or 'ordering_closed' AND aggregation data missing */}
+                                            {(cycle.status === 'ordering_open' || cycle.status === 'ordering_closed') && cycle.totalMealCounts === undefined && (
+                                                <Button
+                                                    variant="outlined"
+                                                    size="small"
+                                                    startIcon={triggeringAggregation[cycle.id] ? <CircularProgress size={16} /> : <PlayCircleOutlineIcon />}
+                                                    onClick={() => handleManualTrigger(cycle.id)}
+                                                    disabled={triggeringAggregation[cycle.id] || updatingStatus[cycle.id]}
+                                                    sx={{ whiteSpace: 'nowrap' }} // Prevent wrapping
+                                                >
+                                                    {triggeringAggregation[cycle.id] ? 'Triggering...' : 'Aggregate'}
+                                                </Button>
+                                            )}
+                                        </Box>
+                                    </TableCell>
                                 </TableRow>
                             ))}
                         </TableBody>
                     </Table>
                 </TableContainer>
             )}
+             {/* Snackbar for feedback */}
+            <Snackbar 
+                open={snackbarOpen} 
+                autoHideDuration={6000} 
+                onClose={handleCloseSnackbar}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+            >
+                <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity} sx={{ width: '100%' }}>
+                    {snackbarMessage}
+                </Alert>
+            </Snackbar>
         </Container>
     );
 }
