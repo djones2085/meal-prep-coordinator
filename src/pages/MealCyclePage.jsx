@@ -98,8 +98,8 @@ function MealCyclePage() {
     }, []);
 
     return (
-        <Container maxWidth="lg">
-            <Typography variant="h4" component="h1" gutterBottom sx={{ mt: 3, mb: 2 }}>
+        <Container maxWidth="lg" sx={{ px: { xs: 2, sm: 3 }, mb: 4 }}>
+            <Typography variant="h4" component="h1" gutterBottom sx={{ my: { xs: 3, md: 4 } }}>
                 Current Meal Cycle Details
             </Typography>
 

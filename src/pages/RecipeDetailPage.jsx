@@ -183,8 +183,8 @@ function RecipeDetailPage() {
     };
 
     return (
-        <Container maxWidth="md"> {/* Increased max width for better layout */}
-            <Typography variant="h4" component="h1" gutterBottom>
+        <Container maxWidth="md" sx={{ px: { xs: 2, sm: 3 } }}> {/* Add responsive horizontal padding */}
+            <Typography variant="h4" component="h1" gutterBottom sx={{ my: { xs: 3, md: 4 } }}> {/* Responsive vertical margin */}
                 Recipe Detail
             </Typography>
 
@@ -222,7 +222,14 @@ function RecipeDetailPage() {
                     <Divider sx={{ my: 2 }} />
 
                     {/* --- Action Buttons --- */}
-                    <Box sx={{ my: 2, display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                    {/* Stack vertically on xs screens */}
+                    <Box sx={{
+                        my: 2,
+                        display: 'flex',
+                        gap: 2, // Increase gap slightly
+                        flexDirection: { xs: 'column', sm: 'row' }, // Stack on xs, row otherwise
+                        alignItems: { xs: 'flex-start', sm: 'center' } // Align items differently based on direction
+                    }}>
                          <TextField
                              label="Yield"
                              type="number"
@@ -230,7 +237,9 @@ function RecipeDetailPage() {
                              value={displayYield}
                              onChange={handleYieldChange}
                              InputProps={{ inputProps: { min: 1 } }}
-                             sx={{ maxWidth: '100px', mr: 1 }}
+                             // sx={{ maxWidth: '100px', mr: 1 }}
+                             // Let flexbox handle spacing, adjust max width if needed on xs
+                             sx={{ maxWidth: { xs: '150px', sm: '100px' } }}
                              helperText={recipe.baseYieldUnit || 'servings'}
                          />
                          <ButtonGroup variant="outlined" aria-label="recipe actions">
