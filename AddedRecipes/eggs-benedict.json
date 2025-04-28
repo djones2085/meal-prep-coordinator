@@ -1,0 +1,46 @@
+{
+  "name": "High-End Eggs Benedict",
+  "description": "Classic Eggs Benedict featuring perfectly poached eggs, silky hollandaise, and a choice of premium protein, served on homemade biscuits or English muffins.",
+  "status": "approved",
+  "baseYield": 4,
+  "baseYieldUnit": "servings (2 per person)",
+  "prepTime": "30 minutes (assuming base/sauce are ready)",
+  "cookTime": "10 minutes (poaching/assembly)",
+  "ingredients": [
+    { "name": "Homemade Buttermilk Biscuits OR English Muffins", "quantity": 4, "unit": "unit", "notes": "Split horizontally. See separate recipes." },
+    { "name": "Large Eggs (for poaching)", "quantity": 8, "unit": "unit", "notes": "Very fresh recommended" },
+    { "name": "White Vinegar", "quantity": 1, "unit": "tbsp", "notes": "For poaching water" },
+    { "name": "Large Egg Yolks (for hollandaise)", "quantity": 3, "unit": "unit" },
+    { "name": "Lemon Juice", "quantity": 1, "unit": "tbsp", "notes": "Freshly squeezed, for hollandaise" },
+    { "name": "Dijon Mustard", "quantity": 0.5, "unit": "tsp", "notes": "For hollandaise" },
+    { "name": "Unsalted Butter (for hollandaise)", "quantity": 1, "unit": "stick", "notes": "115g, melted and warm" },
+    { "name": "Cayenne Pepper", "quantity": 0, "unit": "pinch", "notes": "For hollandaise" },
+    { "name": "Kosher Salt", "quantity": 0, "unit": "to taste" },
+    { "name": "Choice of Protein", "quantity": 0, "unit": "unit", "notes": "See Protein Options section & instructions" },
+    { "name": "Garnish", "quantity": 0, "unit": "unit", "notes": "e.g., Chives, microgreens, caviar, paprika" }
+  ],
+  "proteinOptions": [
+    { "optionName": "Canadian Bacon", "ingredients": [{"name": "Thick-cut Canadian Bacon", "quantity": 4, "unit": "slices" }], "instructions": ["Sear slices in a hot skillet, 1–2 minutes per side until edges are crispy."] },
+    { "optionName": "Smoked Salmon", "ingredients": [{"name": "High-quality Smoked Salmon", "quantity": 4, "unit": "oz", "notes":"Thinly sliced lox style" }], "instructions": ["Drape slices over the base."] },
+    { "optionName": "Lobster", "ingredients": [{"name": "Cooked Lobster Meat", "quantity": 4, "unit": "oz", "notes":"From ~2 small tails" }, {"name": "Lemon Zest", "quantity":0, "unit":"pinch"}, {"name":"Melted Butter", "quantity":1, "unit":"tsp"}], "instructions": ["Poach/steam tails if raw. Chop coarsely, toss gently with lemon zest and melted butter."] },
+    { "optionName": "Crab Cake", "ingredients": [{"name": "Mini Crab Cakes", "quantity": 4, "unit": "unit", "notes":"Approx 1 oz each"}], "instructions": ["Make or buy mini crab cakes. Pan-fry until golden brown and heated through."] }
+  ],
+  "instructions": [
+    "Prepare Base: Have 4 split Buttermilk Biscuits or English Muffins ready. Toast lightly if desired.",
+    "Prepare Protein: Cook/prepare your chosen protein according to the Protein Options section (e.g., sear Canadian bacon, warm lobster).",
+    "Make Hollandaise: Fill a saucepan with 1 inch water, simmer. Place a heatproof bowl over (not touching water). Whisk egg yolks, lemon juice, Dijon until slightly thickened. Slowly whisk in warm melted butter until emulsified and glossy. Season with cayenne and salt. Thin with 1-2 tsp warm water if needed. Keep warm over water bath (off heat).",
+    "Poach Eggs: Bring a wide pan of water with vinegar and salt to a gentle simmer (~190°F/88°C). Crack eggs into individual small bowls. Create a gentle whirlpool. Slide eggs in (up to 4 at a time). Poach 3-4 minutes for runny yolks. Remove with slotted spoon, drain on paper towels.",
+    "Assemble: Place 2 base halves on each plate. Top each half with prepared protein. Gently place a poached egg on top of the protein.",
+    "Sauce: Generously spoon warm hollandaise over each egg (~2 tbsp per egg).",
+    "Garnish: Finish with finely chopped chives, microgreens, a tiny dot of caviar, or a dusting of smoked paprika."
+  ],
+  "tags": ["eggs benedict", "brunch", "breakfast", "hollandaise", "poached egg", "classic", "special occasion"],
+  "cookNotes": [
+    "Assumes biscuits/muffins are pre-made. See separate recipes.",
+    "Use the freshest eggs possible for best poaching results.",
+    "Make hollandaise last; it's best served warm and doesn't hold well for long periods.",
+    "Quality ingredients (eggs, butter, protein) elevate the dish significantly."
+  ],
+  "imageUrl": "",
+  "timesPrepared": 0
+} 

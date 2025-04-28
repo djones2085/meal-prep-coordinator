@@ -1,0 +1,39 @@
+{
+  "name": "Homemade English Muffins",
+  "description": "Classic English muffins with characteristic nooks and crannies, ideal for Eggs Benedict.",
+  "status": "component",
+  "baseYield": 8,
+  "baseYieldUnit": "muffins (approx 4 servings)",
+  "prepTime": "30 minutes",
+  "cookTime": "15-20 minutes (plus 1.5-2 hours rise/rest)",
+  "ingredients": [
+    { "name": "Bread Flour", "quantity": 3.5, "unit": "cups", "notes": "420g" },
+    { "name": "Active Dry Yeast", "quantity": 1, "unit": "tbsp" },
+    { "name": "Granulated Sugar", "quantity": 1, "unit": "tbsp" },
+    { "name": "Kosher Salt", "quantity": 1, "unit": "tsp" },
+    { "name": "Milk", "quantity": 1.25, "unit": "cups", "notes": "300ml, warmed to 110°F/45°C" },
+    { "name": "Unsalted Butter", "quantity": 2, "unit": "tbsp", "notes": "Melted" },
+    { "name": "Cornmeal", "quantity": 0, "unit": "unit", "notes": "For dusting" }
+  ],
+  "proteinOptions": [],
+  "instructions": [
+    "Activate Yeast: In a small bowl, combine yeast, sugar, and 1/4 cup of the warm milk. Let stand for 5 minutes until foamy.",
+    "Mix Dough: In a large bowl (or stand mixer bowl), whisk together bread flour and salt. Add the yeast mixture, remaining 1 cup warm milk, and melted butter. Stir until a shaggy dough forms.",
+    "Knead: Turn dough onto a lightly floured surface. Knead for 8–10 minutes until smooth, elastic, and slightly tacky. (Alternatively, use a stand mixer with a dough hook on medium-low speed for 6-8 minutes).",
+    "First Rise: Place dough in a lightly greased bowl, turning to coat. Cover the bowl with plastic wrap or a damp cloth. Let rise in a warm place for 1 to 1.5 hours, or until doubled in size.",
+    "Shape: Gently punch down the risen dough. Turn out onto a surface lightly dusted with cornmeal. Roll or pat the dough out to about ½-inch thickness.",
+    "Cut: Using a 3½-inch round cutter, cut out about 8 muffins. Dust the tops lightly with more cornmeal.",
+    "Second Rest: Place the cut muffins on a baking sheet generously dusted with cornmeal, ensuring they don't touch. Cover loosely with plastic wrap or a cloth. Let rest for 30 minutes.",
+    "Cook: Heat a large, dry cast-iron skillet or griddle over medium-low heat. Carefully place muffins onto the hot skillet (do not overcrowd). Cook for 5–7 minutes per side, until golden brown and cooked through (internal temperature should reach ~200°F/93°C). Adjust heat as needed to prevent burning; they cook slowly.",
+    "Cool: Transfer cooked muffins to a wire rack to cool completely.",
+    "Serve: Split muffins horizontally with a fork (not a knife) to preserve the nooks and crannies just before toasting or serving."
+  ],
+  "tags": ["english muffin", "bread", "component", "breakfast", "yeast"],
+  "cookNotes": [
+    "Cook low and slow for even browning and proper internal cooking.",
+    "Splitting with a fork creates the best texture.",
+    "Store cooled muffins in an airtight container for a few days or freeze."
+  ],
+  "imageUrl": "",
+  "timesPrepared": 0
+} 

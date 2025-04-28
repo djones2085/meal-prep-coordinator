@@ -1,0 +1,43 @@
+{
+  "name": "Truffled Hash Browns",
+  "description": "Crispy hash brown patties infused with truffle oil or fresh truffle. Great as a side dish.",
+  "status": "testing",
+  "baseYield": 4,
+  "baseYieldUnit": "servings (side)",
+  "prepTime": "15 minutes",
+  "cookTime": "15 minutes",
+  "ingredients": [
+    { "name": "Russet Potatoes", "quantity": 1.5, "unit": "lb", "notes": "Approx 2 large, peeled" },
+    { "name": "Shallot", "quantity": 1, "unit": "small", "notes": "Finely grated, optional" },
+    { "name": "Kosher Salt", "quantity": 1, "unit": "tsp" },
+    { "name": "Black Pepper", "quantity": 0.5, "unit": "tsp" },
+    { "name": "Cornstarch or Potato Starch", "quantity": 2, "unit": "tbsp" },
+    { "name": "Unsalted Butter", "quantity": 3, "unit": "tbsp", "notes": "Divided" },
+    { "name": "Neutral Oil", "quantity": 2, "unit": "tbsp", "notes": "e.g., avocado, grapeseed" },
+    { "name": "Truffle Oil", "quantity": 1, "unit": "tsp", "notes": "1-2 tsp range. White or black. OR 1 tbsp fresh chopped truffle." },
+    { "name": "Fresh Chives", "quantity": 1, "unit": "tbsp", "notes": "Finely chopped, optional garnish" },
+    { "name": "Flaky Sea Salt", "quantity": 0, "unit": "pinch", "notes": "Optional garnish" },
+    { "name": "Grated Parmesan", "quantity": 0.25, "unit": "cup", "notes": "Optional, for mixing into patties" }
+  ],
+  "proteinOptions": [],
+  "instructions": [
+    "Prep Potatoes: Grate peeled potatoes using a box grater's coarse side. Place grated potato in a clean kitchen towel, twist, and squeeze firmly to remove as much liquid as possible (crucial for crispiness).",
+    "Season: In a large bowl, mix the squeezed grated potatoes, grated shallot (if using), 1 tsp kosher salt, 1/2 tsp black pepper, and cornstarch. Toss gently to coat evenly.",
+    "Form Patties: Divide mixture into 4 large or 8 small portions. Press firmly into flat, compact patties (about ½-inch thick) on a parchment-lined tray.",
+    "Heat Pan: In a large cast-iron or nonstick skillet, heat 1 tbsp butter and 1 tbsp neutral oil over medium-high heat until the butter melts and the oil shimmers.",
+    "Fry Patties: Carefully place patties in the hot skillet, leaving space between them (work in batches if needed). Cook for 4–5 minutes per side until deep golden brown and crispy, pressing gently with a spatula occasionally. Add remaining 1 tbsp butter and 1 tbsp oil for the second batch if necessary.",
+    "Keep Warm (Optional): If cooking in batches, keep cooked patties warm on a wire rack set over a baking sheet in a 200°F (93°C) oven.",
+    "Infuse Truffle: Transfer hot hash browns to a plate or bowl. Immediately drizzle with truffle oil (or sprinkle with finely chopped fresh truffle). Toss gently to coat.",
+    "Garnish: Sprinkle with chopped fresh chives (if using) and a pinch of flaky sea salt (if using).",
+    "Serve: Serve immediately for maximum crispiness.",
+    "Variation Note: For Parmesan version, mix 1/4 cup grated Parmesan into the potato mixture in Step 2 before forming patties."
+  ],
+  "tags": ["potato", "hash browns", "truffle", "side dish", "breakfast", "brunch", "vegetarian"],
+  "cookNotes": [
+    "Squeezing water from potatoes is the most critical step for crispiness.",
+    "Use truffle oil sparingly; it's potent. Quality matters.",
+    "Patties can be formed up to 4 hours ahead and refrigerated, covered. Fry just before serving."
+  ],
+  "imageUrl": "",
+  "timesPrepared": 0
+} 

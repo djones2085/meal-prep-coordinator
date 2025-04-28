@@ -1,0 +1,39 @@
+{
+  "name": "Crack Burgers with Mashed Potatoes & Broccoli",
+  "description": "Flavor-packed burgers with ranch, bacon, and cheddar, served alongside creamy mashed potatoes and roasted broccoli.",
+  "status": "testing",
+  "baseYield": 5,
+  "baseYieldUnit": "servings",
+  "prepTime": "30 minutes",
+  "cookTime": "30-40 minutes",
+  "ingredients": [
+    { "name": "Ground Chuck", "quantity": 1.67, "unit": "lb" },
+    { "name": "Sour Cream", "quantity": 0.3, "unit": "cup", "notes": "Approx 5 tbsp" },
+    { "name": "Ranch Dressing Mix", "quantity": 1, "unit": "tbsp" },
+    { "name": "Cooked Bacon", "quantity": 10, "unit": "oz", "notes": "Crumbled (~0.6 lbs)" },
+    { "name": "Shredded Cheddar Cheese", "quantity": 4.7, "unit": "oz", "notes": "~1.25 cups" },
+    { "name": "Yukon Gold Potatoes", "quantity": 2, "unit": "lb", "notes": "Peeled and chunked" },
+    { "name": "Heavy Cream", "quantity": 1, "unit": "cup", "notes": "Warmed" },
+    { "name": "Unsalted Butter", "quantity": 3.3, "unit": "tbsp", "notes": "Melted" },
+    { "name": "Garlic Powder (for potatoes)", "quantity": 1, "unit": "tsp" },
+    { "name": "Onion Powder (for potatoes)", "quantity": 1, "unit": "tsp" },
+    { "name": "Broccoli Florets", "quantity": 1.25, "unit": "lb" },
+    { "name": "Olive Oil (for broccoli)", "quantity": 1.5, "unit": "tbsp" },
+    { "name": "Red Pepper Flakes (for broccoli)", "quantity": 0.25, "unit": "tsp", "notes":"Optional" },
+    { "name": "Salt & Black Pepper", "quantity": 0, "unit": "to taste" }
+  ],
+  "proteinOptions": [],
+  "instructions": [
+    "Prepare Burger Patties: In a large bowl, combine ground chuck, sour cream, ranch mix, crumbled bacon, and cheddar. Mix gently. Form into 5 equal patties.",
+    "Cook Burgers: Preheat grill or skillet (medium-high). Cook patties 4-5 minutes per side or to desired doneness. Keep warm.",
+    "Cook Potatoes: Place peeled, chunked potatoes in a pot, cover with cold salted water. Boil, then simmer until tender (15-20 min).",
+    "Mash Potatoes: Drain cooked potatoes. Return to pot. Add warm cream, melted butter, garlic powder, onion powder. Mash until smooth. Season with salt & pepper.",
+    "Roast Broccoli: Preheat oven to 425°F (220°C). Toss broccoli florets with olive oil, optional red pepper flakes, salt, pepper. Spread on a parchment-lined baking sheet.",
+    "Roast Broccoli (cont.): Roast for 15-20 minutes until tender-crisp and slightly charred.",
+    "Serve: Plate one burger patty with mashed potatoes and roasted broccoli."
+  ],
+  "tags": ["burger", "beef", "bacon", "cheddar", "ranch", "comfort food", "mashed potato", "broccoli"],
+  "cookNotes": ["Original recipe scaled from 20 servings."],
+  "imageUrl": "",
+  "timesPrepared": 0
+} 

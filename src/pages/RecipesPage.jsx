@@ -5,14 +5,17 @@ import { db } from '../firebaseConfig'; // Import db instance
 import {
     Container,
     Typography,
+    CircularProgress,
+    Alert,
+    Box,
     List,
     ListItem,
     ListItemButton,
-    ListItemText,
-    CircularProgress,
-    Alert,
-    Box
+    ListItemText
 } from '@mui/material';
+
+// Placeholder image URL (using Vite logo from public directory)
+const PLACEHOLDER_IMAGE_URL = '/vite.svg';
 
 function RecipesPage() {
     const [recipes, setRecipes] = useState([]);
@@ -49,7 +52,7 @@ function RecipesPage() {
 
     return (
         <Container>
-            <Typography variant="h4" component="h1" gutterBottom>
+            <Typography variant="h4" component="h1" gutterBottom sx={{ my: 2 }}>
                 Recipes
             </Typography>
 
@@ -66,13 +69,12 @@ function RecipesPage() {
             {!loading && !error && (
                 <List>
                     {recipes.length === 0 ? (
-                         <ListItem>
+                        <ListItem>
                             <ListItemText primary="No recipes found." />
-                         </ListItem>
+                        </ListItem>
                     ) : (
                         recipes.map((recipe) => (
                             <ListItem key={recipe.id} disablePadding>
-                                {/* Link to the detail page using the recipe ID */}
                                 <ListItemButton component={RouterLink} to={`/recipes/${recipe.id}`}>
                                     <ListItemText primary={recipe.name || 'Unnamed Recipe'} />
                                 </ListItemButton>

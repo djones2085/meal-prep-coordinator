@@ -1,0 +1,77 @@
+{
+  "name": "Fried Rice Bowls (Beef, Chicken, or Shrimp)",
+  "description": "Your choice of protein stir-fried in a savory chili-garlic sauce, served with crispy-broiled fried rice and veggies.",
+  "status": "testing",
+  "baseYield": 5,
+  "baseYieldUnit": "servings",
+  "prepTime": "20 minutes",
+  "cookTime": "30-40 minutes",
+  "ingredients": [
+    { "name": "Day-Old Cooked Rice", "quantity": 700, "unit": "g", "notes": "Approx 1.5 lbs, cooked from ~300g dry rice" },
+    { "name": "Mixed Frozen Veggies", "quantity": 300, "unit": "g", "notes": "~0.66 lbs" },
+    { "name": "Large Eggs", "quantity": 3, "unit": "unit" },
+    { "name": "Egg Whites", "quantity": 200, "unit": "g", "notes": "~7 oz" },
+    { "name": "Soy Sauce (for rice)", "quantity": 2.33, "unit": "tbsp", "notes": "~2 tbsp + 1 tsp" },
+    { "name": "Fish Sauce", "quantity": 1.17, "unit": "tbsp", "notes": "~1 tbsp + 0.5 tsp" },
+    { "name": "Honey (for rice)", "quantity": 1.75, "unit": "tbsp", "notes": "~1 tbsp + 2 tsp" },
+    { "name": "Rice Vinegar (for rice)", "quantity": 1.17, "unit": "tbsp", "notes": "~1 tbsp + 0.5 tsp" },
+    { "name": "Toasted Sesame Oil (for rice)", "quantity": 1.17, "unit": "tbsp", "notes": "~1 tbsp + 0.5 tsp" },
+    { "name": "Toasted Sesame Oil (additional)", "quantity": 1, "unit": "tbsp" },
+    { "name": "Green Onions", "quantity": 0.5, "unit": "bunch", "notes": "Chopped" },
+    { "name": "Salt & Black Pepper", "quantity": 0, "unit": "to taste" }
+  ],
+  "proteinOptions": [
+    {
+      "optionName": "Beef",
+      "ingredients": [
+        { "name": "Ground Beef", "quantity": 2.5, "unit": "lb" },
+        { "name": "Chili Garlic Sauce", "quantity": 2, "unit": "tbsp" },
+        { "name": "Soy Sauce", "quantity": 1, "unit": "tbsp" },
+        { "name": "Honey", "quantity": 1.5, "unit": "tbsp" },
+        { "name": "Rice Vinegar", "quantity": 0.5, "unit": "tbsp" },
+        { "name": "Minced Ginger", "quantity": 0.5, "unit": "tbsp", "notes": "~1.5 tsp" }
+      ]
+    },
+    {
+      "optionName": "Shrimp",
+      "ingredients": [
+        { "name": "Shrimp", "quantity": 2.5, "unit": "lb", "notes": "Peeled & deveined" },
+        { "name": "Chili Garlic Sauce", "quantity": 2, "unit": "tbsp" },
+        { "name": "Soy Sauce", "quantity": 1, "unit": "tbsp" },
+        { "name": "Honey", "quantity": 1.5, "unit": "tbsp" },
+        { "name": "Rice Vinegar", "quantity": 0.5, "unit": "tbsp" },
+        { "name": "Minced Ginger", "quantity": 0.5, "unit": "tbsp", "notes": "~1.5 tsp" }
+      ]
+    },
+    {
+      "optionName": "Chicken",
+      "ingredients": [
+        { "name": "Chicken Breast or Thigh", "quantity": 2.5, "unit": "lb", "notes": "Cut into pieces" },
+        { "name": "Chili Garlic Sauce", "quantity": 2, "unit": "tbsp" },
+        { "name": "Soy Sauce", "quantity": 1, "unit": "tbsp" },
+        { "name": "Honey", "quantity": 1.5, "unit": "tbsp" },
+        { "name": "Rice Vinegar", "quantity": 0.5, "unit": "tbsp" },
+        { "name": "Minced Ginger", "quantity": 0.5, "unit": "tbsp", "notes": "~1.5 tsp" }
+      ]
+    }
+  ],
+  "instructions": [
+    "Prepare Protein Sauce: For your chosen protein (Beef, Shrimp, or Chicken), combine its specific sauce ingredients listed under Protein Options (Chili Garlic Sauce, Soy Sauce, Honey, Rice Vinegar, Minced Ginger). Season protein with salt & pepper.",
+    "Cook Protein: Cook the chosen protein in a large skillet or wok over medium-high heat until fully cooked. Set aside.",
+    "Broil Rice Base: Preheat oven broiler to HIGH (~525°F). Spread day-old cooked rice evenly on a large sheet pan.",
+    "Broil Rice (Crisping): Place pan under the broiler. Broil for 10-25 minutes, WATCHING CLOSELY and checking every 5 minutes. Scrape edges and mix rice occasionally. Cook until rice has crispy bits and slight browning.",
+    "Broil Veggies: Add mixed frozen veggies over the top of the crispy rice. Return to broiler for another 10-15 minutes until veggies are heated through.",
+    "Prepare Eggs: Whisk whole eggs and egg whites together. Pour onto the same (or another) sheet pan. Bake in the oven (still hot from broil, or adjust temp to ~475°F) for 3-4 minutes or until mostly cooked through. Remove and chop into small pieces.",
+    "Combine Fried Rice: In a large bowl or the skillet used for protein, combine the broiled rice/veggie mixture, the cooked protein, and the chopped eggs.",
+    "Add Seasoning: Add the fried rice seasonings (Soy Sauce, Fish Sauce, Honey, Rice Vinegar, Toasted Sesame Oil - amounts listed in main ingredients) and the additional 1 tbsp Toasted Sesame Oil. Mix thoroughly.",
+    "Garnish & Serve: Stir in most of the chopped green onions. Serve bowls garnished with remaining green onions. Optional: Serve with Low-Calorie Spicy Mayo (mix Skyr/Greek Yogurt, Light Mayo, Gochujang, Sriracha, Rice Vinegar, Salt/Pepper)."
+  ],
+  "tags": ["fried rice", "beef", "chicken", "shrimp", "asian", "bowl", "broiled rice", "meal prep"],
+  "cookNotes": [
+    "Unique broiling method for crispy rice.",
+    "Ensure you use the sauce ingredients listed under your chosen protein option.",
+    "Low-Calorie Spicy Mayo is optional."
+  ],
+  "imageUrl": "",
+  "timesPrepared": 1
+} 
