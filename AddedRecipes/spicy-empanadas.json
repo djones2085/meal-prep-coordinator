@@ -1,0 +1,53 @@
+{
+  "name": "Spicy Beef & Potato Empanadas",
+  "description": "Fried empanadas filled with seasoned ground beef and potatoes. Optional cheese variation included in instructions.",
+  "status": "testing",
+  "baseYield": 5,
+  "baseYieldUnit": "servings (20 empanadas)",
+  "prepTime": "45 minutes",
+  "cookTime": "30 minutes (frying)",
+  "ingredients": [
+    { "name": "Ground Beef", "quantity": 1.875, "unit": "lb" },
+    { "name": "Large Onion", "quantity": 1, "unit": "unit", "notes": "~0.5 lbs, diced" },
+    { "name": "Bell Pepper", "quantity": 1, "unit": "unit", "notes": "~0.5 lbs, diced" },
+    { "name": "Jalapeños", "quantity": 2, "unit": "unit", "notes": "Minced" },
+    { "name": "Garlic", "quantity": 1.875, "unit": "tbsp", "notes": "Minced" },
+    { "name": "Tomato Paste", "quantity": 1.875, "unit": "tbsp" },
+    { "name": "Beef Broth", "quantity": 1, "unit": "cup" },
+    { "name": "Green Onions", "quantity": 0.5, "unit": "cup", "notes": "Chopped" },
+    { "name": "Green Seasoning", "quantity": 1.875, "unit": "tbsp" },
+    { "name": "Ground Cumin", "quantity": 1.875, "unit": "tsp" },
+    { "name": "Garlic Powder", "quantity": 1.875, "unit": "tsp" },
+    { "name": "Potatoes", "quantity": 1, "unit": "lb", "notes": "~2 large, pre-cooked & diced" },
+    { "name": "Sugar", "quantity": 1.875, "unit": "tsp" },
+    { "name": "Shredded Colby Jack Cheese", "quantity": 2.5, "unit": "cups", "notes": "~10 oz. Use only if making cheese version." },
+    { "name": "Empanada Discs", "quantity": 20, "unit": "unit", "notes": "Store-bought or homemade" },
+    { "name": "Frying Oil", "quantity": 0, "unit": "unit", "notes": "For deep frying" },
+    { "name": "All-Purpose Seasoning", "quantity": 0, "unit": "to taste" },
+    { "name": "Salt & Pepper", "quantity": 0, "unit": "to taste" }
+  ],
+  "proteinOptions": [],
+  "instructions": [
+    "Prepare Filling: In a large skillet over medium-high heat, brown ground beef, breaking it up. Drain excess grease.",
+    "Add Veggies: Add diced onions, bell peppers, and jalapeños. Cook until softened (5-7 min).",
+    "Add Aromatics: Stir in minced garlic and tomato paste. Cook 1 minute.",
+    "Simmer Sauce: Pour in beef broth, green onions, green seasoning, cumin, garlic powder, sugar, salt, pepper, and AP seasoning to taste. Simmer 5-10 min until liquid reduces slightly.",
+    "Add Potatoes: Stir in pre-cooked diced potatoes.",
+    "Cool Filling: Remove from heat and let the filling cool slightly.",
+    "Cheese Version Prep: If making the cheese version, stir the shredded cheese into the cooled filling.",
+    "Assemble Empanadas: Place ~1/4 cup of filling (cheese or non-cheese) onto the center of each empanada disc.",
+    "Fold & Seal: Fold the dough over the filling to create a half-moon shape. Press the edges firmly with fingers or crimp with a fork to seal.",
+    "Heat Oil: Heat about 2-3 inches of frying oil in a deep pot or Dutch oven to 350°F (175°C).",
+    "Fry Empanadas: Carefully fry empanadas in batches (don't overcrowd the pot) for 3-5 minutes per side, until golden brown and crispy.",
+    "Drain: Remove fried empanadas with a slotted spoon and drain on a wire rack or paper towels.",
+    "Serve: Serve hot."
+  ],
+  "tags": ["empanada", "beef", "potato", "spicy", "fried", "latin american"],
+  "cookNotes": [
+    "Recipe based on a 5-serving non-cheese version derived from a larger batch cook.",
+    "Cheese amount calculated based on the cheese version of the larger batch.",
+    "Dipping sauce (Mayo, Ketchup, Sriracha, Garlic, Honey, AP Seasoning, Paprika) recommended but not included in ingredients."
+  ],
+  "imageUrl": "",
+  "timesPrepared": 1
+} 

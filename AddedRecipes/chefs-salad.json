@@ -1,0 +1,43 @@
+{
+  "name": "Chef's Salad",
+  "description": "A classic American salad featuring romaine lettuce, diced turkey and ham, hard-boiled egg, cheese, tomatoes, avocado, and other vegetables, served with a simple vinaigrette.",
+  "status": "testing",
+  "baseYield": 1,
+  "baseYieldUnit": "serving",
+  "prepTime": "20 minutes",
+  "cookTime": "0 minutes",
+  "ingredients": [
+    { "name": "Romaine Lettuce", "quantity": 5.7, "unit": "oz", "notes": "Chopped" },
+    { "name": "Cooked Turkey Breast", "quantity": 8, "unit": "oz", "notes": "Diced" },
+    { "name": "Cherry Tomatoes", "quantity": 1.44, "unit": "oz", "notes": "Halved" },
+    { "name": "Hard-Boiled Egg", "quantity": 1, "unit": "unit", "notes": "Peeled and quartered" },
+    { "name": "Shredded Cheddar Cheese", "quantity": 1, "unit": "oz" },
+    { "name": "Diced Ham", "quantity": 2.35, "unit": "oz" },
+    { "name": "Avocado", "quantity": 0.5, "unit": "unit", "notes": "Diced" },
+    { "name": "Shredded Carrots", "quantity": 1, "unit": "oz" },
+    { "name": "Thinly Sliced Red Onion", "quantity": 1, "unit": "oz" },
+    { "name": "Sunflower or Pumpkin Seeds", "quantity": 1.24, "unit": "oz" },
+    { "name": "Olive Oil", "quantity": 2.8, "unit": "tbsp", "notes": "For dressing (~1.4 fl oz)" },
+    { "name": "White or Apple Cider Vinegar", "quantity": 1.5, "unit": "tbsp", "notes": "For dressing (~0.75 fl oz)" },
+    { "name": "Mustard (Dijon or Yellow)", "quantity": 0.75, "unit": "tsp", "notes": "For dressing (~0.25 tbsp)" },
+    { "name": "Honey", "quantity": 0.25, "unit": "tsp", "notes": "For dressing" },
+    { "name": "Garlic Powder", "quantity": 0.25, "unit": "tsp", "notes": "For dressing" },
+    { "name": "Salt & Black Pepper", "quantity": 0, "unit": "to taste", "notes": "For salad and dressing" }
+  ],
+  "instructions": [
+    "Prepare the Dressing: In a small bowl or jar, whisk together olive oil, vinegar, mustard, honey, and garlic powder. Season with salt and pepper to taste. Set aside.",
+    "Prepare Salad Base: In a large bowl or on a plate, create a bed of chopped romaine lettuce. Top with shredded carrots and thinly sliced red onion.",
+    "Arrange Toppings: Artfully arrange the diced turkey, diced ham, quartered hard-boiled egg, halved cherry tomatoes, shredded cheddar cheese, and diced avocado over the lettuce base.",
+    "Add Seeds & Seasoning: Sprinkle the sunflower or pumpkin seeds over the salad. Season lightly with salt and pepper if desired.",
+    "Serve: Drizzle the prepared vinaigrette dressing over the salad just before serving."
+  ],
+  "tags": ["salad", "chef salad", "classic", "american", "turkey", "ham", "egg", "cheese", "lunch", "dinner", "cold", "meal prep component"],
+  "cookNotes": [
+    "Ensure all ingredients are cold for the best experience.",
+    "Hard-boiled eggs, turkey, and ham can be prepared in advance.",
+    "Dice avocado just before serving to prevent browning.",
+    "Assemble salad just before serving to keep lettuce crisp. Dressing can be made ahead and stored separately."
+  ],
+  "imageUrl": "",
+  "timesPrepared": 0
+} 

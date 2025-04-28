@@ -1,0 +1,38 @@
+{
+  "name": "Shrimp & Sausage with Broccoli",
+  "description": "Savory shrimp and smoked sausage stir-fried with tender-crisp broccoli in a honey garlic sauce, served over rice.",
+  "status": "testing",
+  "baseYield": 5,
+  "baseYieldUnit": "servings",
+  "prepTime": "20 minutes",
+  "cookTime": "20 minutes",
+  "ingredients": [
+    { "name": "Large Shrimp", "quantity": 2, "unit": "lb", "notes": "Peeled and deveined" },
+    { "name": "Smoked Sausage", "quantity": 17, "unit": "oz", "notes": "Sliced" },
+    { "name": "Broccoli Florets", "quantity": 2.5, "unit": "cups" },
+    { "name": "Garlic", "quantity": 5, "unit": "cloves", "notes": "Minced" },
+    { "name": "Honey", "quantity": 5, "unit": "tbsp" },
+    { "name": "Low-Sodium Soy Sauce", "quantity": 5, "unit": "tbsp" },
+    { "name": "Olive Oil", "quantity": 1.25, "unit": "tbsp" },
+    { "name": "Lemon Juice", "quantity": 1.25, "unit": "tbsp" },
+    { "name": "Red Pepper Flakes", "quantity": 0.25, "unit": "tsp", "notes": "Optional" },
+    { "name": "Uncooked Rice", "quantity": 1.4, "unit": "cups", "notes": "Yields approx 2.8 cups cooked" },
+    { "name": "Salt", "quantity": 0, "unit": "to taste" },
+    { "name": "Black Pepper", "quantity": 0, "unit": "to taste" },
+    { "name": "Fresh Parsley or Cilantro", "quantity": 0, "unit": "garnish", "notes": "Optional, for garnish" }
+  ],
+  "proteinOptions": [],
+  "instructions": [
+    "Prepare the sauce: In a small bowl, whisk together the honey, soy sauce, minced garlic, lemon juice, and red pepper flakes (if using). Set aside.",
+    "Cook the rice: Prepare the rice according to package instructions.",
+    "Cook the sausage: Heat the olive oil over medium-high heat in a large skillet. Add the sliced sausage and cook for 4-5 minutes, stirring occasionally, until browned on both sides. Remove from the skillet and set aside.",
+    "Cook the shrimp: In the same skillet, add the shrimp. Season with salt and pepper. Cook for 2-3 minutes on each side, until pink and opaque. Remove from the skillet and set aside with the sausage.",
+    "Cook the broccoli: Add the broccoli florets to the skillet and sauté for 4-5 minutes until tender-crisp. Add a splash of water to steam, if needed.",
+    "Combine and cook: Return the sausage and shrimp to the skillet with the broccoli. Pour the honey garlic sauce over the mixture and stir to coat evenly. Cook for an additional 2-3 minutes to thicken the sauce slightly.",
+    "Serve: Serve the honey garlic shrimp, sausage, and broccoli over cooked rice. Garnish with parsley or cilantro if desired."
+  ],
+  "tags": ["shrimp", "sausage", "broccoli", "rice", "stir-fry", "honey garlic", "quick"],
+  "cookNotes": [],
+  "imageUrl": "",
+  "timesPrepared": 0
+} 

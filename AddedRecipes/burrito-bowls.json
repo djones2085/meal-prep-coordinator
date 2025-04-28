@@ -1,0 +1,75 @@
+{
+  "name": "Burrito Bowls (Chicken or Beef)",
+  "description": "Flavorful burrito bowls with seasoned chicken or beef, roasted potatoes, cilantro-lime rice & beans, and fajita-style peppers and onions.",
+  "status": "testing",
+  "baseYield": 1,
+  "baseYieldUnit": "serving",
+  "prepTime": "30 minutes",
+  "cookTime": "30-40 minutes",
+  "ingredients": [
+    { "name": "Cooked Rice", "quantity": 1, "unit": "cup" },
+    { "name": "Pinto Beans", "quantity": 0.4, "unit": "can", "notes": "Approx 1/2 can, drained & rinsed (~6 oz)" },
+    { "name": "Lime Juice (for rice/beans)", "quantity": 1.2, "unit": "tsp" },
+    { "name": "Oil (for rice/beans)", "quantity": 0.6, "unit": "tsp" },
+    { "name": "Fresh Cilantro (for rice/beans)", "quantity": 1.5, "unit": "tbsp", "notes": "Chopped (~0.1 bunch)" },
+    { "name": "Russet Potato", "quantity": 0.6, "unit": "medium", "notes": "Diced" },
+    { "name": "Bell Pepper", "quantity": 0.4, "unit": "medium", "notes": "Sliced" },
+    { "name": "Onion", "quantity": 0.2, "unit": "medium", "notes": "Sliced" },
+    { "name": "Oil (for veggies)", "quantity": 1.2, "unit": "tsp" },
+    { "name": "Lime Juice (for veggies)", "quantity": 0.6, "unit": "tsp" },
+    { "name": "Shredded Monterey Jack Cheese", "quantity": 2, "unit": "tbsp" },
+    { "name": "Salsa", "quantity": 4, "unit": "tbsp", "notes": "1/4 cup" },
+    { "name": "Sour Cream", "quantity": 2, "unit": "tbsp" },
+    { "name": "Salt & Black Pepper", "quantity": 0, "unit": "to taste" }
+  ],
+  "proteinOptions": [
+    {
+      "optionName": "Chicken",
+      "ingredients": [
+        { "name": "Boneless Skinless Chicken Thighs", "quantity": 8, "unit": "oz" },
+        { "name": "Oil", "quantity": 0.6, "unit": "tsp" },
+        { "name": "Lime Juice", "quantity": 1.2, "unit": "tsp" },
+        { "name": "Orange Juice", "quantity": 1.2, "unit": "tsp" },
+        { "name": "Paprika", "quantity": 0.4, "unit": "tsp" },
+        { "name": "Cumin", "quantity": 0.4, "unit": "tsp" },
+        { "name": "Onion Powder", "quantity": 0.4, "unit": "tsp" },
+        { "name": "Garlic Powder", "quantity": 0.4, "unit": "tsp" },
+        { "name": "Ancho Chili Powder", "quantity": 0.4, "unit": "tsp" },
+        { "name": "Salt", "quantity": 0.2, "unit": "tsp" }
+      ]
+    },
+    {
+      "optionName": "Beef",
+      "ingredients": [
+        { "name": "Ground Beef", "quantity": 8, "unit": "oz" },
+        { "name": "Oil", "quantity": 0.6, "unit": "tsp" },
+        { "name": "Lime Juice", "quantity": 1.2, "unit": "tsp" },
+        { "name": "Orange Juice", "quantity": 1.2, "unit": "tsp", "notes":"Optional for beef" },
+        { "name": "Paprika", "quantity": 0.4, "unit": "tsp" },
+        { "name": "Cumin", "quantity": 0.4, "unit": "tsp" },
+        { "name": "Onion Powder", "quantity": 0.4, "unit": "tsp" },
+        { "name": "Garlic Powder", "quantity": 0.4, "unit": "tsp" },
+        { "name": "Ancho Chili Powder", "quantity": 0.4, "unit": "tsp" },
+        { "name": "Salt", "quantity": 0.2, "unit": "tsp" }
+      ]
+    }
+  ],
+  "instructions": [
+    "Prepare Potatoes: Preheat oven to 425°F (218°C) or Air Fryer to 400°F (204°C). Wash and dice potato (0.6 medium per serving). Toss with ~1 tsp oil, salt, and pepper. Roast in oven (~20-25 min) or air fry (~15 min) until tender and slightly crisp.",
+    "Prepare Protein Marinade/Seasoning: In a bowl, mix oil (0.6 tsp), lime juice (1.2 tsp), orange juice (1.2 tsp), paprika, cumin, onion powder, garlic powder, ancho chili powder, and salt (0.2 tsp).",
+    "Cook Chicken: Reserve a spoonful of marinade. Add chicken thighs (8 oz per serving) to the remaining marinade, coat well. Optional: marinate 1-2 hours. Place chicken on a lined baking sheet, smooth side down. Roast at 425°F for 12-14 mins. Remove, chop into large dice, return to pan. Stir in reserved marinade. Broil on top shelf for 5-8 mins until browned, watching carefully.",
+    "Cook Beef: Heat a skillet over medium-high heat. Add ground beef (8 oz per serving). Break apart and cook until browned. Drain excess fat. Stir in the prepared seasoning mix (omit orange juice if preferred). Cook for 1-2 more minutes.",
+    "Cook Peppers & Onions: Heat a large skillet over medium-high heat with oil (1.2 tsp per serving). Add sliced bell pepper (0.4 medium) and onion (0.2 medium). Season lightly with salt. Cook until softened and slightly colored. Add a splash of water, cover to steam for 1-2 mins. Stir in lime juice (0.6 tsp) and adjust salt.",
+    "Prepare Rice & Beans: In a bowl, combine cooked rice (1 cup per serving) and drained/rinsed pinto beans (0.4 can per serving). Stir in oil (0.6 tsp), lime juice (1.2 tsp), chopped cilantro (1.5 tbsp), salt, and pepper.",
+    "Assemble Bowls: Create a base layer of rice and beans. Top with roasted potatoes, peppers and onions, and cooked chicken or beef. Add cheese (2 tbsp), salsa (1/4 cup), and sour cream (2 tbsp)."
+  ],
+  "tags": ["burrito bowl", "meal prep", "chicken", "beef", "rice", "beans", "mexican-inspired", "roasted potatoes", "fajita veggies"],
+  "cookNotes": [
+    "Original recipe listed 3 lbs chicken and 5.5 lbs beef for 17 servings (0.5 lb/8 oz protein per serving). Marinade quantities scaled assuming use for either protein.",
+    "Chicken cooking involves roasting then broiling for browning. Watch carefully under broiler.",
+    "Potatoes can be roasted in oven or air fryer.",
+    "Adjust seasonings to taste."
+  ],
+  "imageUrl": "",
+  "timesPrepared": 0
+} 

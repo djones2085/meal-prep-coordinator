@@ -1,0 +1,40 @@
+{
+  "name": "Hearty Potato Soup with Bacon and Cheese",
+  "description": "A rich and creamy potato soup loaded with bacon and cheddar cheese, garnished with green onions.",
+  "status": "testing",
+  "baseYield": 1,
+  "baseYieldUnit": "serving",
+  "prepTime": "15 minutes",
+  "cookTime": "30 minutes",
+  "ingredients": [
+    { "name": "Potatoes", "quantity": 177, "unit": "g", "notes": "Peeled and diced (~1 medium potato)" },
+    { "name": "Bacon", "quantity": 29, "unit": "g", "notes": "Chopped (~1 slice thick-cut)" },
+    { "name": "Shredded Cheddar Cheese", "quantity": 29, "unit": "g", "notes": "~1/4 cup loosely packed" },
+    { "name": "Onion", "quantity": 18, "unit": "g", "notes": "Diced (~2-3 tbsp)" },
+    { "name": "Garlic", "quantity": 0.3, "unit": "clove", "notes": "Minced" },
+    { "name": "Chicken or Vegetable Broth", "quantity": 353, "unit": "ml", "notes": "~1.5 cups" },
+    { "name": "Heavy Cream", "quantity": 29, "unit": "ml", "notes": "~2 tbsp" },
+    { "name": "Butter", "quantity": 6, "unit": "g", "notes": "~1 tsp" },
+    { "name": "Salt", "quantity": 0, "unit": "to taste" },
+    { "name": "Black Pepper", "quantity": 0, "unit": "to taste" },
+    { "name": "Green Onions", "quantity": 6, "unit": "g", "notes": "Chopped (~1 tbsp, for garnish)" },
+    { "name": "Sour Cream", "quantity": 29, "unit": "ml", "notes": "~2 tbsp (Optional, for serving)" }
+  ],
+  "instructions": [
+    "Cook Bacon: In a large pot, cook chopped bacon over medium heat until crisp. Remove bacon, set aside, leaving fat in the pot.",
+    "Sauté Aromatics: Add diced onion to the pot, cook in bacon fat until translucent. Add minced garlic, cook 1 more minute.",
+    "Cook Potatoes: Add diced potatoes, stir for a few minutes. Pour in broth. Bring to boil, reduce heat, simmer until potatoes are tender (~20 min).",
+    "Blend (Optional): For smoother soup, use an immersion blender to blend to desired consistency.",
+    "Add Dairy & Cheese: Stir in heavy cream and butter (if not already blended in). Stir in shredded cheese until melted. Season with salt and pepper.",
+    "Finish & Serve: Stir half the cooked bacon back into the soup. Serve hot, garnished with remaining bacon, chopped green onions, and optional sour cream."
+  ],
+  "tags": ["soup", "potato", "bacon", "cheese", "creamy", "comfort food", "winter", "hearty"],
+  "cookNotes": [
+    "Blending the soup is optional; leave chunky if preferred.",
+    "For a lighter version, substitute heavy cream with milk.",
+    "Feel free to add other vegetables like carrots or celery with the onions.",
+    "Reheats well. Store leftovers refrigerated for up to 5 days."
+  ],
+  "imageUrl": "",
+  "timesPrepared": 0
+} 

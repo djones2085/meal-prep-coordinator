@@ -1,0 +1,44 @@
+{
+  "name": "Homemade Buttermilk Biscuits",
+  "description": "Flaky, buttery buttermilk biscuits, perfect as a base for Eggs Benedict or served on their own.",
+  "status": "component",
+  "baseYield": 8,
+  "baseYieldUnit": "biscuits (approx 4 servings)",
+  "prepTime": "25 minutes",
+  "cookTime": "15-18 minutes",
+  "ingredients": [
+    { "name": "All-Purpose Flour", "quantity": 2.5, "unit": "cups", "notes": "300g, plus extra for dusting" },
+    { "name": "Baking Powder", "quantity": 1, "unit": "tbsp" },
+    { "name": "Baking Soda", "quantity": 0.5, "unit": "tsp" },
+    { "name": "Kosher Salt", "quantity": 1, "unit": "tsp" },
+    { "name": "Granulated Sugar", "quantity": 1, "unit": "tbsp" },
+    { "name": "Unsalted Butter", "quantity": 1, "unit": "stick", "notes": "115g, very cold, cubed (freeze 15 min)" },
+    { "name": "Cold Buttermilk", "quantity": 1, "unit": "cup", "notes": "240ml" },
+    { "name": "Large Egg", "quantity": 1, "unit": "unit", "notes": "For optional egg wash" },
+    { "name": "Water", "quantity": 1, "unit": "tbsp", "notes": "For optional egg wash" }
+  ],
+  "proteinOptions": [],
+  "instructions": [
+    "Preheat oven to 425°F (220°C). Line a baking sheet with parchment paper.",
+    "Whisk flour, baking powder, baking soda, salt, and sugar in a large bowl.",
+    "Add cold butter cubes. Using a pastry cutter or fingers, quickly cut butter into the flour until mixture resembles coarse meal with pea-sized crumbs.",
+    "Make a well in the center and pour in the cold buttermilk. Stir with a fork just until the dough comes together (do not overmix).",
+    "Turn dough out onto a lightly floured surface. Gently pat into a 1-inch-thick rectangle.",
+    "Fold the dough in half onto itself. Pat down gently. Rotate the dough 90 degrees. Repeat this folding and patting process 3 more times (4 folds total) to create flaky layers.",
+    "Pat the dough to a final thickness of about ¾-inch.",
+    "Using a 3-inch round cutter dipped in flour, cut out 8 biscuits. Push straight down; do not twist the cutter. Gather scraps gently, re-pat, and cut remaining biscuits if needed.",
+    "Place biscuits 2 inches apart on the prepared baking sheet.",
+    "Optional Egg Wash: Whisk the egg with 1 tbsp water. Lightly brush the tops of the biscuits.",
+    "Bake for 15–18 minutes, or until golden brown and risen.",
+    "Let cool on the baking sheet for a few minutes before transferring to a wire rack. Split horizontally with a fork just before serving for best texture."
+  ],
+  "tags": ["biscuit", "buttermilk", "southern", "component", "breakfast", "bread"],
+  "cookNotes": [
+    "Ensure butter and buttermilk are very cold for flakiness.",
+    "Do not overwork the dough.",
+    "Using European-style butter (e.g., Plugra) enhances richness.",
+    "To freeze: Bake completely, cool, wrap well. Reheat in oven."
+  ],
+  "imageUrl": "",
+  "timesPrepared": 0
+} 

@@ -1,0 +1,37 @@
+{
+  "name": "Mongolian Beef Noodles",
+  "description": "Ground beef and linguine coated in a savory and slightly sweet Mongolian-style sauce.",
+  "status": "testing",
+  "baseYield": 5,
+  "baseYieldUnit": "servings",
+  "prepTime": "15 minutes",
+  "cookTime": "20 minutes",
+  "ingredients": [
+    { "name": "Ground Beef", "quantity": 2.5, "unit": "lb" },
+    { "name": "Garlic", "quantity": 9, "unit": "cloves", "notes": "Minced" },
+    { "name": "Brown Sugar", "quantity": 0.55, "unit": "cup", "notes": "~1/2 cup + 1 tbsp" },
+    { "name": "Beef Broth", "quantity": 0.4, "unit": "cup", "notes": "~6.5 tbsp" },
+    { "name": "Soy Sauce", "quantity": 0.55, "unit": "cup", "notes": "~1/2 cup + 1 tbsp" },
+    { "name": "Hoisin Sauce", "quantity": 5, "unit": "tbsp" },
+    { "name": "Ground Ginger", "quantity": 1, "unit": "tsp" },
+    { "name": "Ground Black Pepper", "quantity": 1, "unit": "tsp" },
+    { "name": "Red Pepper Flakes", "quantity": 5, "unit": "pinches" },
+    { "name": "Linguine", "quantity": 17, "unit": "oz", "notes": "~1 lb" },
+    { "name": "Cornstarch", "quantity": 1.7, "unit": "tbsp", "notes": "~1 tbsp + 2 tsp" },
+    { "name": "Water (for cornstarch)", "quantity": 3.3, "unit": "tbsp" },
+    { "name": "Green Onions", "quantity": 7, "unit": "unit", "notes": "Sliced, for garnish" }
+  ],
+  "proteinOptions": [],
+  "instructions": [
+    "Cook Pasta: Cook linguine according to package directions. Drain and set aside.",
+    "Brown Beef: Brown ground beef in a large skillet over medium-high heat. Drain excess fat.",
+    "Add Aromatics/Sauce: Add minced garlic to beef, cook 1 minute until fragrant. Stir in soy sauce, beef broth, brown sugar, hoisin sauce, ground ginger, black pepper, and red pepper flakes.",
+    "Thicken Sauce: Mix cornstarch and cold water until smooth. Stir into the skillet. Bring to a gentle boil, stirring, until sauce thickens slightly.",
+    "Combine: Add cooked linguine to the skillet. Toss well to coat noodles with the sauce. Simmer together for 2-3 minutes.",
+    "Garnish & Serve: Sprinkle with sliced green onions and serve immediately."
+  ],
+  "tags": ["beef", "noodles", "mongolian", "pasta", "asian-inspired", "ground beef"],
+  "cookNotes": ["Original recipe scaled from 20 servings."],
+  "imageUrl": "",
+  "timesPrepared": 0
+} 

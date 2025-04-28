@@ -250,7 +250,7 @@ function DashboardPage() {
             <Box sx={{ mt: 3 }}>
                 <Typography variant="h6" gutterBottom>Place Your Order</Typography>
                 <Grid container spacing={2}>
-                    <Grid item xs={12} sm={4}>
+                    <Grid xs={12} sm={4}>
                         <TextField
                             label="Number of Servings"
                             type="number"
@@ -263,7 +263,7 @@ function DashboardPage() {
                         />
                     </Grid>
                     {chosenRecipeDetails?.proteinOptions && chosenRecipeDetails.proteinOptions.length > 0 && (
-                        <Grid item xs={12} sm={8}>
+                        <Grid xs={12} sm={8}>
                             <FormControl fullWidth required disabled={isSubmittingOrder}>
                                 <InputLabel id="protein-choice-label">Protein Choice</InputLabel>
                                 <Select
@@ -282,7 +282,7 @@ function DashboardPage() {
                         </Grid>
                     )}
                     {/* Optional: Add Customizations Section (e.g., checkboxes for 'no onion', 'extra sauce') */}
-                    {/* <Grid item xs={12}>
+                    {/* <Grid xs={12}>
                          <FormControl component="fieldset" variant="standard">
                             <FormLabel component="legend">Customizations</FormLabel>
                             <FormGroup>
@@ -331,26 +331,26 @@ function DashboardPage() {
                     <Divider sx={{ my: 2 }} />
 
                     <Grid container spacing={1} sx={{ mb: 2 }}>
-                        <Grid item xs={6} sm={4}>
+                        <Grid xs={6} sm={4}>
                              <Typography variant="body1"><strong>Target Cook Date:</strong></Typography>
                         </Grid>
-                        <Grid item xs={6} sm={8}>
+                        <Grid xs={6} sm={8}>
                             <Typography variant="body1">
                                 {activeCycle.targetCookDate ? activeCycle.targetCookDate.toLocaleDateString() : 'N/A'}
                             </Typography>
                         </Grid>
-                        <Grid item xs={6} sm={4}>
+                        <Grid xs={6} sm={4}>
                              <Typography variant="body1"><strong>Order Deadline:</strong></Typography>
                         </Grid>
-                        <Grid item xs={6} sm={8}>
+                        <Grid xs={6} sm={8}>
                              <Typography variant="body1">
                                 {activeCycle.orderDeadline ? activeCycle.orderDeadline.toLocaleString() : 'N/A'}
                              </Typography>
                         </Grid>
-                         <Grid item xs={6} sm={4}>
+                         <Grid xs={6} sm={4}>
                             <Typography variant="body1"><strong>Status:</strong></Typography>
                         </Grid>
-                        <Grid item xs={6} sm={8}>
+                        <Grid xs={6} sm={8}>
                             <Typography variant="body1" sx={{ textTransform: 'capitalize' }}>
                                 {activeCycle.status.replace('_', ' ')}
                             </Typography>

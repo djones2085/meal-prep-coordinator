@@ -1,0 +1,43 @@
+{
+  "name": "Smoky Baked Beans",
+  "description": "Classic baked beans with a sweet, tangy, and smoky flavor profile, slow-cooked with bacon and molasses.",
+  "status": "testing",
+  "baseYield": 1,
+  "baseYieldUnit": "serving",
+  "prepTime": "15 minutes (+ optional overnight soak for dried beans)",
+  "cookTime": "2.5-3.5 hours (depending on bean type and tenderness desired)",
+  "ingredients": [
+    { "name": "Dried Navy Beans", "quantity": 1.6, "unit": "oz", "notes": "Approx 45g. OR 1/2 can (7.5 oz) canned beans, drained & rinsed" },
+    { "name": "Thick-Cut Bacon", "quantity": 0.8, "unit": "oz", "notes": "Diced (~22.5g)" },
+    { "name": "Onion", "quantity": 0.1, "unit": "large", "notes": "Finely chopped (~1/4 cup)" },
+    { "name": "Garlic", "quantity": 0.3, "unit": "clove", "notes": "Minced (~1/2 small clove)" },
+    { "name": "Molasses", "quantity": 2.5, "unit": "tsp" },
+    { "name": "Barbecue Sauce", "quantity": 2.5, "unit": "tsp", "notes": "Smoky flavor preferred" },
+    { "name": "Apple Cider Vinegar", "quantity": 1.25, "unit": "tsp" },
+    { "name": "Brown Sugar", "quantity": 1, "unit": "tsp", "notes": "Packed (~5g)" },
+    { "name": "Dijon Mustard", "quantity": 0.3, "unit": "tsp" },
+    { "name": "Worcestershire Sauce", "quantity": 0.3, "unit": "tsp" },
+    { "name": "Smoked Paprika", "quantity": 0.1, "unit": "tsp" },
+    { "name": "Black Pepper", "quantity": 0, "unit": "pinch" },
+    { "name": "Cayenne Pepper", "quantity": 0, "unit": "pinch", "notes": "Optional" },
+    { "name": "Water", "quantity": 0.3, "unit": "cup", "notes": "Approx 5 tbsp, or more as needed" },
+    { "name": "Salt", "quantity": 0, "unit": "to taste" }
+  ],
+  "instructions": [
+    "Prepare Dried Beans (if using): Soak dried beans overnight. Drain, rinse, add to a pot, cover with fresh water, bring to boil. Simmer ~1 hour until tender. Drain. (Skip this step if using canned beans).",
+    "Cook Bacon & Veggies: In an oven-proof pot/Dutch oven, cook diced bacon over medium heat until starting to crisp. Remove half the bacon, set aside. Sauté onion and garlic in remaining bacon fat until translucent.",
+    "Add Flavors: Stir in molasses, BBQ sauce, vinegar, brown sugar, Dijon, Worcestershire, smoked paprika, black pepper, and optional cayenne. Mix well.",
+    "Combine & Add Water: Add pre-cooked dried beans OR drained canned beans to the pot. Pour in water (0.3 cup per serving) or enough to just cover beans. Stir to coat.",
+    "Bake: Preheat oven to 325°F (163°C). Cover pot and bake for 2-3 hours. Check periodically; add more water if beans look dry. Remove lid for the last 30 mins to thicken sauce.",
+    "Finish & Serve: Remove from oven when beans are thick and flavors melded. Stir in reserved crispy bacon. Taste and adjust salt/pepper. Serve hot."
+  ],
+  "tags": ["baked beans", "side dish", "bbq", "bacon", "sweet", "smoky", "american", "comfort food", "potluck"],
+  "cookNotes": [
+    "Soaking dried beans is recommended for even cooking, but not strictly necessary if simmering longer.",
+    "Using canned beans significantly reduces total cooking time.",
+    "Baking time can vary; cook until beans reach desired tenderness and sauce thickness.",
+    "Adjust molasses and brown sugar for desired sweetness."
+  ],
+  "imageUrl": "",
+  "timesPrepared": 0
+} 

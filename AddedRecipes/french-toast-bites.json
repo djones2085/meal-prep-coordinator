@@ -1,0 +1,40 @@
+{
+  "name": "French Toast Bites with Whipped Cream & Berry Compote",
+  "description": "Cubes of brioche French toast served with homemade whipped cream and a mixed berry compote.",
+  "status": "testing",
+  "baseYield": 4,
+  "baseYieldUnit": "servings",
+  "prepTime": "20 minutes",
+  "cookTime": "20 minutes",
+  "ingredients": [
+    { "name": "Brioche or Challah Bread", "quantity": 1, "unit": "loaf", "notes": "Cut into 1-inch cubes" },
+    { "name": "Large Eggs", "quantity": 4, "unit": "unit" },
+    { "name": "Whole Milk", "quantity": 1, "unit": "cup" },
+    { "name": "Heavy Cream", "quantity": 1.5, "unit": "cups", "notes": "1 cup for whipped cream, 0.5 cup for batter" },
+    { "name": "Granulated Sugar", "quantity": 6, "unit": "tbsp", "notes": "2 tbsp for batter, 1/4 cup (4 tbsp) for compote" },
+    { "name": "Vanilla Extract", "quantity": 3, "unit": "tsp", "notes": "1 tsp each for batter, cream, compote" },
+    { "name": "Cinnamon", "quantity": 0.5, "unit": "tsp" },
+    { "name": "Nutmeg", "quantity": 0.25, "unit": "tsp", "notes": "Optional" },
+    { "name": "Unsalted Butter", "quantity": 2, "unit": "tbsp", "notes": "For frying" },
+    { "name": "Powdered Sugar", "quantity": 2, "unit": "tbsp", "notes": "For whipped cream" },
+    { "name": "Mixed Berries", "quantity": 2, "unit": "cups", "notes": "Fresh or frozen (e.g., strawberries, blueberries, raspberries)" },
+    { "name": "Lemon Juice", "quantity": 1, "unit": "tbsp" },
+    { "name": "Lemon Zest", "quantity": 1, "unit": "tsp", "notes": "Optional, for compote" },
+    { "name": "Water", "quantity": 2, "unit": "tbsp", "notes": "For compote" },
+    { "name": "Cornstarch", "quantity": 1, "unit": "tsp", "notes": "Optional, for thickening compote" }
+  ],
+  "proteinOptions": [],
+  "instructions": [
+    "Prepare Berry Compote: Combine berries, 1/4 cup granulated sugar, lemon juice, and water in a saucepan over medium heat. Cook until berries soften (8-10 min). Optional: For thicker compote, mix cornstarch with 1 tbsp cold water, stir into the simmering compote, and cook 1-2 min more until thickened. Remove from heat, stir in 1 tsp vanilla and optional lemon zest. Let cool.",
+    "Prepare Whipped Cream: In a chilled bowl, whip 1 cup heavy cream, powdered sugar, and 1 tsp vanilla extract with an electric mixer until soft peaks form. Refrigerate.",
+    "Prepare French Toast Batter: Whisk eggs, milk, 1/2 cup heavy cream, 2 tbsp granulated sugar, 1 tsp vanilla, cinnamon, and optional nutmeg in a large bowl.",
+    "Soak Bread: Add bread cubes to the egg mixture and gently toss to coat. Let soak for 2-3 minutes, ensuring they absorb the liquid but don't become overly soggy.",
+    "Cook French Toast Bites: Melt butter in a large skillet or griddle over medium heat. Add soaked bread cubes in a single layer (cook in batches if necessary). Cook until golden brown on all sides, turning frequently (about 5-7 minutes per batch).",
+    "Assemble: Arrange warm French toast bites on plates or a platter. Top generously with homemade whipped cream and a spoonful of the berry compote. Garnish with a dusting of powdered sugar or additional fresh berries if desired.",
+    "Serve: Serve immediately. Offer maple syrup on the side (optional)."
+  ],
+  "tags": ["french toast", "breakfast", "brunch", "sweet", "berries", "dessert"],
+  "cookNotes": ["Adapted from a recipe intended for a baby shower.", "Ensure bread is slightly stale or lightly toasted for best results to prevent sogginess."],
+  "imageUrl": "",
+  "timesPrepared": 0
+} 

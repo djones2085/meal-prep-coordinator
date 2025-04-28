@@ -1,0 +1,41 @@
+{
+  "name": "Shrimp & Sausage & Grits",
+  "description": "Creamy cheddar cheese grits topped with sautéed shrimp, spicy andouille sausage, and crispy bacon.",
+  "status": "testing",
+  "baseYield": 1,
+  "baseYieldUnit": "serving",
+  "prepTime": "20 minutes",
+  "cookTime": "45 minutes",
+  "ingredients": [
+    { "name": "Water", "quantity": 0.5, "unit": "cup" },
+    { "name": "Reduced-Sodium Chicken Broth", "quantity": 0.5, "unit": "cup" },
+    { "name": "Old-Fashioned Grits", "quantity": 0.25, "unit": "cup", "notes": "Not instant" },
+    { "name": "Kosher Salt", "quantity": 0.25, "unit": "tsp" },
+    { "name": "Unsalted Butter", "quantity": 0.5, "unit": "tbsp" },
+    { "name": "Shredded Sharp Cheddar Cheese", "quantity": 0.25, "unit": "cup" },
+    { "name": "Large Shrimp (16/20 count)", "quantity": 0.5, "unit": "lb", "notes": "Peeled and deveined" },
+    { "name": "Smoked Andouille Sausage", "quantity": 2, "unit": "oz", "notes": "Sliced 1/4-inch thick" },
+    { "name": "Thick-Cut Bacon", "quantity": 1.5, "unit": "slices", "notes": "Chopped" },
+    { "name": "Minced Garlic", "quantity": 0.5, "unit": "tbsp" },
+    { "name": "Green Onions", "quantity": 0.25, "unit": "cup", "notes": "Sliced, divided" },
+    { "name": "Fresh Lemon Juice", "quantity": 0.5, "unit": "tbsp" },
+    { "name": "Hot Sauce", "quantity": 0, "unit": "to taste" },
+    { "name": "Salt & Freshly Ground Black Pepper", "quantity": 0, "unit": "to taste" }
+  ],
+  "instructions": [
+    "Prepare the Grits: In a pot, bring water and chicken broth to a boil. Gradually whisk in grits and kosher salt. Reduce heat to low, cover, simmer, stirring occasionally, 30-35 min until tender. Remove from heat, stir in butter and cheese until melted. Cover.",
+    "Cook the Bacon: In a large skillet, cook chopped bacon over medium heat until crispy (6-8 min). Transfer bacon to paper towels, reserving ~1/4 tbsp bacon grease in skillet.",
+    "Brown the Sausage: Add sliced sausage to the reserved bacon grease. Cook over medium heat until browned (4-5 min). Remove sausage, set aside.",
+    "Sauté the Shrimp: Add minced garlic and half the green onions to the skillet. Sauté 1 min until fragrant. Add shrimp, cook until pink (2-3 min per side).",
+    "Season Shrimp: Drizzle shrimp with lemon juice, add hot sauce to taste. Season with salt & pepper as needed.",
+    "Combine and Serve: Spoon grits into bowls. Top with shrimp, sausage, and bacon. Garnish with remaining green onions. Serve immediately."
+  ],
+  "tags": ["shrimp", "sausage", "grits", "bacon", "southern", "comfort food", "cheese", "cajun", "creole", "breakfast", "brunch", "dinner"],
+  "cookNotes": [
+    "Stir grits occasionally while simmering to prevent sticking and lumps.",
+    "Reserved bacon grease adds significant flavor to the sausage and shrimp.",
+    "Adjust hot sauce to your preferred level of spiciness."
+  ],
+  "imageUrl": "",
+  "timesPrepared": 0
+} 

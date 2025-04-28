@@ -1,0 +1,49 @@
+{
+  "name": "Jambalaya (Shrimp & Sausage)",
+  "description": "A classic Creole rice dish cooked in one pot with the 'holy trinity' of vegetables, andouille sausage, shrimp, and a blend of spices.",
+  "status": "testing",
+  "baseYield": 1,
+  "baseYieldUnit": "serving",
+  "prepTime": "20 minutes",
+  "cookTime": "50 minutes",
+  "ingredients": [
+    { "name": "Andouille Sausage", "quantity": 4, "unit": "oz", "notes": "Sliced" },
+    { "name": "Large Shrimp", "quantity": 4, "unit": "oz", "notes": "Peeled and deveined" },
+    { "name": "Long-Grain White Rice", "quantity": 0.25, "unit": "cup", "notes": "Uncooked" },
+    { "name": "Onion", "quantity": 0.25, "unit": "large", "notes": "Finely chopped (~1/2 cup)" },
+    { "name": "Bell Pepper", "quantity": 0.25, "unit": "cup", "notes": "Diced (mixed colors preferred)" },
+    { "name": "Celery Stalk", "quantity": 0.33, "unit": "stalk", "notes": "Diced (~1/4 cup)" },
+    { "name": "Garlic Clove", "quantity": 0.5, "unit": "clove", "notes": "Minced" },
+    { "name": "Diced Tomatoes", "quantity": 3.5, "unit": "oz", "notes": "Canned (~1/3 cup)" },
+    { "name": "Chicken or Seafood Stock", "quantity": 0.5, "unit": "cup" },
+    { "name": "Tomato Paste", "quantity": 0.25, "unit": "tsp" },
+    { "name": "Green Onions", "quantity": 1, "unit": "tbsp", "notes": "Chopped, plus more for garnish" },
+    { "name": "Fresh Parsley", "quantity": 1, "unit": "tbsp", "notes": "Chopped, plus more for garnish" },
+    { "name": "Bay Leaf", "quantity": 1, "unit": "small" },
+    { "name": "Creole Seasoning", "quantity": 1, "unit": "tsp", "notes": "Adjust to taste" },
+    { "name": "Cayenne Pepper", "quantity": 0, "unit": "pinch", "notes": "Adjust to heat preference (start with 1/16 tsp)" },
+    { "name": "Dried Thyme", "quantity": 0, "unit": "pinch", "notes": "Start with 1/16 tsp" },
+    { "name": "Smoked Paprika", "quantity": 0, "unit": "pinch", "notes": "Start with 1/16 tsp" },
+    { "name": "Salt", "quantity": 0, "unit": "to taste" },
+    { "name": "Black Pepper", "quantity": 0, "unit": "to taste" },
+    { "name": "Oil or Bacon Fat", "quantity": 1, "unit": "tsp", "notes": "For sautéing (optional, can use fat rendered from sausage)" }
+  ],
+  "instructions": [
+    "Brown Sausage: Heat a large pot or Dutch oven over medium heat. Add sliced andouille sausage and cook until browned and slightly crispy. Remove sausage with a slotted spoon and set aside, leaving rendered fat in the pot (or add 1 tsp oil if needed).",
+    "Sauté Holy Trinity: Add chopped onion, bell pepper, and celery to the pot. Cook until softened, about 5-7 minutes.",
+    "Add Aromatics & Spices: Stir in minced garlic and sauté for 1 minute until fragrant. Add diced tomatoes, tomato paste, Creole seasoning, cayenne pepper, dried thyme, and smoked paprika. Cook, stirring, for 5 minutes.",
+    "Toast Rice: Add uncooked rice to the pot. Stir constantly for 2 minutes to lightly toast the grains.",
+    "Simmer Rice: Pour in the stock and bring to a boil. Add the bay leaf. Reduce heat to low, cover, and simmer for about 20 minutes, or until the rice is nearly tender and most liquid is absorbed.",
+    "Add Proteins: Stir the browned sausage back into the pot. Add the raw shrimp. Cover and cook for another 10 minutes, or until shrimp are pink and cooked through and rice is fully tender.",
+    "Finish & Serve: Remove from heat. Discard the bay leaf. Stir in chopped green onions and fresh parsley. Season with salt and pepper to taste. Serve hot, garnished with extra green onions or parsley if desired."
+  ],
+  "tags": ["jambalaya", "creole", "cajun", "rice", "one pot", "shrimp", "sausage", "southern", "dinner", "spicy"],
+  "cookNotes": [
+    "The 'holy trinity' of Creole cooking is onion, bell pepper, and celery.",
+    "Adjust Creole seasoning and cayenne pepper to your preferred spice level.",
+    "Using seafood stock instead of chicken stock enhances the shrimp flavor.",
+    "Do not stir the rice too much after adding the liquid, as this can make it mushy. Let it simmer covered."
+  ],
+  "imageUrl": "",
+  "timesPrepared": 0
+} 

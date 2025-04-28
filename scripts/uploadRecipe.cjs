@@ -4,14 +4,23 @@ const fs = require('fs');
 const path = require('path'); // To handle file paths correctly
 
 // --- Service Account and Firebase Initialization ---
-// Ensure serviceAccountKey.json is in the project root or adjust path
+// Look for service account key in the same directory as the script first
 let serviceAccount;
 try {
-    serviceAccount = require('../serviceAccountKey.json');
-} catch (error) {
-    console.error("Error: Could not find '../serviceAccountKey.json'.");
-    console.error("Ensure the service account key file exists in the project root directory.");
-    process.exit(1); // Exit if key is missing
+    // Try loading from the same directory first (like seedFirestore.cjs)
+    serviceAccount = require('./serviceAccountKey.json');
+    console.log("Found service account key in the script directory.");
+} catch (errorSameDir) {
+    console.log("Did not find service account key in script directory, trying project root...");
+    try {
+        // Fallback to looking in the parent (project root)
+        serviceAccount = require('../serviceAccountKey.json');
+        console.log("Found service account key in the project root directory.");
+    } catch (errorRootDir) {
+        console.error("Error: Could not find 'serviceAccountKey.json' in the script directory OR the project root directory.");
+        console.error("Ensure the service account key file exists in one of these locations.");
+        process.exit(1); // Exit if key is missing
+    }
 }
 
 try {
