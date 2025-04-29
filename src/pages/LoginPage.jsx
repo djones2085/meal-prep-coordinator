@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import { signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../firebaseConfig'; // Import Firebase auth instance
+import { auth } from '../firebaseConfig';
 import {
   Container,
   Box,
@@ -62,7 +62,7 @@ function LoginPage() {
             autoFocus
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            error={!!error} // Highlight field if there's a general login error
+            error={!!error}
           />
           <TextField
             margin="normal"
@@ -75,7 +75,7 @@ function LoginPage() {
             autoComplete="current-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            error={!!error} // Highlight field if there's a general login error
+            error={!!error}
           />
           {error && (
             <Alert severity="error" sx={{ width: '100%', mt: 2 }}>

@@ -6,15 +6,6 @@ import { db, functions as functionsInstance } from '../../firebaseConfig'; // Im
 import Button from '../../components/ui/Button'; // Use custom Button
 import Spinner from '../../components/ui/Spinner'; // Use custom Spinner
 import Alert from '../../components/ui/Alert';   // Use custom Alert
-import {
-    TableContainer, Table, TableHead, TableRow, TableCell, TableBody,
-} from '@mui/material';
-import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline'; // Keep icons for now
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import ExpandLessIcon from '@mui/icons-material/ExpandLess';
-import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
-import RefreshIcon from '@mui/icons-material/Refresh';
 
 // Define possible statuses (Removed voting-related and planning statuses)
 const cycleStatuses = [
@@ -36,15 +27,14 @@ function MealCycleManagementPage() {
     const [cycles, setCycles] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
-    const [updatingStatus, setUpdatingStatus] = useState({}); // Track loading state per cycle { cycleId: boolean }
-    const [triggeringAggregation, setTriggeringAggregation] = useState({}); // Track loading state for manual trigger { cycleId: boolean }
+    const [updatingStatus, setUpdatingStatus] = useState({});
     const [alertOpen, setAlertOpen] = useState(false);
     const [alertMessage, setAlertMessage] = useState('');
-    const [alertSeverity, setAlertSeverity] = useState('success'); // 'success' or 'error'
+    const [alertSeverity, setAlertSeverity] = useState('success');
 
     // --- State for Expanded Orders View ---
-    const [expandedCycleId, setExpandedCycleId] = useState(null); // ID of the cycle whose orders are shown
-    const [cycleOrders, setCycleOrders] = useState([]); // Orders for the expanded cycle
+    const [expandedCycleId, setExpandedCycleId] = useState(null);
+    const [cycleOrders, setCycleOrders] = useState([]);
     const [loadingOrders, setLoadingOrders] = useState(false);
     const [ordersError, setOrdersError] = useState('');
 
@@ -111,42 +101,6 @@ function MealCycleManagementPage() {
         }
     };
 
-    // Function to call the HTTPS callable function
-    const handleManualTrigger = async (cycleId) => {
-        if (!cycleId) return;
-        setTriggeringAggregation(prev => ({ ...prev, [cycleId]: true }));
-        setError('');
-        try {
-            const requestManualAggregation = httpsCallable(functionsInstance, 'requestManualAggregation');
-            const result = await requestManualAggregation({ mealCycleId: cycleId });
-            console.log("Manual aggregation trigger result:", result.data);
-            setAlertMessage(result.data.message || 'Aggregation successfully requested. Refreshing data...');
-            setAlertSeverity('success');
-            setAlertOpen(true);
-            await fetchCycles(false);
-            if (expandedCycleId === cycleId) {
-                await fetchCycleOrders(cycleId, false);
-            }
-        } catch (err) {
-            console.error(`Error triggering manual aggregation for cycle ${cycleId}:`, err);
-            let userMessage = `Failed to trigger aggregation for cycle ${cycleId}.`;
-            if (err instanceof Error && 'code' in err && 'message' in err) {
-                if (err.code === 'permission-denied') {
-                    userMessage = 'Permission denied. You must be an admin.';
-                } else {
-                    userMessage = `${userMessage} (${err.message})`;
-                }
-            } else if (err instanceof Error) {
-                 userMessage = `${userMessage} (${err.message})`;
-            }
-            setAlertMessage(userMessage);
-            setAlertSeverity('error');
-            setAlertOpen(true);
-        } finally {
-            setTriggeringAggregation(prev => ({ ...prev, [cycleId]: false }));
-        }
-    };
-
     const handleCloseAlert = () => {
         setAlertOpen(false);
     };
@@ -193,14 +147,14 @@ function MealCycleManagementPage() {
         { id: 'expand', label: '', minWidth: 50 },
         { id: 'status', label: 'Status', minWidth: 140 },
         { id: 'recipe', label: 'Recipe', minWidth: 170 },
-        { id: 'servings', label: 'Servings', minWidth: 80, align: 'right', hideOnSmall: true }, // Hide on sm
-        { id: 'protein', label: 'Protein Counts', minWidth: 170, hideOnMedium: true }, // Hide on md
-        { id: 'orderDeadline', label: 'Deadline', minWidth: 170, hideOnSmall: true }, // Hide on sm
-        { id: 'cookDate', label: 'Cook Date', minWidth: 100, hideOnSmall: true }, // Hide on sm
-        { id: 'actions', label: 'Actions', minWidth: 200, sticky: true }, // Make sticky
+        { id: 'servings', label: 'Servings', minWidth: 80, align: 'right', hideOnSmall: true },
+        { id: 'protein', label: 'Protein Counts', minWidth: 170, hideOnMedium: true },
+        { id: 'orderDeadline', label: 'Deadline', minWidth: 170, hideOnSmall: true },
+        { id: 'cookDate', label: 'Cook Date', minWidth: 100, hideOnSmall: true },
+        { id: 'actions', label: 'Actions', minWidth: 150, sticky: true },
     ];
 
-    const numberOfColumns = columns.length; // Update based on actual displayed columns?
+    const numberOfColumns = columns.length;
 
     return (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6"> {/* Replaces Container */}
@@ -212,9 +166,7 @@ function MealCycleManagementPage() {
                     onClick={() => fetchCycles()}
                     disabled={loading}
                     variant="outline" // Assuming 'outline' is a valid variant in your Button component
-                    // Add icon handling if your Button component supports it, otherwise just text
                 >
-                    <RefreshIcon className="mr-2 h-5 w-5" /> {/* Example icon usage - adjust if needed */}
                     Refresh Cycles
                 </Button>
             </div>
@@ -238,52 +190,77 @@ function MealCycleManagementPage() {
                      <Spinner size="large" /> {/* Assuming size prop */}
                 </div>
             ) : (
-                // Replace Paper with Tailwind div
-                <div className="bg-white shadow-md rounded-lg overflow-hidden">
-                    {/* Replace sx with className */}
-                    <TableContainer className="max-h-[75vh]"> {/* Limit height with Tailwind */}
-                        <Table stickyHeader aria-label="sticky meal cycles table">
-                            <TableHead>
-                                <TableRow>
+                // Replace Paper div with container for table
+                <div className="shadow-md rounded-lg overflow-hidden">
+                    {/* Replace TableContainer with a div for scrolling/max-height */}
+                    <div className="overflow-x-auto max-h-[75vh]">
+                        {/* Replace Table with HTML table, add base styling */}
+                        <table className="min-w-full divide-y divide-gray-200">
+                            {/* Replace TableHead with thead, add sticky header styling */}
+                            {/* Ensure no whitespace between thead and tr */}
+                            <thead className="bg-gray-100 sticky top-0 z-20"><tr>{/* Removed whitespace before tr */}
+                                    {/* Replace TableCell with th, add styling */}
                                     {columns.map((column) => (
-                                        <TableCell
+                                        <th
                                             key={column.id}
-                                            align={column.align}
-                                            // Replace style with className if possible, or keep simple styles
+                                            scope="col"
+                                            // Apply hidden classes based on column definition
+                                            className={`px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider 
+                                                        ${column.align === 'right' ? 'text-right' : ''} 
+                                                        ${column.sticky ? 'sticky right-0 bg-gray-100 border-l border-gray-200 z-10' : ''} 
+                                                        ${column.hideOnSmall ? 'hidden sm:table-cell' : ''} 
+                                                        ${column.hideOnMedium ? 'hidden md:table-cell' : ''}
+                                                      `}
                                             style={{ minWidth: column.minWidth }}
-                                            // Add Tailwind classes for header styling
-                                            className="bg-gray-100 font-semibold text-gray-600 uppercase tracking-wider"
                                         >
                                             {column.label}
-                                        </TableCell>
+                                        </th>
                                     ))}
-                                </TableRow>
-                            </TableHead>
-                            <TableBody>
+                                </tr></thead>{/* Removed potential whitespace after tr */}
+                            {/* Replace TableBody with tbody */}
+                            <tbody className="bg-white divide-y divide-gray-200">
                                 {cycles.map((cycle) => {
                                     const isExpanded = expandedCycleId === cycle.id;
                                     const isLoadingStatus = updatingStatus[cycle.id];
-                                    const isTriggering = triggeringAggregation[cycle.id];
 
                                     return (
                                         <React.Fragment key={cycle.id}>
-                                            <TableRow hover role="checkbox" tabIndex={-1}>
-                                                {/* Ensure NO whitespace between TableCells */}
-                                                <TableCell>
+                                            <tr className="hover:bg-gray-50">
+                                                {/* Expand Cell */}
+                                                <td className="px-4 py-2 whitespace-nowrap">
                                                     <Button onClick={() => handleExpandClick(cycle.id)} variant="icon" aria-label="expand row" size="small">
-                                                        {isExpanded ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+                                                        {isExpanded ? '-' : '+'}
                                                     </Button>
-                                                </TableCell><TableCell>
-                                                    {/* Display status text only */}
+                                                </td>
+                                                {/* Status Cell */}
+                                                <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-700 capitalize">
                                                     {cycle.status.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
-                                                </TableCell><TableCell>{cycle.chosenRecipe?.recipeName || '-'}</TableCell><TableCell align="right" className="hidden sm:table-cell">{cycle.totalMealCounts ?? '-'}</TableCell><TableCell className="hidden md:table-cell" title={formatProteinCounts(cycle.totalCountsByProtein)}>
-                                                     <span className="truncate">
+                                                </td>
+                                                {/* Recipe Cell */}
+                                                <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-700">
+                                                    {cycle.chosenRecipe?.recipeName || '-'}
+                                                </td>
+                                                {/* Servings Cell - Restore responsive hiding */}
+                                                <td className={`px-4 py-2 whitespace-nowrap text-sm text-gray-700 text-right hidden sm:table-cell`}>
+                                                    {cycle.totalMealCounts ?? '-'}
+                                                </td>
+                                                {/* Protein Cell - Restore responsive hiding and truncate */}
+                                                <td className={`px-4 py-2 text-sm text-gray-700 hidden md:table-cell`} title={formatProteinCounts(cycle.totalCountsByProtein)}>
+                                                     <span className="truncate max-w-[150px] inline-block">
                                                          {formatProteinCounts(cycle.totalCountsByProtein)}
                                                      </span>
-                                                </TableCell><TableCell className="hidden sm:table-cell">{cycle.orderDeadline}</TableCell><TableCell className="hidden sm:table-cell">{cycle.targetCookDate}</TableCell><TableCell className="sticky right-0 bg-white border-l border-gray-200 z-10"> {/* Added z-index */}
-                                                    {/* Actions Column Content: Select + Buttons */}
-                                                    <div className="flex items-center gap-2 whitespace-nowrap p-1"> {/* Added padding */}
-                                                        {/* Status Select Dropdown */}
+                                                </td>
+                                                {/* Deadline Cell - Restore responsive hiding */}
+                                                <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500 hidden sm:table-cell">
+                                                    {cycle.orderDeadline}
+                                                </td>
+                                                {/* Cook Date Cell - Restore responsive hiding */}
+                                                <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500 hidden sm:table-cell">
+                                                    {cycle.targetCookDate}
+                                                </td>
+                                                {/* Actions Cell */}                                                
+                                                <td className="sticky right-0 bg-white border-l border-gray-200 z-10">
+                                                    <div className="flex items-center justify-center p-1"> {/* Centered content */}
                                                         {isLoadingStatus ? (
                                                             <Spinner size="small" />
                                                         ) : (
@@ -291,7 +268,7 @@ function MealCycleManagementPage() {
                                                                 value={cycle.status || ''}
                                                                 onChange={(e) => handleStatusChange(cycle.id, e.target.value)}
                                                                 disabled={isLoadingStatus}
-                                                                className="block w-36 pl-2 pr-8 py-1 text-sm border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 rounded-md shadow-sm disabled:opacity-50 disabled:bg-gray-100" // Adjusted width/padding
+                                                                className="block w-36 pl-2 pr-8 py-1 text-sm border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 rounded-md shadow-sm disabled:opacity-50 disabled:bg-gray-100"
                                                                 title={`Current status: ${cycle.status}`}
                                                             >
                                                                 {cycleStatuses.map((status) => (
@@ -301,39 +278,18 @@ function MealCycleManagementPage() {
                                                                 ))}
                                                             </select>
                                                         )}
-                                                        {/* Aggregate Button */}
-                                                        <Button
-                                                            onClick={() => handleManualTrigger(cycle.id)}
-                                                            disabled={isTriggering || isLoadingStatus}
-                                                            variant="secondary"
-                                                            size="small"
-                                                            title="Manually trigger order aggregation"
-                                                            className="p-1" // Adjust padding if needed
-                                                        >
-                                                            {isTriggering ? <Spinner size="small" /> : <PlayCircleOutlineIcon className="h-5 w-5" />}
-                                                            <span className="sr-only lg:not-sr-only lg:ml-1">Aggregate</span> {/* Screen reader only on small */}
-                                                        </Button>
-                                                        {/* View Orders Button */}
-                                                         <Button
-                                                            onClick={() => handleExpandClick(cycle.id)}
-                                                            variant="secondary"
-                                                            size="small"
-                                                            title="View/Hide Orders"
-                                                            className="p-1" // Adjust padding if needed
-                                                        >
-                                                             <PeopleAltIcon className="h-5 w-5" />
-                                                             <span className="sr-only lg:not-sr-only lg:ml-1">Orders</span> {/* Screen reader only on small */}
-                                                        </Button>
                                                     </div>
-                                                </TableCell>
-                                            </TableRow>
-                                            {/* Row for expanded content (Orders) */}
+                                                </td>
+                                            </tr>
+                                            {/* Expanded Row - Replace TableRow/TableCell */} 
                                             {isExpanded && (
-                                                <TableRow>
-                                                    <TableCell colSpan={numberOfColumns} className="p-0 border-b-0">
-                                                         <div className="p-4 bg-gray-50">
-                                                             {/* Order Details Section */}
-                                                             <h3 className="text-lg font-medium text-gray-800 mb-3">Orders for Cycle {cycle.id}</h3>
+                                                <tr className="bg-gray-50">
+                                                    {/* Use td spanning columns */}
+                                                    <td colSpan={numberOfColumns} className="p-0 border-b-0">
+                                                         <div className="p-4">
+                                                             <h3 className="text-lg font-medium text-gray-800 mb-3">
+                                                                 Orders for: {cycle.chosenRecipe?.recipeName || `Cycle ${cycle.id}`}
+                                                             </h3>
                                                              {loadingOrders ? (
                                                                  <div className="flex justify-center items-center p-4">
                                                                       <Spinner />
@@ -341,24 +297,27 @@ function MealCycleManagementPage() {
                                                              ) : ordersError ? (
                                                                 <Alert type="error" message={ordersError} />
                                                              ) : cycleOrders.length > 0 ? (
-                                                                 // Simplified Order Table (Can be enhanced later)
                                                                  <div className="overflow-x-auto">
+                                                                     {/* Sub-table for orders */}
                                                                      <table className="min-w-full divide-y divide-gray-200">
                                                                           <thead className="bg-gray-100">
                                                                             <tr>
                                                                                 <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
                                                                                 <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Meals</th>
                                                                                 <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Container</th>
-                                                                                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Timestamp</th>
                                                                             </tr>
                                                                           </thead>
                                                                          <tbody className="bg-white divide-y divide-gray-200">
                                                                             {cycleOrders.map(order => (
                                                                                 <tr key={order.id}>
-                                                                                    <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-700">{order.userName || order.userId}</td>
-                                                                                    <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-700">{formatProteinCounts(order.mealCounts)}</td>
-                                                                                    <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-700">{order.containerChoice}</td>
-                                                                                    <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">{order.orderTimestamp}</td>
+                                                                                    <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-700">{order.userName || order.userId || 'Unknown User'}</td>
+                                                                                    <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-700">
+                                                                                        {/* Add space after comma */}
+                                                                                        {order.items?.map(item => `${item.protein}: ${item.quantity}`).join(', \u00A0 ') || '-'} 
+                                                                                    </td>
+                                                                                    <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-700 capitalize">
+                                                                                        {order.locationStatus?.replace('_', ' ') || '-'}
+                                                                                    </td>
                                                                                 </tr>
                                                                             ))}
                                                                          </tbody>
@@ -368,15 +327,15 @@ function MealCycleManagementPage() {
                                                                  <p className="text-sm text-gray-500">No orders found for this cycle.</p>
                                                              )}
                                                          </div>
-                                                    </TableCell>
-                                                </TableRow>
+                                                    </td>
+                                                </tr>
                                             )}
                                         </React.Fragment>
                                     );
                                 })}
-                            </TableBody>
-                        </Table>
-                    </TableContainer>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             )}
         </div>

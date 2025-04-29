@@ -1,12 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { doc, getDoc, collection, query, where, orderBy, limit, getDocs } from 'firebase/firestore';
 import { db } from '../firebaseConfig';
-import {
-    Container, Typography, Box, Paper, CircularProgress, Alert,
-    Divider, List, ListItem, ListItemText, Grid, Chip,
-    ListItemIcon
-} from '@mui/material';
-import RestaurantMenuIcon from '@mui/icons-material/RestaurantMenu'; // Example icon
+import Spinner from '../components/ui/Spinner';
+import Alert from '../components/ui/Alert';
 
 // Helper function to format protein counts (same as in MealCycleManagementPage)
 const formatProteinCounts = (counts) => {
@@ -25,7 +21,6 @@ function roundNicely(num) {
     if (Math.abs(num) < 1) return Math.round(num * 100) / 100;
     return Math.round(num * 10) / 10;
 }
-
 
 function MealCyclePage() {
     const [cycle, setCycle] = useState(null);
@@ -97,100 +92,161 @@ function MealCyclePage() {
         fetchCurrentCycleAndRecipe();
     }, []);
 
+    // Function to determine status chip color
+    const getStatusChipClass = (status) => {
+        switch (status) {
+            case 'ordering_open':
+                return 'bg-green-100 text-green-800';
+            case 'ordering_closed':
+                return 'bg-yellow-100 text-yellow-800';
+            case 'shopping':
+            case 'cooking':
+            case 'packaging':
+            case 'distributing':
+                return 'bg-blue-100 text-blue-800';
+            case 'completed':
+                return 'bg-gray-100 text-gray-800';
+            case 'cancelled':
+                return 'bg-red-100 text-red-800';
+            default:
+                return 'bg-gray-100 text-gray-800';
+        }
+    };
+
     return (
-        <Container maxWidth="lg" sx={{ px: { xs: 2, sm: 3 }, mb: 4 }}>
-            <Typography variant="h4" component="h1" gutterBottom sx={{ my: { xs: 3, md: 4 } }}>
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6 mb-4">
+            <h1 className="text-2xl sm:text-3xl font-semibold text-gray-900 mb-6 md:mb-8">
                 Current Meal Cycle Details
-            </Typography>
+            </h1>
 
-            {loading && <CircularProgress sx={{ display: 'block', margin: 'auto' }} />}
-            {error && !cycle && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>} {/* Show primary error only if cycle fails */}
+            {loading && (
+                <div className="flex justify-center items-center py-10">
+                    <Spinner size="large" />
+                </div>
+            )}
+
+            {error && !cycle && !loading && (
+                <Alert type="error" message={error} className="mb-4" />
+            )}
+
             {!loading && !cycle && !error && (
-                <Typography variant="h6" color="text.secondary" sx={{ textAlign: 'center', mt: 4 }}>
-                    No active meal cycle is currently available.
-                </Typography>
+                <div className="text-center mt-8 bg-white shadow-md rounded-lg p-6">
+                     <p className="text-xl font-medium text-gray-700">No Active Cycle</p>
+                    <p className="text-gray-500 mt-2">
+                        There isn't an active meal cycle currently available. Check back later!
+                    </p>
+                </div>
             )}
 
-            {cycle && (
-                <Paper elevation={3} sx={{ p: 3, mb: 3 }}>
-                    {/* Display basic cycle info */} 
-                    <Typography variant="h5" gutterBottom>
-                         Cycle ID: {cycle.id}
-                    </Typography>
-                     <Typography component="div" variant="body1" sx={{ mb: 1, display: 'flex', alignItems: 'center' }}>
-                        Status:&nbsp;
-                        <Chip label={cycle.status.replace('_', ' ')} size="small" color={cycle.status === 'ordering_open' ? 'success' : 'default'} />
-                     </Typography>
-                    <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                        {cycle.orderDeadline ? `Order Deadline: ${cycle.orderDeadline.toLocaleString()}` : ''}
-                        {cycle.targetCookDate ? ` | Cook Date: ${cycle.targetCookDate.toLocaleDateString()}` : ''}
-                     </Typography>
-                    <Divider sx={{ my: 2 }} />
+            {cycle && !loading && (
+                <div className="bg-white shadow-md rounded-lg overflow-hidden">
+                    <div className="p-4 sm:p-6">
+                        <div className="mb-4">
+                             <h2 className="text-xl font-semibold text-gray-800 mb-2">
+                                 Cycle Overview
+                             </h2>
+                             <p className="text-sm text-gray-500 mb-3">ID: {cycle.id}</p>
+                            <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+                                 <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusChipClass(cycle.status)}`}>
+                                     {cycle.status.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                                 </span>
+                                {cycle.orderDeadline && (
+                                    <span className="flex items-center text-sm text-gray-600">
+                                        Deadline: {cycle.orderDeadline.toLocaleString()}
+                                    </span>
+                                )}
+                                {cycle.targetCookDate && (
+                                    <span className="flex items-center text-sm text-gray-600">
+                                        Cook Date: {cycle.targetCookDate.toLocaleDateString()}
+                                    </span>
+                                )}
+                            </div>
+                        </div>
 
-                     {/* Display Recipe Info */} 
-                     <Typography variant="h6" gutterBottom>Recipe</Typography>
-                     {recipe ? (
-                         <Box sx={{ mb: 2 }}>
-                            <Typography variant="h5" component="h2">{recipe.name}</Typography>
-                            <Typography variant="body1" color="text.secondary" paragraph>
-                                {recipe.description}
-                            </Typography>
-                             {/* Add other recipe details if needed e.g., prep/cook time */} 
-                        </Box>
-                     ) : (
-                         <Alert severity="warning">Recipe details could not be loaded.</Alert>
-                     )}
-                     <Divider sx={{ my: 2 }} />
+                        <hr className="my-4 border-gray-200" />
 
-                    {/* Display Aggregated Order Info */} 
-                    <Typography variant="h6" gutterBottom>Order Summary</Typography>
-                    {cycle.aggregationTimestamp ? (
-                        <Grid container spacing={1} sx={{ mb: 2 }}>
-                            <Grid xs={6} sm={4}><strong>Total Servings:</strong></Grid>
-                            <Grid xs={6} sm={8}>{cycle.totalMealCounts ?? 'N/A'}</Grid>
+                        <div>
+                            <h3 className="text-lg font-medium text-gray-900 mb-2">Recipe</h3>
+                            {recipe ? (
+                                <div className="mb-4">
+                                    <h4 className="text-xl font-semibold text-indigo-700">{recipe.name}</h4>
+                                    <p className="mt-1 text-sm text-gray-600">
+                                        {recipe.description}
+                                    </p>
+                                </div>
+                            ) : (
+                                <Alert type="warning" message={error || `Recipe details could not be loaded.`} />
+                            )}
+                        </div>
 
-                            <Grid xs={6} sm={4}><strong>Protein Counts:</strong></Grid>
-                            <Grid xs={6} sm={8}>{formatProteinCounts(cycle.totalCountsByProtein)}</Grid>
+                        <hr className="my-4 border-gray-200" />
 
-                            <Grid xs={6} sm={4}><strong>Dine-In:</strong></Grid>
-                            <Grid xs={6} sm={8}>{cycle.dineInContainers ?? 'N/A'}</Grid>
+                        <div>
+                            <h3 className="text-lg font-medium text-gray-900 mb-3">Order Summary</h3>
+                            {cycle.aggregationTimestamp ? (
+                                <dl className="grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-2">
+                                    <div className="sm:col-span-1">
+                                        <dt className="text-sm font-medium text-gray-500">Total Servings</dt>
+                                        <dd className="mt-1 text-sm text-gray-900">{cycle.totalMealCounts ?? 'N/A'}</dd>
+                                    </div>
+                                    <div className="sm:col-span-1">
+                                        <dt className="text-sm font-medium text-gray-500">Protein Counts</dt>
+                                        <dd className="mt-1 text-sm text-gray-900">{formatProteinCounts(cycle.totalCountsByProtein)}</dd>
+                                    </div>
+                                    <div className="sm:col-span-1">
+                                        <dt className="text-sm font-medium text-gray-500">Dine-In Containers</dt>
+                                        <dd className="mt-1 text-sm text-gray-900">{cycle.dineInContainers ?? 'N/A'}</dd>
+                                    </div>
+                                    <div className="sm:col-span-1">
+                                        <dt className="text-sm font-medium text-gray-500">Carry-Out Containers</dt>
+                                        <dd className="mt-1 text-sm text-gray-900">{cycle.carryOutContainers ?? 'N/A'}</dd>
+                                    </div>
+                                    <div className="sm:col-span-2 mt-2">
+                                        <p className="text-xs text-gray-400">
+                                            Summary generated on: {cycle.aggregationTimestamp.toLocaleString()}
+                                        </p>
+                                    </div>
+                                </dl>
+                            ) : (
+                                <div className="flex items-center text-sm text-gray-500 italic">
+                                     <span>Order aggregation has not run yet for this cycle. Summary will appear once orders are finalized.</span>
+                                </div>
+                            )}
+                        </div>
 
-                            <Grid xs={6} sm={4}><strong>Carry-Out:</strong></Grid>
-                            <Grid xs={6} sm={8}>{cycle.carryOutContainers ?? 'N/A'}</Grid>
-                            
-                            <Grid xs={12} sm={12} sx={{mt: 1}}>
-                                 <Typography variant="caption" color="text.secondary">Aggregated on: {cycle.aggregationTimestamp.toLocaleString()}</Typography>
-                             </Grid>
-                        </Grid>
-                     ) : (
-                         <Typography variant="body2" color="text.secondary" sx={{ fontStyle: 'italic' }}>
-                             Order aggregation has not run yet for this cycle.
-                        </Typography>
-                     )}
-                    <Divider sx={{ my: 2 }} />
+                        <hr className="my-4 border-gray-200" />
 
-                    {/* Display Aggregated Ingredients (Shopping List) */} 
-                     <Typography variant="h6" gutterBottom>Shopping List</Typography>
-                    {(cycle.aggregationTimestamp && cycle.totalIngredients && cycle.totalIngredients.length > 0) ? (
-                        <List dense>
-                            {cycle.totalIngredients.map((ing, index) => (
-                                <ListItem key={index} disablePadding>
-                                     <ListItemIcon sx={{minWidth: '30px'}}><RestaurantMenuIcon fontSize="small" /></ListItemIcon>
-                                    <ListItemText 
-                                         primary={ing.name}
-                                         secondary={`${roundNicely(ing.quantity)} ${ing.unit}`}
-                                    />
-                                </ListItem>
-                            ))}
-                        </List>
-                     ) : (
-                         <Typography variant="body2" color="text.secondary" sx={{ fontStyle: 'italic' }}>
-                             {cycle.aggregationTimestamp ? 'No ingredients calculated (check orders/recipe).' : 'Shopping list will be generated after order aggregation.'}
-                        </Typography>
-                     )}
-                </Paper>
+                        <div>
+                            <h3 className="text-lg font-medium text-gray-900 mb-3">Shopping List</h3>
+                            {(cycle.aggregationTimestamp && cycle.totalIngredients && cycle.totalIngredients.length > 0) ? (
+                                <ul role="list" className="divide-y divide-gray-200">
+                                    {cycle.totalIngredients.map((ing, index) => (
+                                        <li key={index} className="flex py-3 items-center">
+                                             <div className="flex-1 ml-3">
+                                                 <p className="text-sm font-medium text-gray-900">{ing.name}</p>
+                                                 <p className="text-sm text-gray-500">{`${roundNicely(ing.quantity)} ${ing.unit}`}</p>
+                                             </div>
+                                        </li>
+                                    ))}
+                                </ul>
+                             ) : (
+                                 <div className="flex items-center text-sm text-gray-500 italic">
+                                     {cycle.aggregationTimestamp ? (
+                                         <>
+                                             <span>No ingredients calculated yet. This might mean no orders were placed or there was an issue with the recipe data during aggregation.</span>
+                                         </>
+                                     ) : (
+                                         <>
+                                             <span>Shopping list will be generated after order aggregation runs.</span>
+                                         </>
+                                     )}
+                                </div>
+                             )}
+                        </div>
+                    </div>
+                </div>
             )}
-        </Container>
+        </div>
     );
 }
 

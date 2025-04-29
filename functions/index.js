@@ -171,6 +171,102 @@ async function _performAggregation(mealCycleId) {
 }
 // --- End Helper Function ---
 
+// --- New Helper Function for Recalculation ---
+/**
+ * Recalculates totals for a given meal cycle based on all current orders.
+ * Fetches orders, calculates totals, and updates the cycle document.
+ * Does NOT modify the aggregationTimestamp.
+ * @param {string} mealCycleId The ID of the meal cycle to recalculate.
+ * @return {Promise<void>} Resolves on successful recalculation, throws on error.
+ */
+async function _recalculateCycleTotals(mealCycleId) {
+  logger.log(`(_recalculateCycleTotals) Recalculating totals for cycle ${mealCycleId}`);
+  const cycleRef = db.collection("mealCycles").doc(mealCycleId);
+
+  try {
+    // Optional: Get cycle data if needed, e.g., for recipe info if ingredients needed recalculating
+    // const cycleSnap = await cycleRef.get();
+    // if (!cycleSnap.exists) {
+    //   logger.error(`(_recalculateCycleTotals) Meal Cycle ${mealCycleId} not found.`);
+    //   return; // Exit if cycle doesn't exist
+    // }
+    // const cycleData = cycleSnap.data();
+
+    const ordersRef = db.collection("orders");
+    const ordersQuery = ordersRef.where("cycleId", "==", mealCycleId);
+    const ordersSnapshot = await ordersQuery.get();
+
+    // --- Recalculation Logic (simplified from _performAggregation) ---
+    let totalOverallServings = 0;
+    const totalCountsByProtein = {};
+    let dineInContainers = 0;
+    let carryOutContainers = 0;
+
+    // Fetch associated user data for locationStatus (can optimize this later if needed)
+    const userFetchPromises = [];
+    const validOrderDocs = [];
+    ordersSnapshot.docs.forEach((orderDoc) => {
+      const orderData = orderDoc.data();
+      // Basic validation
+      if (orderData.userId && orderData.items && Array.isArray(orderData.items) && orderData.totalServings > 0) {
+        validOrderDocs.push(orderDoc);
+        userFetchPromises.push(db.collection("users").doc(orderData.userId).get());
+      } else {
+        logger.warn(`(_recalculateCycleTotals) Skipping order ${orderDoc.id} due to missing/invalid data.`);
+      }
+    });
+
+    const userSnaps = await Promise.all(userFetchPromises);
+    const userMap = new Map(userSnaps.map((snap) => [snap.id, snap.exists ? snap.data() : null]));
+
+    for (const orderDoc of validOrderDocs) {
+      const orderData = orderDoc.data();
+      const userId = orderData.userId;
+      const orderTotalServings = orderData.totalServings;
+
+      totalOverallServings += orderTotalServings;
+
+      // Determine container type based on user locationStatus
+      let locationStatus = "carry_out";
+      const userData = userMap.get(userId);
+      if (userData) {
+        locationStatus = userData.locationStatus || "carry_out";
+      }
+
+      if (locationStatus === "dine_in") {
+        dineInContainers += orderTotalServings;
+      } else {
+        carryOutContainers += orderTotalServings;
+      }
+
+      // Aggregate protein counts from items
+      orderData.items.forEach((item) => {
+        const proteinName = item.protein || "default";
+        const quantity = item.quantity || 0;
+        if (quantity > 0) {
+          totalCountsByProtein[proteinName] = (totalCountsByProtein[proteinName] || 0) + quantity;
+        }
+      });
+    }
+
+    // --- Update Meal Cycle Document ---
+    logger.log(`(_recalculateCycleTotals) Updating cycle ${mealCycleId} with: Servings=${totalOverallServings}, Proteins=${JSON.stringify(totalCountsByProtein)}, DineIn=${dineInContainers}, CarryOut=${carryOutContainers}`);
+    await cycleRef.update({
+      totalMealCounts: totalOverallServings,
+      totalCountsByProtein: totalCountsByProtein,
+      // NOTE: totalIngredients is NOT recalculated here as it depends on recipe data.
+      // If real-time ingredient updates are needed, this logic must be expanded.
+      dineInContainers: dineInContainers,
+      carryOutContainers: carryOutContainers,
+      // Do NOT update aggregationTimestamp here
+    });
+    logger.log(`(_recalculateCycleTotals) Successfully recalculated totals for meal cycle ${mealCycleId}.`);
+  } catch (error) {
+    logger.error(`(_recalculateCycleTotals) Error during recalculation for cycle ${mealCycleId}:`, error);
+    // Don't re-throw here, just log, as this is a background trigger
+  }
+}
+// --- End Recalculation Helper ---
 
 /* Commented out Pub/Sub triggered function
 exports.aggregateMealCycleOrders = functions.pubsub.topic('aggregate-orders')...
@@ -272,4 +368,32 @@ exports.requestManualAggregation = onCall(async (request) => {
 });
 
 // Original PubSub function remains commented out
+
+// --- New Firestore Trigger for Real-time Updates ---
+const { onDocumentWritten } = require("firebase-functions/v2/firestore");
+
+exports.updateCycleTotalsOnOrderWrite = onDocumentWritten("orders/{orderId}", async (event) => {
+  // Get the cycleId from the data before or after the change
+  const dataBefore = event.data?.before.data();
+  const dataAfter = event.data?.after.data();
+
+  // Use cycleId from the new data (on create/update) or old data (on delete)
+  const cycleId = dataAfter?.cycleId || dataBefore?.cycleId;
+
+  if (!cycleId) {
+    logger.log("(updateCycleTotalsOnOrderWrite) No cycleId found in order document change. Skipping recalculation.");
+    return;
+  }
+
+  logger.log(`(updateCycleTotalsOnOrderWrite) Detected write to order affecting cycle ${cycleId}. Triggering recalculation.`);
+
+  // Call the recalculation helper function
+  try {
+    await _recalculateCycleTotals(cycleId);
+  } catch (error) {
+    // Error is logged within the helper function
+    logger.error(`(updateCycleTotalsOnOrderWrite) Error calling _recalculateCycleTotals for cycle ${cycleId}:`, error);
+  }
+});
+// --- End Firestore Trigger ---
 
