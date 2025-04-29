@@ -3,9 +3,29 @@ import { collection, getDocs, query, orderBy, doc, updateDoc, where } from 'fire
 // Import Firebase functions instance for calling callable functions
 import { getFunctions, httpsCallable } from "firebase/functions"; 
 import { db, functions as functionsInstance } from '../../firebaseConfig'; // Import functionsInstance
-import Button from '../../components/ui/Button'; // Use custom Button
-import Spinner from '../../components/ui/Spinner'; // Use custom Spinner
-import Alert from '../../components/ui/Alert';   // Use custom Alert
+import {
+    PageContainer,
+    Button,
+    LoadingSpinner,
+    Alert,
+    DataTable,
+    Select,
+    StatusChip
+} from '../../components/mui';
+import {
+    Box,
+    Typography,
+    IconButton,
+    Collapse,
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableRow,
+    Paper
+} from '@mui/material';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 
 // Define possible statuses (Removed voting-related and planning statuses)
 const cycleStatuses = [
@@ -23,14 +43,19 @@ const formatProteinCounts = (counts) => {
         .join(', ');
 };
 
+// Helper function to format status for display
+const formatStatus = (status) => {
+    return status
+        .replace(/_/g, ' ')
+        .replace(/\b\w/g, l => l.toUpperCase());
+};
+
 function MealCycleManagementPage() {
     const [cycles, setCycles] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [updatingStatus, setUpdatingStatus] = useState({});
-    const [alertOpen, setAlertOpen] = useState(false);
-    const [alertMessage, setAlertMessage] = useState('');
-    const [alertSeverity, setAlertSeverity] = useState('success');
+    const [alertInfo, setAlertInfo] = useState({ open: false, message: '', severity: 'success' });
 
     // --- State for Expanded Orders View ---
     const [expandedCycleId, setExpandedCycleId] = useState(null);
@@ -65,6 +90,7 @@ function MealCycleManagementPage() {
         } catch (err) {
             console.error("Error fetching meal cycles:", err);
             setError("Failed to load meal cycles.");
+            setAlertInfo({ open: true, message: "Failed to load meal cycles.", severity: 'error' });
         } finally {
             if (showLoading) setLoading(false);
         }
@@ -92,9 +118,11 @@ function MealCycleManagementPage() {
                     cycle.id === cycleId ? { ...cycle, status: newStatus } : cycle
                 )
             );
+            setAlertInfo({ open: true, message: `Cycle status updated to ${formatStatus(newStatus)}`, severity: 'success' });
         } catch (err) {
             console.error(`Error updating cycle ${cycleId} status:`, err);
             setError(`Failed to update status for cycle ${cycleId}.`);
+            setAlertInfo({ open: true, message: `Failed to update status for cycle ${cycleId}.`, severity: 'error' });
              // TODO: Better error display, maybe per row
         } finally {
             setUpdatingStatus(prev => ({ ...prev, [cycleId]: false }));
@@ -102,7 +130,7 @@ function MealCycleManagementPage() {
     };
 
     const handleCloseAlert = () => {
-        setAlertOpen(false);
+        setAlertInfo({ ...alertInfo, open: false });
     };
 
     // --- Fetch Orders for a Specific Cycle ---
@@ -131,214 +159,153 @@ function MealCycleManagementPage() {
 
     // --- Handle Expand/Collapse Click ---
     const handleExpandClick = (cycleId) => {
-        if (expandedCycleId === cycleId) {
-            // Collapse if already expanded
-            setExpandedCycleId(null);
-            setCycleOrders([]); // Clear orders when collapsing
-        } else {
-            // Expand and fetch orders
-            setExpandedCycleId(cycleId);
+        const isExpanding = expandedCycleId !== cycleId;
+        setExpandedCycleId(isExpanding ? cycleId : null);
+        if (isExpanding) {
             fetchCycleOrders(cycleId);
+        } else {
+            setCycleOrders([]); // Clear orders when collapsing
         }
     };
 
-    // Define table columns with responsiveness
+    const statusOptions = cycleStatuses.map(status => ({ value: status, label: formatStatus(status) }));
+
     const columns = [
-        { id: 'expand', label: '', minWidth: 50 },
-        { id: 'status', label: 'Status', minWidth: 140 },
-        { id: 'recipe', label: 'Recipe', minWidth: 170 },
-        { id: 'servings', label: 'Servings', minWidth: 80, align: 'right', hideOnSmall: true },
-        { id: 'protein', label: 'Protein Counts', minWidth: 170, hideOnMedium: true },
-        { id: 'orderDeadline', label: 'Deadline', minWidth: 170, hideOnSmall: true },
-        { id: 'cookDate', label: 'Cook Date', minWidth: 100, hideOnSmall: true },
-        { id: 'actions', label: 'Actions', minWidth: 150, sticky: true },
+        {
+            id: 'expand', label: '', minWidth: 50, align: 'center',
+            render: (row) => (
+                <IconButton
+                    aria-label="expand row"
+                    size="small"
+                    onClick={() => handleExpandClick(row.id)}
+                >
+                    {expandedCycleId === row.id ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+                </IconButton>
+            )
+        },
+        { 
+            id: 'status', label: 'Status', minWidth: 140, 
+            render: (row) => <StatusChip status={row.status} size="small" />
+        },
+        { id: 'recipe', label: 'Recipe', minWidth: 170, render: (row) => row.chosenRecipe?.recipeName || '-' },
+        { id: 'servings', label: 'Servings', minWidth: 80, align: 'right', render: (row) => row.totalMealCounts ?? '-' },
+        { 
+            id: 'protein', label: 'Protein Counts', minWidth: 170, 
+            render: (row) => (
+                <Typography variant="body2" noWrap title={formatProteinCounts(row.totalCountsByProtein)} sx={{ maxWidth: 150 }}>
+                    {formatProteinCounts(row.totalCountsByProtein)}
+                </Typography>
+            )
+        },
+        { id: 'orderDeadline', label: 'Deadline', minWidth: 170 },
+        { id: 'cookDate', label: 'Cook Date', minWidth: 100, render: (row) => row.targetCookDate },
+        {
+            id: 'actions', label: 'Actions', minWidth: 170, align: 'center',
+            render: (row) => (
+                updatingStatus[row.id] ? 
+                <LoadingSpinner size={24} /> :
+                <Select
+                    value={row.status || ''}
+                    onChange={(e) => handleStatusChange(row.id, e.target.value)}
+                    options={statusOptions}
+                    size="small"
+                    margin="none" // Remove default margins
+                    sx={{ minWidth: 150 }} // Ensure dropdown width
+                    // Remove label for inline use
+                    labelId={`status-select-label-${row.id}`}
+                    id={`status-select-${row.id}`}
+                />
+            )
+        },
     ];
 
-    const numberOfColumns = columns.length;
-
     return (
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6"> {/* Replaces Container */}
-            <div className="flex flex-wrap justify-between items-center mb-4 gap-4"> {/* Replaces Box */}
-                 <h1 className="text-2xl md:text-3xl font-semibold text-gray-900 my-2"> {/* Replaces Typography */}
+        <PageContainer>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                <Typography variant="h4" component="h1" gutterBottom>
                     Meal Cycle Management
-                </h1>
-                 <Button // Use custom Button
-                    onClick={() => fetchCycles()}
+                </Typography>
+                <Button
+                    onClick={() => fetchCycles()} // Refresh without full page load if desired
                     disabled={loading}
-                    variant="outline" // Assuming 'outline' is a valid variant in your Button component
+                    variant="outlined"
                 >
                     Refresh Cycles
                 </Button>
-            </div>
+            </Box>
 
-            {/* Use custom Alert component */}
-            {alertOpen && (
+            {alertInfo.open && (
                 <Alert
-                    message={alertMessage}
-                    type={alertSeverity}
-                    onClose={handleCloseAlert} // Pass the close handler
-                    className="mb-4" // Add margin if needed
-                />
+                    severity={alertInfo.severity}
+                    onClose={handleCloseAlert}
+                    sx={{ mb: 2 }}
+                >
+                    {alertInfo.message}
+                </Alert>
             )}
-
-            {/* Use custom Alert for general error */}
-            {error && !alertOpen && <Alert type="error" message={error} className="mb-4" />}
+            {error && !alertInfo.open && (
+                 <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>
+            )}
 
             {loading ? (
-                // Use custom Spinner
-                <div className="flex justify-center items-center p-10">
-                     <Spinner size="large" /> {/* Assuming size prop */}
-                </div>
+                <LoadingSpinner centered size={60} />
             ) : (
-                // Replace Paper div with container for table
-                <div className="shadow-md rounded-lg overflow-hidden">
-                    {/* Replace TableContainer with a div for scrolling/max-height */}
-                    <div className="overflow-x-auto max-h-[75vh]">
-                        {/* Replace Table with HTML table, add base styling */}
-                        <table className="min-w-full divide-y divide-gray-200">
-                            {/* Replace TableHead with thead, add sticky header styling */}
-                            {/* Ensure no whitespace between thead and tr */}
-                            <thead className="bg-gray-100 sticky top-0 z-20"><tr>{/* Removed whitespace before tr */}
-                                    {/* Replace TableCell with th, add styling */}
-                                    {columns.map((column) => (
-                                        <th
-                                            key={column.id}
-                                            scope="col"
-                                            // Apply hidden classes based on column definition
-                                            className={`px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider 
-                                                        ${column.align === 'right' ? 'text-right' : ''} 
-                                                        ${column.sticky ? 'sticky right-0 bg-gray-100 border-l border-gray-200 z-10' : ''} 
-                                                        ${column.hideOnSmall ? 'hidden sm:table-cell' : ''} 
-                                                        ${column.hideOnMedium ? 'hidden md:table-cell' : ''}
-                                                      `}
-                                            style={{ minWidth: column.minWidth }}
-                                        >
-                                            {column.label}
-                                        </th>
-                                    ))}
-                                </tr></thead>{/* Removed potential whitespace after tr */}
-                            {/* Replace TableBody with tbody */}
-                            <tbody className="bg-white divide-y divide-gray-200">
-                                {cycles.map((cycle) => {
-                                    const isExpanded = expandedCycleId === cycle.id;
-                                    const isLoadingStatus = updatingStatus[cycle.id];
-
-                                    return (
-                                        <React.Fragment key={cycle.id}>
-                                            <tr className="hover:bg-gray-50">
-                                                {/* Expand Cell */}
-                                                <td className="px-4 py-2 whitespace-nowrap">
-                                                    <Button onClick={() => handleExpandClick(cycle.id)} variant="icon" aria-label="expand row" size="small">
-                                                        {isExpanded ? '-' : '+'}
-                                                    </Button>
-                                                </td>
-                                                {/* Status Cell */}
-                                                <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-700 capitalize">
-                                                    {cycle.status.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
-                                                </td>
-                                                {/* Recipe Cell */}
-                                                <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-700">
-                                                    {cycle.chosenRecipe?.recipeName || '-'}
-                                                </td>
-                                                {/* Servings Cell - Restore responsive hiding */}
-                                                <td className={`px-4 py-2 whitespace-nowrap text-sm text-gray-700 text-right hidden sm:table-cell`}>
-                                                    {cycle.totalMealCounts ?? '-'}
-                                                </td>
-                                                {/* Protein Cell - Restore responsive hiding and truncate */}
-                                                <td className={`px-4 py-2 text-sm text-gray-700 hidden md:table-cell`} title={formatProteinCounts(cycle.totalCountsByProtein)}>
-                                                     <span className="truncate max-w-[150px] inline-block">
-                                                         {formatProteinCounts(cycle.totalCountsByProtein)}
-                                                     </span>
-                                                </td>
-                                                {/* Deadline Cell - Restore responsive hiding */}
-                                                <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500 hidden sm:table-cell">
-                                                    {cycle.orderDeadline}
-                                                </td>
-                                                {/* Cook Date Cell - Restore responsive hiding */}
-                                                <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500 hidden sm:table-cell">
-                                                    {cycle.targetCookDate}
-                                                </td>
-                                                {/* Actions Cell */}                                                
-                                                <td className="sticky right-0 bg-white border-l border-gray-200 z-10">
-                                                    <div className="flex items-center justify-center p-1"> {/* Centered content */}
-                                                        {isLoadingStatus ? (
-                                                            <Spinner size="small" />
-                                                        ) : (
-                                                            <select
-                                                                value={cycle.status || ''}
-                                                                onChange={(e) => handleStatusChange(cycle.id, e.target.value)}
-                                                                disabled={isLoadingStatus}
-                                                                className="block w-36 pl-2 pr-8 py-1 text-sm border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 rounded-md shadow-sm disabled:opacity-50 disabled:bg-gray-100"
-                                                                title={`Current status: ${cycle.status}`}
-                                                            >
-                                                                {cycleStatuses.map((status) => (
-                                                                    <option key={status} value={status}>
-                                                                        {status.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
-                                                                    </option>
-                                                                ))}
-                                                            </select>
-                                                        )}
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            {/* Expanded Row - Replace TableRow/TableCell */} 
-                                            {isExpanded && (
-                                                <tr className="bg-gray-50">
-                                                    {/* Use td spanning columns */}
-                                                    <td colSpan={numberOfColumns} className="p-0 border-b-0">
-                                                         <div className="p-4">
-                                                             <h3 className="text-lg font-medium text-gray-800 mb-3">
-                                                                 Orders for: {cycle.chosenRecipe?.recipeName || `Cycle ${cycle.id}`}
-                                                             </h3>
-                                                             {loadingOrders ? (
-                                                                 <div className="flex justify-center items-center p-4">
-                                                                      <Spinner />
-                                                                 </div>
-                                                             ) : ordersError ? (
-                                                                <Alert type="error" message={ordersError} />
-                                                             ) : cycleOrders.length > 0 ? (
-                                                                 <div className="overflow-x-auto">
-                                                                     {/* Sub-table for orders */}
-                                                                     <table className="min-w-full divide-y divide-gray-200">
-                                                                          <thead className="bg-gray-100">
-                                                                            <tr>
-                                                                                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
-                                                                                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Meals</th>
-                                                                                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Container</th>
-                                                                            </tr>
-                                                                          </thead>
-                                                                         <tbody className="bg-white divide-y divide-gray-200">
-                                                                            {cycleOrders.map(order => (
-                                                                                <tr key={order.id}>
-                                                                                    <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-700">{order.userName || order.userId || 'Unknown User'}</td>
-                                                                                    <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-700">
-                                                                                        {/* Add space after comma */}
-                                                                                        {order.items?.map(item => `${item.protein}: ${item.quantity}`).join(', \u00A0 ') || '-'} 
-                                                                                    </td>
-                                                                                    <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-700 capitalize">
-                                                                                        {order.locationStatus?.replace('_', ' ') || '-'}
-                                                                                    </td>
-                                                                                </tr>
-                                                                            ))}
-                                                                         </tbody>
-                                                                     </table>
-                                                                 </div>
-                                                             ) : (
-                                                                 <p className="text-sm text-gray-500">No orders found for this cycle.</p>
-                                                             )}
-                                                         </div>
-                                                    </td>
-                                                </tr>
-                                            )}
-                                        </React.Fragment>
-                                    );
-                                })}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+                <DataTable
+                    columns={columns}
+                    data={cycles}
+                    maxHeight="75vh"
+                />
             )}
-        </div>
+            
+            {/* Render expanded row content outside the DataTable component */} 
+            {cycles.map((cycle) => (
+                <Collapse 
+                    in={expandedCycleId === cycle.id} 
+                    timeout="auto" 
+                    unmountOnExit
+                    key={`collapse-${cycle.id}`}
+                >
+                    <Paper sx={{ margin: 1.5, padding: 2, backgroundColor: 'grey.100' }} elevation={2}>
+                        <Typography variant="h6" gutterBottom component="div">
+                            Orders for: {cycle.chosenRecipe?.recipeName || `Cycle ${cycle.id}`}
+                        </Typography>
+                        {loadingOrders ? (
+                            <LoadingSpinner centered size={30} />
+                        ) : ordersError ? (
+                            <Alert severity="error">{ordersError}</Alert>
+                        ) : cycleOrders.length > 0 ? (
+                            <Table size="small" aria-label="cycle orders">
+                                <TableHead>
+                                    <TableRow>
+                                        <TableCell>User</TableCell>
+                                        <TableCell>Meals (Protein: Qty)</TableCell>
+                                        <TableCell>Container</TableCell>
+                                    </TableRow>
+                                </TableHead>
+                                <TableBody>
+                                    {cycleOrders.map((order) => (
+                                        <TableRow key={order.id}>
+                                            <TableCell component="th" scope="row">
+                                                {order.userName || order.userId || 'Unknown User'}
+                                            </TableCell>
+                                            <TableCell>
+                                                {order.items?.map(item => `${item.protein}: ${item.quantity}`).join(', ') || '-'}
+                                            </TableCell>
+                                            <TableCell>
+                                                {formatStatus(order.locationStatus) || '-'}
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        ) : (
+                            <Typography variant="body2" color="text.secondary">No orders found for this cycle.</Typography>
+                        )}
+                    </Paper>
+                </Collapse>
+            ))}
+
+        </PageContainer>
     );
 }
 

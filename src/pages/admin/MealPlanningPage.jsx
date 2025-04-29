@@ -2,34 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { collection, addDoc, getDocs, query, where, serverTimestamp, Timestamp } from 'firebase/firestore';
 import { db } from '../../firebaseConfig';
-
-// Removed MUI core components
-// import {
-//     Container,
-//     Typography,
-//     Button,
-//     Box,
-//     CircularProgress,
-//     Alert,
-//     Grid,
-//     Paper,
-//     Select,
-//     MenuItem,
-//     FormControl,
-//     InputLabel
-// } from '@mui/material';
-
-// Keep MUI Date Pickers
+import { PageContainer, Button, LoadingSpinner, Alert, Select, Card } from '../../components/mui';
+import { Typography, Box, Grid } from '@mui/material';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-
-// Import custom Tailwind components
-import TailwindAlert from '../../components/ui/Alert.jsx';
-import StyledButton from '../../components/ui/Button.jsx';
-import Spinner from '../../components/ui/Spinner.jsx';
-import StyledSelect from '../../components/ui/Select.jsx'; // Import the new select
 
 // Helper function to calculate default dates
 const getDefaultDates = () => {
@@ -185,73 +163,74 @@ function MealPlanningPage() {
 
     return (
         <LocalizationProvider dateAdapter={AdapterDateFns}>
-            <div className="container mx-auto px-4 sm:px-6 lg:px-8 pb-8">
-                <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 my-4 sm:my-6">
+            <PageContainer>
+                <Typography variant="h4" component="h1" gutterBottom>
                     Plan New Meal Cycle
-                </h1>
+                </Typography>
 
-                <form onSubmit={handleSubmit} noValidate className="mt-2 space-y-6">
-                    <div className="bg-white shadow-md rounded-lg p-4 sm:p-6">
-                        <h2 className="text-lg font-semibold text-gray-800 mb-4">Select Recipe for the Cycle</h2>
-                        {fetchLoading && <div className="flex justify-center"><Spinner className="text-indigo-600" /></div>}
+                <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 2, display: 'flex', flexDirection: 'column', gap: 3 }}>
+                    <Card>
+                        <Typography variant="h6" gutterBottom sx={{ mb: 2 }}>Select Recipe for the Cycle</Typography>
+                        {fetchLoading && <LoadingSpinner centered />}
                         {!fetchLoading && availableRecipes.length === 0 && !error && (
-                            <p className="text-gray-500">No 'approved' or 'testing' recipes found.</p>
+                            <Typography color="text.secondary">No 'approved' or 'testing' recipes found.</Typography>
                         )}
                         {!fetchLoading && availableRecipes.length > 0 && (
-                             <StyledSelect
+                             <Select
                                 label="Recipe *"
-                                id="recipe-select"
-                                name="recipe-select"
                                 value={selectedRecipeId}
                                 onChange={(e) => setSelectedRecipeId(e.target.value)}
-                                disabled={loading || fetchLoading}
                                 options={recipeOptions}
+                                disabled={loading || fetchLoading}
                                 required
+                                margin="none"
+                                size="medium" // Ensure consistent size
                              />
                         )}
-                         {error && fetchLoading && <TailwindAlert severity="error" className="mt-4">{error}</TailwindAlert>}
-                    </div>
+                         {error && fetchLoading && <Alert severity="error" sx={{ mt: 2 }}>{error}</Alert>}
+                    </Card>
 
-                    <div className="bg-white shadow-md rounded-lg p-4 sm:p-6">
-                         <h2 className="text-lg font-semibold text-gray-800 mb-4">Set Deadlines & Dates</h2>
-                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                            <div>
+                    <Card>
+                         <Typography variant="h6" gutterBottom sx={{ mb: 2 }}>Set Deadlines & Dates</Typography>
+                         <Grid container spacing={3}> 
+                            <Grid item xs={12} sm={6}>
                                  <DateTimePicker
                                     label="Order Deadline *"
                                     value={orderDeadline}
                                     onChange={setOrderDeadline}
                                     disabled={loading}
-                                    slotProps={{ textField: { fullWidth: true, required: true, helperText:"Select date and time" } }}
+                                    ampm={true} // Use AM/PM
+                                    slotProps={{ textField: { fullWidth: true, required: true, variant: 'outlined' } }} // Ensure consistent styling
                                  />
-                            </div>
-                             <div>
+                            </Grid>
+                             <Grid item xs={12} sm={6}>
                                 <DatePicker
                                     label="Target Cook Date *"
                                     value={targetCookDate}
                                     onChange={setTargetCookDate}
                                     disabled={loading}
-                                    slotProps={{ textField: { fullWidth: true, required: true, helperText:"Select date" } }}
+                                    slotProps={{ textField: { fullWidth: true, required: true, variant: 'outlined' } }} // Ensure consistent styling
                                 />
-                            </div>
-                         </div>
-                    </div>
+                            </Grid>
+                         </Grid>
+                    </Card>
 
-                     <div className="mt-6">
-                        {error && !fetchLoading && <TailwindAlert severity="error" className="mb-4">{error}</TailwindAlert>}
-                        {success && <TailwindAlert severity="success" className="mb-4">{success}</TailwindAlert>}
-                        <StyledButton
+                    <Box sx={{ mt: 2 }}> 
+                        {error && !fetchLoading && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+                        {success && <Alert severity="success" sx={{ mb: 2 }}>{success}</Alert>}
+                        <Button
                             type="submit"
-                            variant="primary"
+                            variant="contained"
+                            isLoading={loading}
                             disabled={loading || fetchLoading || !selectedRecipeId}
                             fullWidth
                             size="large"
                         >
-                            {loading && <Spinner className="-ml-1 mr-2 h-5 w-5 text-white" />}
-                            {loading ? 'Creating Cycle...' : 'Create Meal Cycle'}
-                        </StyledButton>
-                    </div>
-                </form>
-            </div>
+                            Create Meal Cycle
+                        </Button>
+                    </Box>
+                </Box>
+            </PageContainer>
         </LocalizationProvider>
     );
 }
