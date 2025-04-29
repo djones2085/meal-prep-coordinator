@@ -57,6 +57,7 @@ async function _performAggregation(mealCycleId) {
       logger.log(`(_performAggregation) No orders found for cycle ${mealCycleId}. Updating cycle with zeros.`);
       await cycleRef.update({
         totalMealCounts: 0,
+        totalCountsByProtein: {},
         totalIngredients: [],
         dineInContainers: 0,
         carryOutContainers: 0,
@@ -67,7 +68,8 @@ async function _performAggregation(mealCycleId) {
 
     logger.log(`(_performAggregation) Found ${ordersSnapshot.size} orders for cycle ${mealCycleId}.`);
 
-    let totalServings = 0;
+    let totalOverallServings = 0;
+    const totalCountsByProtein = {};
     const aggregatedIngredients = {};
     let dineInContainers = 0;
     let carryOutContainers = 0;
@@ -76,13 +78,26 @@ async function _performAggregation(mealCycleId) {
     const validOrderDocs = [];
     ordersSnapshot.docs.forEach((orderDoc) => {
       const orderData = orderDoc.data();
-      if (!orderData.userId || !orderData.servings || orderData.servings <= 0) {
-        logger.warn(`(_performAggregation) Skipping order ${orderDoc.id}: missing userId or invalid servings.`);
+      if (!orderData.userId || !orderData.totalServings || orderData.totalServings <= 0 || !orderData.items) {
+        logger.warn(`(_performAggregation) Skipping order ${orderDoc.id}: missing userId, items, or invalid/zero totalServings.`);
       } else {
         validOrderDocs.push(orderDoc);
         userFetchPromises.push(db.collection("users").doc(orderData.userId).get());
       }
     });
+
+    if (validOrderDocs.length === 0) {
+      logger.log(`(_performAggregation) No *valid* orders found for cycle ${mealCycleId} after filtering. Updating with zeros.`);
+      await cycleRef.update({
+        totalMealCounts: 0,
+        totalCountsByProtein: {},
+        totalIngredients: [],
+        dineInContainers: 0,
+        carryOutContainers: 0,
+        aggregationTimestamp: admin.firestore.FieldValue.serverTimestamp(),
+      });
+      return;
+    }
 
     const userSnaps = await Promise.all(userFetchPromises);
     const userMap = new Map(userSnaps.map((snap) => [snap.id, snap.exists ? snap.data() : null]));
@@ -90,9 +105,9 @@ async function _performAggregation(mealCycleId) {
     for (const orderDoc of validOrderDocs) {
       const orderData = orderDoc.data();
       const userId = orderData.userId;
-      const servingsOrdered = orderData.servings;
+      const orderTotalServings = orderData.totalServings;
 
-      totalServings += servingsOrdered;
+      totalOverallServings += orderTotalServings;
 
       let locationStatus = "carry_out";
       const userData = userMap.get(userId);
@@ -103,34 +118,46 @@ async function _performAggregation(mealCycleId) {
       }
 
       if (locationStatus === "dine_in") {
-        dineInContainers += servingsOrdered;
+        dineInContainers += orderTotalServings;
       } else {
-        carryOutContainers += servingsOrdered;
+        carryOutContainers += orderTotalServings;
       }
 
-      recipeIngredients.forEach((ingredient) => {
-        if (!ingredient.name || !ingredient.unit || ingredient.quantity == null || ingredient.quantity <= 0) {
-          return;
-        }
-        const quantityNeeded = ingredient.quantity * servingsOrdered;
-        const key = `${ingredient.name.toLowerCase().trim()}_${ingredient.unit.toLowerCase().trim()}`;
+      if (orderData.items && Array.isArray(orderData.items)) {
+        orderData.items.forEach((item) => {
+          const proteinName = item.protein || "default";
+          const quantity = item.quantity || 0;
 
-        if (aggregatedIngredients[key]) {
-          aggregatedIngredients[key].quantity += quantityNeeded;
-        } else {
-          aggregatedIngredients[key] = {
-            name: ingredient.name,
-            quantity: quantityNeeded,
-            unit: ingredient.unit,
-          };
-        }
-      });
+          if (quantity <= 0) return;
+
+          totalCountsByProtein[proteinName] = (totalCountsByProtein[proteinName] || 0) + quantity;
+
+          recipeIngredients.forEach((ingredient) => {
+            if (!ingredient.name || !ingredient.unit || ingredient.quantity == null || ingredient.quantity <= 0) {
+              return;
+            }
+            const quantityNeeded = ingredient.quantity * quantity;
+            const key = `${ingredient.name.toLowerCase().trim()}_${ingredient.unit.toLowerCase().trim()}`;
+
+            if (aggregatedIngredients[key]) {
+              aggregatedIngredients[key].quantity += quantityNeeded;
+            } else {
+              aggregatedIngredients[key] = {
+                name: ingredient.name,
+                quantity: quantityNeeded,
+                unit: ingredient.unit,
+              };
+            }
+          });
+        });
+      }
     }
 
     const totalIngredientsArray = Object.values(aggregatedIngredients);
 
     await cycleRef.update({
-      totalMealCounts: totalServings,
+      totalMealCounts: totalOverallServings,
+      totalCountsByProtein: totalCountsByProtein,
       totalIngredients: totalIngredientsArray,
       dineInContainers: dineInContainers,
       carryOutContainers: carryOutContainers,

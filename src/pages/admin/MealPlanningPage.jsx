@@ -171,8 +171,8 @@ function MealPlanningPage() {
 
     return (
         <LocalizationProvider dateAdapter={AdapterDateFns}>
-            <Container maxWidth="md">
-                <Typography variant="h4" component="h1" gutterBottom>
+            <Container maxWidth="md" sx={{ px: { xs: 2, sm: 3 }, mb: 4 }}>
+                <Typography variant="h4" component="h1" gutterBottom sx={{ my: { xs: 3, md: 4 } }}>
                     Plan New Meal Cycle
                 </Typography>
 

@@ -24,7 +24,8 @@ import {
     Checkbox,
     FormGroup,
     Grid,
-    LinearProgress
+    LinearProgress,
+    FormHelperText
 } from '@mui/material';
 
 // Assume commonUnits are defined or import them if needed from AddRecipePage
@@ -37,8 +38,7 @@ function DashboardPage() {
     const [userOrder, setUserOrder] = useState(null); // Stores user's existing order for the cycle
 
     // --- State for Ordering Form ---
-    const [orderServings, setOrderServings] = useState(1);
-    const [orderProteinChoice, setOrderProteinChoice] = useState('');
+    const [orderQuantities, setOrderQuantities] = useState({}); // { proteinName: quantity }
     const [orderCustomizations, setOrderCustomizations] = useState([]); // e.g., ['no cheese']
 
     // --- Loading / Error States ---
@@ -48,6 +48,7 @@ function DashboardPage() {
     const [isSubmittingOrder, setIsSubmittingOrder] = useState(false);
     const [error, setError] = useState('');
     const [orderSuccess, setOrderSuccess] = useState('');
+    const [orderValidationError, setOrderValidationError] = useState(''); // Specific for quantity validation
 
     // --- Fetch Active Cycle (Planned or Ordering) ---
     useEffect(() => {
@@ -104,16 +105,18 @@ function DashboardPage() {
             const recipeDocRef = doc(db, 'recipes', recipeId);
             const docSnap = await getDoc(recipeDocRef);
             if (docSnap.exists()) {
-                setChosenRecipeDetails({ id: docSnap.id, ...docSnap.data() });
-                // Set default protein choice if applicable
-                const defaultOption = docSnap.data().proteinOptions?.find(opt => opt.isDefault);
-                if (defaultOption) {
-                    setOrderProteinChoice(defaultOption.optionName);
-                } else if (docSnap.data().proteinOptions?.length > 0) {
-                    // Select the first option if no default is set
-                     setOrderProteinChoice(docSnap.data().proteinOptions[0].optionName);
+                const recipeData = { id: docSnap.id, ...docSnap.data() };
+                setChosenRecipeDetails(recipeData);
+                // Initialize orderQuantities with 0 for each protein option
+                const initialQuantities = {};
+                if (recipeData.proteinOptions && recipeData.proteinOptions.length > 0) {
+                    recipeData.proteinOptions.forEach(opt => {
+                        initialQuantities[opt.optionName] = 0;
+                    });
+                } else {
+                     initialQuantities["default"] = 1; // Default quantity if no protein options
                 }
-
+                setOrderQuantities(initialQuantities);
             } else {
                 setError(`Chosen recipe (ID: ${recipeId}) not found.`);
                 setChosenRecipeDetails(null);
@@ -172,6 +175,18 @@ function DashboardPage() {
         checkUserOrder();
     }, [activeCycle, currentUser]);
 
+    // --- Handler for Quantity Input Change ---
+    const handleQuantityChange = (proteinName, value) => {
+        const quantity = parseInt(value, 10);
+        // Allow 0, but treat NaN or negative as 0
+        const validQuantity = !isNaN(quantity) && quantity >= 0 ? quantity : 0;
+        setOrderQuantities(prev => ({
+            ...prev,
+            [proteinName]: validQuantity
+        }));
+        setOrderValidationError(''); // Clear validation error on change
+    };
+
     // --- Handle Order Submission ---
     const handleOrderSubmit = async () => {
         if (!currentUser || !activeCycle || !chosenRecipeDetails) {
@@ -179,13 +194,19 @@ function DashboardPage() {
             return;
         }
 
-        // Simple validation
-        if (orderServings <= 0) {
-            setError("Please enter a valid number of servings (at least 1).");
-            return;
-        }
-         if (chosenRecipeDetails.proteinOptions?.length > 0 && !orderProteinChoice) {
-            setError("Please select a protein option.");
+        setOrderValidationError(''); // Clear previous validation errors
+
+        // 1. Create items array from orderQuantities
+        const items = Object.entries(orderQuantities)
+            .map(([protein, quantity]) => ({ protein, quantity }))
+            .filter(item => item.quantity > 0); // Only include items with quantity > 0
+
+        // 2. Calculate totalServings
+        const totalServings = items.reduce((sum, item) => sum + item.quantity, 0);
+
+        // 3. Validation
+        if (totalServings <= 0) {
+            setOrderValidationError("Please order at least one serving.");
             return;
         }
 
@@ -193,17 +214,18 @@ function DashboardPage() {
         setError('');
         setOrderSuccess('');
 
+        // 4. Prepare orderData with new structure
         const orderData = {
             userId: currentUser.uid,
-            userName: currentUser.displayName || currentUser.email, // Store user identifier
+            userName: currentUser.displayName || currentUser.email,
             cycleId: activeCycle.id,
             recipeId: chosenRecipeDetails.id,
             recipeName: chosenRecipeDetails.name,
-            servings: Number(orderServings),
-            proteinChoice: orderProteinChoice || null,
+            items: items, // Array of { protein, quantity }
+            totalServings: totalServings,
             customizations: orderCustomizations || [],
             orderTimestamp: serverTimestamp(),
-            status: 'placed', // Initial order status
+            status: 'placed',
         };
 
         try {
@@ -211,7 +233,7 @@ function DashboardPage() {
             const docRef = await addDoc(ordersRef, orderData);
             console.log("Order placed with ID: ", docRef.id);
             setOrderSuccess("Your order has been placed successfully!");
-            setUserOrder({ id: docRef.id, ...orderData }); // Update local state to show order placed
+            setUserOrder({ id: docRef.id, ...orderData }); // Update local state
         } catch (err) {
             console.error("Error placing order:", err);
             setError("Failed to place order. Please check the details and try again.");
@@ -245,40 +267,52 @@ function DashboardPage() {
             );
         }
 
-        // Display ordering form
+        const proteinOptions = chosenRecipeDetails?.proteinOptions;
+        const hasProteinOptions = proteinOptions && proteinOptions.length > 0;
+
         return (
             <Box sx={{ mt: 3 }}>
                 <Typography variant="h6" gutterBottom>Place Your Order</Typography>
-                <Grid container spacing={2}>
-                    <Grid xs={12} sm={4}>
-                        <TextField
-                            label="Number of Servings"
-                            type="number"
-                            value={orderServings}
-                            onChange={(e) => setOrderServings(parseInt(e.target.value, 10) || 1)}
-                            InputProps={{ inputProps: { min: 1 } }}
-                            fullWidth
-                            disabled={isSubmittingOrder}
-                            required
-                        />
-                    </Grid>
-                    {chosenRecipeDetails?.proteinOptions && chosenRecipeDetails.proteinOptions.length > 0 && (
-                        <Grid xs={12} sm={8}>
-                            <FormControl fullWidth required disabled={isSubmittingOrder}>
-                                <InputLabel id="protein-choice-label">Protein Choice</InputLabel>
-                                <Select
-                                    labelId="protein-choice-label"
-                                    value={orderProteinChoice}
-                                    label="Protein Choice"
-                                    onChange={(e) => setOrderProteinChoice(e.target.value)}
-                                >
-                                    {chosenRecipeDetails.proteinOptions.map((opt) => (
-                                        <MenuItem key={opt.optionName} value={opt.optionName}>
-                                            {opt.optionName} (+${opt.addedCost?.toFixed(2) || '0.00'})
-                                        </MenuItem>
-                                    ))}
-                                </Select>
-                            </FormControl>
+                <Grid container spacing={2} alignItems="center">
+                    {hasProteinOptions ? (
+                        // Render quantity input for each protein option
+                        proteinOptions.map((opt) => (
+                            <Grid item xs={12} sm={6} key={opt.optionName} sx={{ display: 'flex', alignItems: 'center' }}>
+                                <Typography sx={{ flexGrow: 1, mr: 1 }}>
+                                    {opt.optionName} 
+                                    {opt.addedCost > 0 && `(+${opt.addedCost.toFixed(2)})`}
+                                </Typography>
+                                <TextField
+                                    label="Quantity"
+                                    type="number"
+                                    size="small"
+                                    value={orderQuantities[opt.optionName] || 0} // Use state object
+                                    onChange={(e) => handleQuantityChange(opt.optionName, e.target.value)}
+                                    InputProps={{ inputProps: { min: 0, style: { textAlign: 'center' } } }} // Allow 0
+                                    sx={{ width: '80px' }} // Adjust width as needed
+                                    disabled={isSubmittingOrder}
+                                />
+                            </Grid>
+                        ))
+                    ) : (
+                         // Fallback: Render single quantity input if no protein options
+                         <Grid item xs={12} sm={6}>
+                             <TextField
+                                label="Quantity"
+                                type="number"
+                                value={orderQuantities["default"] || 0} // Use default key
+                                onChange={(e) => handleQuantityChange("default", e.target.value)}
+                                InputProps={{ inputProps: { min: 0 } }} // Allow 0
+                                fullWidth
+                                disabled={isSubmittingOrder}
+                                required
+                            />
+                        </Grid>
+                    )}
+                     {/* Display validation error */} 
+                     {orderValidationError && (
+                        <Grid item xs={12}>
+                            <FormHelperText error>{orderValidationError}</FormHelperText>
                         </Grid>
                     )}
                     {/* Optional: Add Customizations Section (e.g., checkboxes for 'no onion', 'extra sauce') */}
@@ -309,8 +343,8 @@ function DashboardPage() {
 
     // --- Main Render Logic ---
     return (
-        <Container maxWidth="md">
-            <Typography variant="h4" component="h1" gutterBottom sx={{ mt: 3, mb: 2 }}>
+        <Container maxWidth="md" sx={{ px: { xs: 2, sm: 3 }, mb: 4 }}>
+            <Typography variant="h4" component="h1" gutterBottom sx={{ my: { xs: 3, md: 4 } }}>
                 Meal Cycle Dashboard
             </Typography>
 

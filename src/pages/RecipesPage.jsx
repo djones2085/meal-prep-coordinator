@@ -51,8 +51,8 @@ function RecipesPage() {
     }, []); // Empty dependency array means this runs once on mount
 
     return (
-        <Container>
-            <Typography variant="h4" component="h1" gutterBottom sx={{ my: 2 }}>
+        <Container sx={{ px: { xs: 2, sm: 3 } }}>
+            <Typography variant="h4" component="h1" gutterBottom sx={{ my: 4 }}>
                 Recipes
             </Typography>
 
