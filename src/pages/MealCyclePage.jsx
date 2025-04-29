@@ -168,19 +168,19 @@ function MealCyclePage() {
                             <Grid container spacing={2}>
                                 <Grid item xs={12} sm={6}>
                                     <Typography variant="body2" color="text.secondary">Total Servings</Typography>
-                                    <Typography variant="body1">{cycle.totalMealCounts ?? 'N/A'}</Typography>
+                                    <Typography variant="body1">{cycle.Servings ?? 'N/A'}</Typography>
                                 </Grid>
                                 <Grid item xs={12} sm={6}>
                                     <Typography variant="body2" color="text.secondary">Protein Counts</Typography>
-                                    <Typography variant="body1">{formatProteinCounts(cycle.totalCountsByProtein)}</Typography>
+                                    <Typography variant="body1">{formatProteinCounts(cycle.Proteins)}</Typography>
                                 </Grid>
                                 <Grid item xs={12} sm={6}>
                                     <Typography variant="body2" color="text.secondary">Dine-In Containers</Typography>
-                                    <Typography variant="body1">{cycle.dineInContainers ?? 'N/A'}</Typography>
+                                    <Typography variant="body1">{cycle.DineIn ?? 'N/A'}</Typography>
                                 </Grid>
                                 <Grid item xs={12} sm={6}>
                                     <Typography variant="body2" color="text.secondary">Carry-Out Containers</Typography>
-                                    <Typography variant="body1">{cycle.carryOutContainers ?? 'N/A'}</Typography>
+                                    <Typography variant="body1">{cycle.CarryOut ?? 'N/A'}</Typography>
                                 </Grid>
                                 <Grid item xs={12}>
                                      <Typography variant="caption" color="text.secondary" sx={{ mt: 1 }}>
