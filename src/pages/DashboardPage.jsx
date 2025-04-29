@@ -1,54 +1,74 @@
 import React, { useState, useEffect } from 'react';
 import { Link as RouterLink } from 'react-router-dom'; // Keep if needed elsewhere
-import { collection, getDocs, query, where, limit, addDoc, serverTimestamp, Timestamp, doc, getDoc, onSnapshot } from 'firebase/firestore';
+import { collection, getDocs, query, where, limit, addDoc, updateDoc, serverTimestamp, Timestamp, doc, getDoc, onSnapshot } from 'firebase/firestore';
 import { db } from '../firebaseConfig';
 import { useAuth } from '../contexts/AuthContext';
-import {
-    Container,
-    Typography,
-    Box,
-    Paper,
-    List,
-    ListItem,
-    ListItemText,
-    Button,
-    CircularProgress,
-    Alert,
-    FormControl,
-    FormLabel,
-    Divider,
-    TextField,
-    Select,
-    MenuItem,
-    InputLabel,
-    Checkbox,
-    FormGroup,
-    Grid,
-    LinearProgress,
-    FormHelperText
-} from '@mui/material';
+// Removed MUI imports that are no longer needed
+// No MUI imports needed here anymore? Check thoroughly if any were missed.
+// import {} from '@mui/material';
+
+// Import extracted components
+import TailwindAlert from '../components/ui/Alert.jsx';
+import StyledInput from '../components/ui/Input.jsx';
+import StyledButton from '../components/ui/Button.jsx';
+import Spinner from '../components/ui/Spinner.jsx';
 
 // Assume commonUnits are defined or import them if needed from AddRecipePage
 const commonUnits = ['g', 'kg', 'ml', 'l', 'unit', 'tsp', 'tbsp', 'cup', 'oz', 'lb', 'pinch', 'slice', 'clove'];
+
+// --- Removed Reusable Tailwind Component Definitions ---
+// const TailwindAlert = (...) => { ... };
+// const StyledInput = React.forwardRef(...) => { ... };
+// const StyledButton = (...) => { ... };
+// const Spinner = (...) => { ... };
 
 function DashboardPage() {
     const { currentUser } = useAuth();
     const [activeCycle, setActiveCycle] = useState(null); // Can be planned or ordering cycle
     const [chosenRecipeDetails, setChosenRecipeDetails] = useState(null);
     const [userOrder, setUserOrder] = useState(null); // Stores user's existing order for the cycle
+    const [userProfile, setUserProfile] = useState(null); // Store user profile data
 
     // --- State for Ordering Form ---
     const [orderQuantities, setOrderQuantities] = useState({}); // { proteinName: quantity }
     const [orderCustomizations, setOrderCustomizations] = useState([]); // e.g., ['no cheese']
+    const [isModifyingOrder, setIsModifyingOrder] = useState(false); // Track if user is modifying
 
     // --- Loading / Error States ---
     const [loadingCycle, setLoadingCycle] = useState(true);
     const [loadingOrderCheck, setLoadingOrderCheck] = useState(true);
     const [loadingRecipeDetails, setLoadingRecipeDetails] = useState(false);
+    const [loadingProfile, setLoadingProfile] = useState(true); // Added loading state for profile
     const [isSubmittingOrder, setIsSubmittingOrder] = useState(false);
     const [error, setError] = useState('');
     const [orderSuccess, setOrderSuccess] = useState('');
     const [orderValidationError, setOrderValidationError] = useState(''); // Specific for quantity validation
+
+    // --- Fetch User Profile ---
+    useEffect(() => {
+        if (!currentUser) {
+            setLoadingProfile(false);
+            return;
+        }
+        setLoadingProfile(true);
+        const userDocRef = doc(db, 'users', currentUser.uid);
+        const unsubscribe = onSnapshot(userDocRef, (docSnap) => {
+            if (docSnap.exists()) {
+                setUserProfile({ id: docSnap.id, ...docSnap.data() });
+            } else {
+                console.warn("User profile document not found for UID:", currentUser.uid);
+                // Set default or handle missing profile?
+                setUserProfile(null); // Or set a default profile structure
+            }
+            setLoadingProfile(false);
+        }, (err) => {
+            console.error("Error fetching user profile:", err);
+            setError("Could not load user profile information.");
+            setLoadingProfile(false);
+        });
+
+        return () => unsubscribe(); // Cleanup listener on unmount
+    }, [currentUser]);
 
     // --- Fetch Active Cycle (Planned or Ordering) ---
     useEffect(() => {
@@ -135,45 +155,69 @@ function DashboardPage() {
         if (!activeCycle || !['planned', 'ordering_open'].includes(activeCycle.status) || !currentUser) {
             setLoadingOrderCheck(false);
             setUserOrder(null); // Ensure order state is clear if conditions aren't met
+            setIsModifyingOrder(false); // Reset modification state
             return;
         }
 
-        const checkUserOrder = async () => {
-            setLoadingOrderCheck(true);
-            setUserOrder(null); // Reset before checking
-            try {
-                const ordersRef = collection(db, "orders");
-                const q = query(
-                    ordersRef,
-                    where("cycleId", "==", activeCycle.id),
-                    where("userId", "==", currentUser.uid),
-                    limit(1)
-                );
-                const orderSnapshot = await getDocs(q);
+        setLoadingOrderCheck(true);
+        setUserOrder(null); // Reset before checking
+        setIsModifyingOrder(false); // Reset modification state
+        const ordersRef = collection(db, "orders");
+        const q = query(
+            ordersRef,
+            where("cycleId", "==", activeCycle.id),
+            where("userId", "==", currentUser.uid),
+            limit(1)
+        );
 
-                if (!orderSnapshot.empty) {
-                    const orderDoc = orderSnapshot.docs[0];
-                    setUserOrder({ id: orderDoc.id, ...orderDoc.data() });
-                    setOrderSuccess("You have already placed an order for this cycle.");
-                    // Pre-fill form with existing order details? (Optional)
-                    // const existingOrder = orderDoc.data();
-                    // setOrderServings(existingOrder.servings || 1);
-                    // setOrderProteinChoice(existingOrder.proteinChoice || '');
-                    // setOrderCustomizations(existingOrder.customizations || []);
-                } else {
-                    setUserOrder(null);
-                     setOrderSuccess(''); // Clear success message if no order found
-                }
-            } catch (err) {
-                console.error("Error checking user order:", err);
-                setError("Could not verify order status.");
-            } finally {
-                setLoadingOrderCheck(false);
+        // Use onSnapshot to listen for real-time changes to the order
+        const unsubscribe = onSnapshot(q, (querySnapshot) => {
+            if (!querySnapshot.empty) {
+                const orderDoc = querySnapshot.docs[0];
+                const orderData = { id: orderDoc.id, ...orderDoc.data() };
+                setUserOrder(orderData);
+                // Don't set success message here, let render logic handle display
+                // If an order exists, pre-fill quantities for potential modification
+                const initialQuantities = {};
+                 if (chosenRecipeDetails?.proteinOptions && chosenRecipeDetails.proteinOptions.length > 0) {
+                    chosenRecipeDetails.proteinOptions.forEach(opt => {
+                         const existingItem = orderData.items?.find(item => item.protein === opt.optionName);
+                         initialQuantities[opt.optionName] = existingItem ? existingItem.quantity : 0;
+                     });
+                 } else {
+                     // Handle case with no protein options
+                     const existingItem = orderData.items?.find(item => item.protein === 'default'); // Assuming 'default' key
+                     initialQuantities["default"] = existingItem ? existingItem.quantity : (orderData.totalServings || 0);
+                 }
+                setOrderQuantities(initialQuantities);
+                setOrderCustomizations(orderData.customizations || []);
+
+            } else {
+                setUserOrder(null);
+                // Reset quantities if no order exists
+                 if (chosenRecipeDetails) {
+                     const initialQuantities = {};
+                     if (chosenRecipeDetails.proteinOptions && chosenRecipeDetails.proteinOptions.length > 0) {
+                         chosenRecipeDetails.proteinOptions.forEach(opt => {
+                             initialQuantities[opt.optionName] = 0;
+                         });
+                     } else {
+                         initialQuantities["default"] = 1; // Default to 1 if creating new order
+                     }
+                     setOrderQuantities(initialQuantities);
+                     setOrderCustomizations([]);
+                 }
             }
-        };
+            setLoadingOrderCheck(false);
+        }, (err) => {
+            console.error("Error checking user order:", err);
+            setError("Could not verify order status.");
+            setLoadingOrderCheck(false);
+        });
 
-        checkUserOrder();
-    }, [activeCycle, currentUser]);
+        return () => unsubscribe(); // Cleanup listener
+
+    }, [activeCycle, currentUser, chosenRecipeDetails]); // Add chosenRecipeDetails dependency
 
     // --- Handler for Quantity Input Change ---
     const handleQuantityChange = (proteinName, value) => {
@@ -187,10 +231,34 @@ function DashboardPage() {
         setOrderValidationError(''); // Clear validation error on change
     };
 
-    // --- Handle Order Submission ---
+    // --- Handle Modify Button Click ---
+    const handleModifyOrderClick = () => {
+        if (!userOrder) return; // Should not happen if button is shown
+
+        // Pre-fill form state with existing order details
+        const currentQuantities = {};
+        if (chosenRecipeDetails?.proteinOptions && chosenRecipeDetails.proteinOptions.length > 0) {
+            chosenRecipeDetails.proteinOptions.forEach(opt => {
+                const existingItem = userOrder.items?.find(item => item.protein === opt.optionName);
+                currentQuantities[opt.optionName] = existingItem ? existingItem.quantity : 0;
+            });
+        } else {
+            // Handle case with no protein options
+            const existingItem = userOrder.items?.find(item => item.protein === 'default');
+            currentQuantities["default"] = existingItem ? existingItem.quantity : (userOrder.totalServings || 0);
+        }
+        setOrderQuantities(currentQuantities);
+        setOrderCustomizations(userOrder.customizations || []);
+
+        setIsModifyingOrder(true); // Show the form
+        setOrderSuccess(''); // Clear previous success messages
+        setOrderValidationError(''); // Clear validation errors
+    };
+
+    // --- Handle Order Submission / Update ---
     const handleOrderSubmit = async () => {
-        if (!currentUser || !activeCycle || !chosenRecipeDetails) {
-            setError("Cannot submit order: missing user, cycle, or recipe details.");
+        if (!currentUser || !activeCycle || !chosenRecipeDetails || !userProfile) { // Ensure profile is loaded
+            setError("Cannot submit order: missing user, cycle, recipe, or profile details.");
             return;
         }
 
@@ -217,26 +285,43 @@ function DashboardPage() {
         // 4. Prepare orderData with new structure
         const orderData = {
             userId: currentUser.uid,
-            userName: currentUser.displayName || currentUser.email,
+            // Use profile displayName if available, otherwise fallback to email
+            userName: userProfile.displayName || currentUser.email,
             cycleId: activeCycle.id,
             recipeId: chosenRecipeDetails.id,
             recipeName: chosenRecipeDetails.name,
             items: items, // Array of { protein, quantity }
             totalServings: totalServings,
             customizations: orderCustomizations || [],
+            // Add locationStatus from user profile
+            locationStatus: userProfile.locationStatus || 'unknown', // Default if not set
+            // Use serverTimestamp for new orders, keep existing for updates? Or update timestamp? Let's update.
             orderTimestamp: serverTimestamp(),
-            status: 'placed',
+            status: 'placed', // Keep status as placed
         };
 
         try {
-            const ordersRef = collection(db, "orders");
-            const docRef = await addDoc(ordersRef, orderData);
-            console.log("Order placed with ID: ", docRef.id);
-            setOrderSuccess("Your order has been placed successfully!");
-            setUserOrder({ id: docRef.id, ...orderData }); // Update local state
+            if (userOrder && userOrder.id) {
+                // --- UPDATE Existing Order ---
+                const orderDocRef = doc(db, "orders", userOrder.id);
+                await updateDoc(orderDocRef, orderData);
+                console.log("Order updated for ID: ", userOrder.id);
+                setOrderSuccess("Your order has been updated successfully!");
+                // Update local state immediately (or rely on snapshot listener)
+                setUserOrder({ ...orderData, id: userOrder.id }); // Update local state
+            } else {
+                // --- ADD New Order ---
+                const ordersRef = collection(db, "orders");
+                const docRef = await addDoc(ordersRef, orderData);
+                console.log("Order placed with ID: ", docRef.id);
+                setOrderSuccess("Your order has been placed successfully!");
+                // Update local state immediately (or rely on snapshot listener)
+                setUserOrder({ ...orderData, id: docRef.id }); // Update local state with new ID
+            }
+            setIsModifyingOrder(false); // Hide form after successful submission/update
         } catch (err) {
-            console.error("Error placing order:", err);
-            setError("Failed to place order. Please check the details and try again.");
+            console.error("Error saving order:", err);
+            setError("Failed to save order. Please check the details and try again.");
         } finally {
             setIsSubmittingOrder(false);
         }
@@ -244,182 +329,225 @@ function DashboardPage() {
 
     // --- Render Ordering Section (If applicable) ---
     const renderOrderingSection = () => {
-        if (loadingOrderCheck || loadingRecipeDetails) {
-            return <CircularProgress sx={{ display: 'block', margin: '20px auto' }} />;
+        if (loadingOrderCheck || loadingRecipeDetails || loadingProfile) { // Include profile loading
+            return <p className="text-center text-gray-500 py-4">Loading order details...</p>;
         }
 
-        if (userOrder) {
-            // User has already ordered - display confirmation or order details
-            return (
-                <Box sx={{ mt: 3 }}>
-                    <Alert severity="info">{orderSuccess || "You have already placed an order for this cycle."}</Alert>
-                    {/* Optionally display order details: */}
-                    {/* <Typography>Your Order: {userOrder.servings} servings...</Typography> */}
-                </Box>
-            );
-        }
-
-        // Check if ordering deadline has passed
         const now = new Date();
-        if (activeCycle.orderDeadline && now > activeCycle.orderDeadline) {
+        const deadlinePassed = activeCycle.orderDeadline && now > activeCycle.orderDeadline;
+
+        if (userOrder && !isModifyingOrder) {
+            // --- User has an existing order and is NOT modifying ---
+            const itemsSummary = userOrder.items?.map(item =>
+                `${item.quantity} x ${item.protein === 'default' ? chosenRecipeDetails?.name : item.protein}`
+            ).join(', ');
+
             return (
-                 <Alert severity="warning" sx={{ mt: 3 }}>The ordering deadline for this cycle has passed.</Alert>
+                <div className="mt-6">
+                    <h3 className="text-lg font-semibold mb-2">Your Current Order</h3>
+                    <div className="bg-gray-50 shadow border border-gray-200 rounded-lg p-4 mb-4">
+                         <p className="text-sm mb-1">
+                             <strong>Recipe:</strong> {userOrder.recipeName}
+                         </p>
+                         <p className="text-sm mb-1">
+                             <strong>Items:</strong> {itemsSummary || 'N/A'}
+                         </p>
+                         <p className="text-sm mb-1">
+                             <strong>Total Servings:</strong> {userOrder.totalServings}
+                         </p>
+                         {userOrder.customizations && userOrder.customizations.length > 0 && (
+                            <p className="text-sm mb-1">
+                                <strong>Customizations:</strong> {userOrder.customizations.join(', ')}
+                            </p>
+                         )}
+                        {userOrder.orderTimestamp?.toDate && (
+                            <p className="text-xs text-gray-500 mt-2">
+                                Ordered on: {userOrder.orderTimestamp.toDate().toLocaleString()}
+                             </p>
+                        )}
+                    </div>
+                    {orderSuccess && <TailwindAlert severity="success">{orderSuccess}</TailwindAlert>}
+                    {!deadlinePassed ? (
+                        <StyledButton
+                            variant="outline"
+                            onClick={handleModifyOrderClick}
+                            disabled={isSubmittingOrder}
+                        >
+                            Modify Order
+                        </StyledButton>
+                    ) : (
+                        <TailwindAlert severity="info">The ordering deadline has passed. Your order is final.</TailwindAlert>
+                    )}
+                </div>
             );
         }
 
+        if (deadlinePassed && !userOrder) {
+             // Deadline passed and user never placed an order
+             return (
+                 <TailwindAlert severity="warning" className="mt-6">The ordering deadline for this cycle has passed.</TailwindAlert>
+            );
+        }
+
+        // --- User is placing a new order OR modifying an existing one ---
         const proteinOptions = chosenRecipeDetails?.proteinOptions;
         const hasProteinOptions = proteinOptions && proteinOptions.length > 0;
 
         return (
-            <Box sx={{ mt: 3 }}>
-                <Typography variant="h6" gutterBottom>Place Your Order</Typography>
-                <Grid container spacing={2} alignItems="center">
+            <div className="mt-6">
+                <h3 className="text-lg font-semibold mb-4">
+                    {isModifyingOrder ? 'Modify Your Order' : 'Place Your Order'}
+                </h3>
+                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4 items-center mb-4">
                     {hasProteinOptions ? (
-                        // Render quantity input for each protein option
                         proteinOptions.map((opt) => (
-                            <Grid item xs={12} sm={6} key={opt.optionName} sx={{ display: 'flex', alignItems: 'center' }}>
-                                <Typography sx={{ flexGrow: 1, mr: 1 }}>
-                                    {opt.optionName} 
-                                    {opt.addedCost > 0 && `(+${opt.addedCost.toFixed(2)})`}
-                                </Typography>
-                                <TextField
-                                    label="Quantity"
+                             <div key={opt.optionName} className="flex items-center justify-between sm:justify-start space-x-2">
+                                <span className="text-sm flex-grow">
+                                    {opt.optionName}
+                                    {opt.addedCost > 0 && <span className="text-xs text-gray-500">{` (+${opt.addedCost.toFixed(2)})`}</span>}
+                                </span>
+                                <StyledInput
                                     type="number"
-                                    size="small"
-                                    value={orderQuantities[opt.optionName] || 0} // Use state object
+                                    aria-label={`Quantity for ${opt.optionName}`}
+                                    value={orderQuantities[opt.optionName] || 0}
                                     onChange={(e) => handleQuantityChange(opt.optionName, e.target.value)}
-                                    InputProps={{ inputProps: { min: 0, style: { textAlign: 'center' } } }} // Allow 0
-                                    sx={{ width: '80px' }} // Adjust width as needed
+                                    min="0"
                                     disabled={isSubmittingOrder}
+                                    className="w-20 text-center"
                                 />
-                            </Grid>
+                            </div>
                         ))
                     ) : (
-                         // Fallback: Render single quantity input if no protein options
-                         <Grid item xs={12} sm={6}>
-                             <TextField
+                         <div className="sm:col-span-2">
+                            <StyledInput
                                 label="Quantity"
                                 type="number"
-                                value={orderQuantities["default"] || 0} // Use default key
+                                name="defaultQuantity"
+                                value={orderQuantities["default"] || 0}
                                 onChange={(e) => handleQuantityChange("default", e.target.value)}
-                                InputProps={{ inputProps: { min: 0 } }} // Allow 0
-                                fullWidth
+                                min="0"
                                 disabled={isSubmittingOrder}
                                 required
                             />
-                        </Grid>
+                        </div>
                     )}
-                     {/* Display validation error */} 
                      {orderValidationError && (
-                        <Grid item xs={12}>
-                            <FormHelperText error>{orderValidationError}</FormHelperText>
-                        </Grid>
+                        <div className="sm:col-span-2">
+                            <p className="text-red-600 text-sm mt-1">{orderValidationError}</p>
+                        </div>
                     )}
-                    {/* Optional: Add Customizations Section (e.g., checkboxes for 'no onion', 'extra sauce') */}
-                    {/* <Grid xs={12}>
-                         <FormControl component="fieldset" variant="standard">
-                            <FormLabel component="legend">Customizations</FormLabel>
-                            <FormGroup>
-                                <FormControlLabel control={<Checkbox />} label="No Cheese" />
-                                <FormControlLabel control={<Checkbox />} label="Extra Spicy" />
-                            </FormGroup>
-                         </FormControl>
-                    </Grid> */}
-                </Grid>
-                <Button
-                    variant="contained"
-                    color="primary"
+                </div>
+                <StyledButton
+                    type="submit"
+                    variant="primary"
                     onClick={handleOrderSubmit}
-                    disabled={isSubmittingOrder || loadingOrderCheck}
-                    sx={{ mt: 2 }}
+                    disabled={isSubmittingOrder || loadingOrderCheck || loadingProfile}
                     fullWidth
                     size="large"
+                    className="mt-4"
                 >
-                    {isSubmittingOrder ? <CircularProgress size={24} /> : 'Submit Order'}
-                </Button>
-            </Box>
+                    {isSubmittingOrder && <Spinner className="-ml-1 mr-2 h-5 w-5 text-indigo-200" color="text-indigo-600"/>}
+                    {isSubmittingOrder ? 'Submitting...' : (isModifyingOrder ? 'Update Order' : 'Submit Order')}
+                </StyledButton>
+                {isModifyingOrder && (
+                     <StyledButton
+                         variant="text"
+                         onClick={() => setIsModifyingOrder(false)}
+                         disabled={isSubmittingOrder}
+                         size="small"
+                         className="mt-2 text-sm"
+                    >
+                        Cancel Modification
+                    </StyledButton>
+                )}
+            </div>
         );
     };
 
     // --- Main Render Logic ---
     return (
-        <Container maxWidth="md" sx={{ px: { xs: 2, sm: 3 }, mb: 4 }}>
-            <Typography variant="h4" component="h1" gutterBottom sx={{ my: { xs: 3, md: 4 } }}>
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 pb-8">
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 my-4 sm:my-6">
                 Meal Cycle Dashboard
-            </Typography>
+            </h1>
 
-            {loadingCycle && <CircularProgress sx={{ display: 'block', margin: 'auto' }} />}
-            {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+            {loadingCycle && <p className="text-center text-gray-500 py-8">Loading cycle...</p>}
+            {error && <TailwindAlert severity="error">{error}</TailwindAlert>}
 
             {!loadingCycle && !activeCycle && (
-                <Typography variant="h6" color="text.secondary" sx={{ textAlign: 'center', mt: 4 }}>
+                <p className="text-lg text-gray-600 text-center mt-8">
                     No active meal cycle found (planned or accepting orders).
-                </Typography>
+                </p>
             )}
 
             {activeCycle && (
-                <Paper elevation={3} sx={{ p: 3 }}>
-                    <Typography variant="h5" gutterBottom>
+                <div className="bg-white shadow-md rounded-lg p-4 sm:p-6">
+                    <h2 className="text-xl sm:text-2xl font-semibold text-gray-800 mb-2">
                         Upcoming Meal: {activeCycle.chosenRecipe?.recipeName || 'Recipe Loading...'}
-                    </Typography>
-                    <Divider sx={{ my: 2 }} />
+                    </h2>
+                    <hr className="border-t border-gray-200 my-4" />
 
-                    <Grid container spacing={1} sx={{ mb: 2 }}>
-                        <Grid xs={6} sm={4}>
-                             <Typography variant="body1"><strong>Target Cook Date:</strong></Typography>
-                        </Grid>
-                        <Grid xs={6} sm={8}>
-                            <Typography variant="body1">
+                    <div className="grid grid-cols-2 gap-x-2 sm:gap-x-4 gap-y-2 mb-4">
+                        <div className="col-span-1 sm:col-span-1">
+                             <p className="text-sm font-medium text-gray-600">Target Cook Date:</p>
+                        </div>
+                        <div className="col-span-1 sm:col-span-1">
+                            <p className="text-sm text-gray-900">
                                 {activeCycle.targetCookDate ? activeCycle.targetCookDate.toLocaleDateString() : 'N/A'}
-                            </Typography>
-                        </Grid>
-                        <Grid xs={6} sm={4}>
-                             <Typography variant="body1"><strong>Order Deadline:</strong></Typography>
-                        </Grid>
-                        <Grid xs={6} sm={8}>
-                             <Typography variant="body1">
+                            </p>
+                        </div>
+                         <div className="col-span-1 sm:col-span-1">
+                             <p className="text-sm font-medium text-gray-600">Order Deadline:</p>
+                        </div>
+                         <div className="col-span-1 sm:col-span-1">
+                             <p className="text-sm text-gray-900">
                                 {activeCycle.orderDeadline ? activeCycle.orderDeadline.toLocaleString() : 'N/A'}
-                             </Typography>
-                        </Grid>
-                         <Grid xs={6} sm={4}>
-                            <Typography variant="body1"><strong>Status:</strong></Typography>
-                        </Grid>
-                        <Grid xs={6} sm={8}>
-                            <Typography variant="body1" sx={{ textTransform: 'capitalize' }}>
+                             </p>
+                        </div>
+                         <div className="col-span-1 sm:col-span-1">
+                            <p className="text-sm font-medium text-gray-600">Status:</p>
+                        </div>
+                        <div className="col-span-1 sm:col-span-1">
+                            <p className="text-sm text-gray-900 capitalize">
                                 {activeCycle.status.replace('_', ' ')}
-                            </Typography>
-                        </Grid>
-                    </Grid>
+                            </p>
+                        </div>
+                    </div>
 
-                    {loadingRecipeDetails && <LinearProgress sx={{ my: 2 }} />}
+                    {loadingRecipeDetails && <p className="text-sm text-gray-500 my-4">Loading recipe details...</p>}
                     {chosenRecipeDetails && (
-                        <Box sx={{ mt: 2 }}>
-                            <Typography variant="h6">Recipe Details</Typography>
-                            <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                        <div className="mt-4">
+                            <h3 className="text-lg font-medium text-gray-800">Recipe Details</h3>
+                            <p className="text-sm text-gray-600 mt-1 mb-2">
                                 {chosenRecipeDetails.description}
-                            </Typography>
-                            {/* Optionally display ingredients or other details here */} 
-                            {/* <Typography variant="subtitle2">Ingredients:</Typography>
-                            <List dense>
-                                {chosenRecipeDetails.ingredients?.map((ing, index) => (
-                                    <ListItem key={index} disablePadding>
-                                        <ListItemText primary={`${ing.name} - ${ing.quantity} ${ing.unit}`} />
-                                    </ListItem>
-                                ))}
-                            </List> */}
-                         </Box>
+                            </p>
+                            {/* Optional: Recipe details list (Refactored with Tailwind) */}
+                            {chosenRecipeDetails.ingredients && chosenRecipeDetails.ingredients.length > 0 && (
+                                <div className="mt-3">
+                                    <h4 className="text-sm font-semibold mb-1 text-gray-700">Ingredients:</h4>
+                                    <ul className="list-none list-outside space-y-1 text-sm text-gray-600 ml-2">
+                                        {chosenRecipeDetails.ingredients.map((ing, index) => (
+                                            <li key={index}>
+                                                {`${ing.name} - ${ing.quantity} ${ing.unit}`}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            )}
+                        </div>
                     )}
 
-                    {/* Render Ordering Section if cycle status allows and recipe is loaded */}
                     {activeCycle.status === 'ordering_open' && chosenRecipeDetails && renderOrderingSection()}
-                     {/* Show a message if cycle is planned but not yet open for ordering */}
                      {activeCycle.status === 'planned' && (
-                        <Alert severity="info" sx={{ mt: 3 }}>Ordering for this cycle has not opened yet.</Alert>
+                        <TailwindAlert severity="info" className="mt-6">Ordering for this cycle has not opened yet.</TailwindAlert>
                      )}
+                      {activeCycle.status !== 'ordering_open' && activeCycle.status !== 'planned' && (
+                         <TailwindAlert severity="info" className="mt-6">This cycle is no longer accepting orders (Status: <span className="capitalize">{activeCycle.status.replace('_',' ')}</span>).</TailwindAlert>
+                      )}
 
-                </Paper>
+                </div>
             )}
-        </Container>
+        </div>
     );
 }
 

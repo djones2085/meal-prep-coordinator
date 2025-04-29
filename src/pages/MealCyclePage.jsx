@@ -117,8 +117,9 @@ function MealCyclePage() {
                     <Typography variant="h5" gutterBottom>
                          Cycle ID: {cycle.id}
                     </Typography>
-                     <Typography variant="body1" sx={{ mb: 1 }}>
-                        Status: <Chip label={cycle.status.replace('_', ' ')} size="small" color={cycle.status === 'ordering_open' ? 'success' : 'default'} />
+                     <Typography component="div" variant="body1" sx={{ mb: 1, display: 'flex', alignItems: 'center' }}>
+                        Status:&nbsp;
+                        <Chip label={cycle.status.replace('_', ' ')} size="small" color={cycle.status === 'ordering_open' ? 'success' : 'default'} />
                      </Typography>
                     <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
                         {cycle.orderDeadline ? `Order Deadline: ${cycle.orderDeadline.toLocaleString()}` : ''}

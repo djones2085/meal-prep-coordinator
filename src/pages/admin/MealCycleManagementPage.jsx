@@ -1,17 +1,20 @@
-import React, { useState, useEffect } from 'react';
-import { collection, getDocs, query, orderBy, doc, updateDoc } from 'firebase/firestore';
+import React, { useState, useEffect, useCallback } from 'react';
+import { collection, getDocs, query, orderBy, doc, updateDoc, where } from 'firebase/firestore';
 // Import Firebase functions instance for calling callable functions
 import { getFunctions, httpsCallable } from "firebase/functions"; 
 import { db, functions as functionsInstance } from '../../firebaseConfig'; // Import functionsInstance
+import Button from '../../components/ui/Button'; // Use custom Button
+import Spinner from '../../components/ui/Spinner'; // Use custom Spinner
+import Alert from '../../components/ui/Alert';   // Use custom Alert
 import {
-    Container, Typography, Box, Paper, CircularProgress, Alert,
     TableContainer, Table, TableHead, TableRow, TableCell, TableBody,
-    Select, MenuItem, Button, FormControl,
-    Snackbar, // For feedback on manual trigger
-    Tooltip // Import Tooltip for potentially longer protein lists
 } from '@mui/material';
-import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline'; // Icon for trigger button
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined'; // Optional: Icon for tooltip
+import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline'; // Keep icons for now
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import ExpandLessIcon from '@mui/icons-material/ExpandLess';
+import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
+import RefreshIcon from '@mui/icons-material/Refresh';
 
 // Define possible statuses (Removed voting-related and planning statuses)
 const cycleStatuses = [
@@ -35,40 +38,51 @@ function MealCycleManagementPage() {
     const [error, setError] = useState('');
     const [updatingStatus, setUpdatingStatus] = useState({}); // Track loading state per cycle { cycleId: boolean }
     const [triggeringAggregation, setTriggeringAggregation] = useState({}); // Track loading state for manual trigger { cycleId: boolean }
-    const [snackbarOpen, setSnackbarOpen] = useState(false);
-    const [snackbarMessage, setSnackbarMessage] = useState('');
-    const [snackbarSeverity, setSnackbarSeverity] = useState('success'); // 'success' or 'error'
+    const [alertOpen, setAlertOpen] = useState(false);
+    const [alertMessage, setAlertMessage] = useState('');
+    const [alertSeverity, setAlertSeverity] = useState('success'); // 'success' or 'error'
+
+    // --- State for Expanded Orders View ---
+    const [expandedCycleId, setExpandedCycleId] = useState(null); // ID of the cycle whose orders are shown
+    const [cycleOrders, setCycleOrders] = useState([]); // Orders for the expanded cycle
+    const [loadingOrders, setLoadingOrders] = useState(false);
+    const [ordersError, setOrdersError] = useState('');
+
+    // --- Data Fetching ---
+    const fetchCycles = useCallback(async (showLoading = true) => {
+        if (showLoading) setLoading(true);
+        setError('');
+        try {
+            const cyclesRef = collection(db, "mealCycles");
+            const q = query(cyclesRef, orderBy("creationDate", "desc"));
+            const querySnapshot = await getDocs(q);
+            const cyclesList = querySnapshot.docs.map(doc => {
+                 const data = doc.data();
+                 return {
+                     id: doc.id,
+                     ...data,
+                     creationDate: data.creationDate?.toDate ? data.creationDate.toDate().toLocaleDateString() : 'N/A',
+                     orderDeadline: data.orderDeadline?.toDate ? data.orderDeadline.toDate().toLocaleString() : 'N/A',
+                     targetCookDate: data.targetCookDate?.toDate ? data.targetCookDate.toDate().toLocaleDateString() : 'N/A',
+                     // Keep aggregation fields directly for display
+                     totalMealCounts: data.totalMealCounts,
+                     totalCountsByProtein: data.totalCountsByProtein,
+                     dineInContainers: data.dineInContainers,
+                     carryOutContainers: data.carryOutContainers,
+                 }
+            });
+            setCycles(cyclesList);
+        } catch (err) {
+            console.error("Error fetching meal cycles:", err);
+            setError("Failed to load meal cycles.");
+        } finally {
+            if (showLoading) setLoading(false);
+        }
+    }, []); // Empty dependency array for useCallback
 
     useEffect(() => {
-        const fetchCycles = async () => {
-            setLoading(true);
-            setError('');
-            try {
-                const cyclesRef = collection(db, "mealCycles");
-                // Order by creation date descending to show newest first
-                const q = query(cyclesRef, orderBy("creationDate", "desc"));
-                const querySnapshot = await getDocs(q);
-                const cyclesList = querySnapshot.docs.map(doc => {
-                     const data = doc.data();
-                     return {
-                         id: doc.id,
-                         ...data,
-                         // Convert timestamps for display if needed
-                         creationDate: data.creationDate?.toDate ? data.creationDate.toDate().toLocaleDateString() : 'N/A',
-                         orderDeadline: data.orderDeadline?.toDate ? data.orderDeadline.toDate().toLocaleString() : 'N/A',
-                         targetCookDate: data.targetCookDate?.toDate ? data.targetCookDate.toDate().toLocaleDateString() : 'N/A',
-                     }
-                });
-                setCycles(cyclesList);
-            } catch (err) {
-                console.error("Error fetching meal cycles:", err);
-                setError("Failed to load meal cycles.");
-            } finally {
-                setLoading(false);
-            }
-        };
         fetchCycles();
-    }, []); // Fetch on mount
+    }, [fetchCycles]); // Depend on fetchCycles
 
     const handleStatusChange = async (cycleId, newStatus) => {
         if (!cycleId || !newStatus) return;
@@ -100,24 +114,23 @@ function MealCycleManagementPage() {
     // Function to call the HTTPS callable function
     const handleManualTrigger = async (cycleId) => {
         if (!cycleId) return;
-
         setTriggeringAggregation(prev => ({ ...prev, [cycleId]: true }));
-        setError(''); // Clear general errors
-
+        setError('');
         try {
             const requestManualAggregation = httpsCallable(functionsInstance, 'requestManualAggregation');
             const result = await requestManualAggregation({ mealCycleId: cycleId });
-
             console.log("Manual aggregation trigger result:", result.data);
-            setSnackbarMessage(result.data.message || 'Aggregation successfully requested.');
-            setSnackbarSeverity('success');
-            setSnackbarOpen(true);
-
+            setAlertMessage(result.data.message || 'Aggregation successfully requested. Refreshing data...');
+            setAlertSeverity('success');
+            setAlertOpen(true);
+            await fetchCycles(false);
+            if (expandedCycleId === cycleId) {
+                await fetchCycleOrders(cycleId, false);
+            }
         } catch (err) {
             console.error(`Error triggering manual aggregation for cycle ${cycleId}:`, err);
             let userMessage = `Failed to trigger aggregation for cycle ${cycleId}.`;
             if (err instanceof Error && 'code' in err && 'message' in err) {
-                // Handle specific HttpsError codes if needed
                 if (err.code === 'permission-denied') {
                     userMessage = 'Permission denied. You must be an admin.';
                 } else {
@@ -126,131 +139,247 @@ function MealCycleManagementPage() {
             } else if (err instanceof Error) {
                  userMessage = `${userMessage} (${err.message})`;
             }
-            
-            setSnackbarMessage(userMessage);
-            setSnackbarSeverity('error');
-            setSnackbarOpen(true);
-            // Keep the main error display for persistent errors if needed
-            // setError(userMessage);
+            setAlertMessage(userMessage);
+            setAlertSeverity('error');
+            setAlertOpen(true);
         } finally {
             setTriggeringAggregation(prev => ({ ...prev, [cycleId]: false }));
         }
     };
 
-     const handleCloseSnackbar = (event, reason) => {
-        if (reason === 'clickaway') {
-        return;
-        }
-        setSnackbarOpen(false);
+    const handleCloseAlert = () => {
+        setAlertOpen(false);
     };
 
-    return (
-        <Container maxWidth="lg" sx={{ px: { xs: 2, sm: 3 }, mb: 4 }}>
-            <Typography variant="h4" component="h1" gutterBottom sx={{ my: { xs: 3, md: 4 } }}>
-                Meal Cycle Management (Admin)
-            </Typography>
+    // --- Fetch Orders for a Specific Cycle ---
+    const fetchCycleOrders = async (cycleId, showLoading = true) => {
+        if (showLoading) setLoadingOrders(true);
+        setOrdersError('');
+        setCycleOrders([]); // Clear previous orders
+        try {
+            const ordersRef = collection(db, "orders");
+            const q = query(ordersRef, where("cycleId", "==", cycleId), orderBy("orderTimestamp", "desc"));
+            const querySnapshot = await getDocs(q);
+            const ordersList = querySnapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data(),
+                // Convert timestamp if needed for display
+                orderTimestamp: doc.data().orderTimestamp?.toDate ? doc.data().orderTimestamp.toDate().toLocaleString() : 'N/A'
+            }));
+            setCycleOrders(ordersList);
+        } catch (err) {
+            console.error(`Error fetching orders for cycle ${cycleId}:`, err);
+            setOrdersError(`Failed to load orders for cycle ${cycleId}.`);
+        } finally {
+            if (showLoading) setLoadingOrders(false);
+        }
+    };
 
-            {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+    // --- Handle Expand/Collapse Click ---
+    const handleExpandClick = (cycleId) => {
+        if (expandedCycleId === cycleId) {
+            // Collapse if already expanded
+            setExpandedCycleId(null);
+            setCycleOrders([]); // Clear orders when collapsing
+        } else {
+            // Expand and fetch orders
+            setExpandedCycleId(cycleId);
+            fetchCycleOrders(cycleId);
+        }
+    };
+
+    // Define table columns with responsiveness
+    const columns = [
+        { id: 'expand', label: '', minWidth: 50 },
+        { id: 'status', label: 'Status', minWidth: 140 },
+        { id: 'recipe', label: 'Recipe', minWidth: 170 },
+        { id: 'servings', label: 'Servings', minWidth: 80, align: 'right', hideOnSmall: true }, // Hide on sm
+        { id: 'protein', label: 'Protein Counts', minWidth: 170, hideOnMedium: true }, // Hide on md
+        { id: 'orderDeadline', label: 'Deadline', minWidth: 170, hideOnSmall: true }, // Hide on sm
+        { id: 'cookDate', label: 'Cook Date', minWidth: 100, hideOnSmall: true }, // Hide on sm
+        { id: 'actions', label: 'Actions', minWidth: 200, sticky: true }, // Make sticky
+    ];
+
+    const numberOfColumns = columns.length; // Update based on actual displayed columns?
+
+    return (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6"> {/* Replaces Container */}
+            <div className="flex flex-wrap justify-between items-center mb-4 gap-4"> {/* Replaces Box */}
+                 <h1 className="text-2xl md:text-3xl font-semibold text-gray-900 my-2"> {/* Replaces Typography */}
+                    Meal Cycle Management
+                </h1>
+                 <Button // Use custom Button
+                    onClick={() => fetchCycles()}
+                    disabled={loading}
+                    variant="outline" // Assuming 'outline' is a valid variant in your Button component
+                    // Add icon handling if your Button component supports it, otherwise just text
+                >
+                    <RefreshIcon className="mr-2 h-5 w-5" /> {/* Example icon usage - adjust if needed */}
+                    Refresh Cycles
+                </Button>
+            </div>
+
+            {/* Use custom Alert component */}
+            {alertOpen && (
+                <Alert
+                    message={alertMessage}
+                    type={alertSeverity}
+                    onClose={handleCloseAlert} // Pass the close handler
+                    className="mb-4" // Add margin if needed
+                />
+            )}
+
+            {/* Use custom Alert for general error */}
+            {error && !alertOpen && <Alert type="error" message={error} className="mb-4" />}
 
             {loading ? (
-                <CircularProgress />
+                // Use custom Spinner
+                <div className="flex justify-center items-center p-10">
+                     <Spinner size="large" /> {/* Assuming size prop */}
+                </div>
             ) : (
-                <TableContainer component={Paper}>
-                    <Table sx={{ minWidth: 650 }} aria-label="meal cycles table">
-                        <TableHead>
-                            <TableRow>
-                                <TableCell>ID</TableCell>
-                                <TableCell>Status</TableCell>
-                                <TableCell>Chosen Recipe</TableCell>
-                                <TableCell>Total Servings</TableCell>
-                                <TableCell>Protein Counts</TableCell>
-                                <TableCell>Dine-In #</TableCell>
-                                <TableCell>Carry-Out #</TableCell>
-                                <TableCell>Order Deadline</TableCell>
-                                <TableCell>Cook Date</TableCell>
-                                <TableCell>Created</TableCell>
-                                <TableCell>Actions</TableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {cycles.map((cycle) => {
-                                const proteinCountsString = formatProteinCounts(cycle.totalCountsByProtein);
-                                return (
-                                    <TableRow key={cycle.id}>
-                                        <TableCell component="th" scope="row" sx={{ fontSize: '0.75rem' }}>
-                                            {cycle.id}
+                // Replace Paper with Tailwind div
+                <div className="bg-white shadow-md rounded-lg overflow-hidden">
+                    {/* Replace sx with className */}
+                    <TableContainer className="max-h-[75vh]"> {/* Limit height with Tailwind */}
+                        <Table stickyHeader aria-label="sticky meal cycles table">
+                            <TableHead>
+                                <TableRow>
+                                    {columns.map((column) => (
+                                        <TableCell
+                                            key={column.id}
+                                            align={column.align}
+                                            // Replace style with className if possible, or keep simple styles
+                                            style={{ minWidth: column.minWidth }}
+                                            // Add Tailwind classes for header styling
+                                            className="bg-gray-100 font-semibold text-gray-600 uppercase tracking-wider"
+                                        >
+                                            {column.label}
                                         </TableCell>
-                                        <TableCell>{cycle.status}</TableCell>
-                                        <TableCell>{cycle.chosenRecipe?.recipeName || 'N/A'}</TableCell>
-                                        <TableCell>{cycle.totalMealCounts ?? '-'}</TableCell>
-                                        <TableCell>
-                                            {proteinCountsString.length > 25 ? (
-                                                 <Tooltip title={proteinCountsString} placement="top">
-                                                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                                        <Typography variant="body2" noWrap sx={{ maxWidth: '150px', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                                                            {proteinCountsString}
-                                                         </Typography>
-                                                     </Box>
-                                                 </Tooltip>
-                                            ) : (
-                                                proteinCountsString
-                                            )}
-                                        </TableCell>
-                                        <TableCell>{cycle.dineInContainers ?? '-'}</TableCell>
-                                        <TableCell>{cycle.carryOutContainers ?? '-'}</TableCell>
-                                        <TableCell>{cycle.orderDeadline}</TableCell>
-                                        <TableCell>{cycle.targetCookDate}</TableCell>
-                                        <TableCell>{cycle.creationDate}</TableCell>
-                                        <TableCell>
-                                            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                                {/* Status Dropdown */}
-                                                <FormControl size="small" sx={{minWidth: 150}}>
-                                                    <Select
-                                                       value={cycle.status}
-                                                       onChange={(e) => handleStatusChange(cycle.id, e.target.value)}
-                                                       disabled={updatingStatus[cycle.id]}
-                                                    >
-                                                       {cycleStatuses.map(status => (
-                                                            <MenuItem key={status} value={status}>{status.replace('_', ' ')}</MenuItem>
-                                                       ))}
-                                                   </Select>
-                                                   {updatingStatus[cycle.id] && <CircularProgress size={16} sx={{ position: 'absolute', top: '50%', left: '50%', marginTop: '-8px', marginLeft: '-8px' }} />}
-                                               </FormControl>
-                                                {/* Manual Trigger Button - Show if aggregation fields are missing? Or specific statuses? */}
-                                                {/* Let's show if status is 'ordering_open' or 'ordering_closed' AND aggregation data missing */}
-                                                {(cycle.status === 'ordering_open' || cycle.status === 'ordering_closed') && cycle.totalMealCounts === undefined && (
-                                                    <Button
-                                                        variant="outlined"
-                                                        size="small"
-                                                        startIcon={triggeringAggregation[cycle.id] ? <CircularProgress size={16} /> : <PlayCircleOutlineIcon />}
-                                                        onClick={() => handleManualTrigger(cycle.id)}
-                                                        disabled={triggeringAggregation[cycle.id] || updatingStatus[cycle.id]}
-                                                        sx={{ whiteSpace: 'nowrap' }} // Prevent wrapping
-                                                    >
-                                                        {triggeringAggregation[cycle.id] ? 'Triggering...' : 'Aggregate'}
+                                    ))}
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {cycles.map((cycle) => {
+                                    const isExpanded = expandedCycleId === cycle.id;
+                                    const isLoadingStatus = updatingStatus[cycle.id];
+                                    const isTriggering = triggeringAggregation[cycle.id];
+
+                                    return (
+                                        <React.Fragment key={cycle.id}>
+                                            <TableRow hover role="checkbox" tabIndex={-1}>
+                                                {/* Ensure NO whitespace between TableCells */}
+                                                <TableCell>
+                                                    <Button onClick={() => handleExpandClick(cycle.id)} variant="icon" aria-label="expand row" size="small">
+                                                        {isExpanded ? <ExpandLessIcon /> : <ExpandMoreIcon />}
                                                     </Button>
-                                                )}
-                                            </Box>
-                                        </TableCell>
-                                    </TableRow>
-                                );
-                            })}
-                        </TableBody>
-                    </Table>
-                </TableContainer>
+                                                </TableCell><TableCell>
+                                                    {/* Display status text only */}
+                                                    {cycle.status.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                                                </TableCell><TableCell>{cycle.chosenRecipe?.recipeName || '-'}</TableCell><TableCell align="right" className="hidden sm:table-cell">{cycle.totalMealCounts ?? '-'}</TableCell><TableCell className="hidden md:table-cell" title={formatProteinCounts(cycle.totalCountsByProtein)}>
+                                                     <span className="truncate">
+                                                         {formatProteinCounts(cycle.totalCountsByProtein)}
+                                                     </span>
+                                                </TableCell><TableCell className="hidden sm:table-cell">{cycle.orderDeadline}</TableCell><TableCell className="hidden sm:table-cell">{cycle.targetCookDate}</TableCell><TableCell className="sticky right-0 bg-white border-l border-gray-200 z-10"> {/* Added z-index */}
+                                                    {/* Actions Column Content: Select + Buttons */}
+                                                    <div className="flex items-center gap-2 whitespace-nowrap p-1"> {/* Added padding */}
+                                                        {/* Status Select Dropdown */}
+                                                        {isLoadingStatus ? (
+                                                            <Spinner size="small" />
+                                                        ) : (
+                                                            <select
+                                                                value={cycle.status || ''}
+                                                                onChange={(e) => handleStatusChange(cycle.id, e.target.value)}
+                                                                disabled={isLoadingStatus}
+                                                                className="block w-36 pl-2 pr-8 py-1 text-sm border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 rounded-md shadow-sm disabled:opacity-50 disabled:bg-gray-100" // Adjusted width/padding
+                                                                title={`Current status: ${cycle.status}`}
+                                                            >
+                                                                {cycleStatuses.map((status) => (
+                                                                    <option key={status} value={status}>
+                                                                        {status.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                                                                    </option>
+                                                                ))}
+                                                            </select>
+                                                        )}
+                                                        {/* Aggregate Button */}
+                                                        <Button
+                                                            onClick={() => handleManualTrigger(cycle.id)}
+                                                            disabled={isTriggering || isLoadingStatus}
+                                                            variant="secondary"
+                                                            size="small"
+                                                            title="Manually trigger order aggregation"
+                                                            className="p-1" // Adjust padding if needed
+                                                        >
+                                                            {isTriggering ? <Spinner size="small" /> : <PlayCircleOutlineIcon className="h-5 w-5" />}
+                                                            <span className="sr-only lg:not-sr-only lg:ml-1">Aggregate</span> {/* Screen reader only on small */}
+                                                        </Button>
+                                                        {/* View Orders Button */}
+                                                         <Button
+                                                            onClick={() => handleExpandClick(cycle.id)}
+                                                            variant="secondary"
+                                                            size="small"
+                                                            title="View/Hide Orders"
+                                                            className="p-1" // Adjust padding if needed
+                                                        >
+                                                             <PeopleAltIcon className="h-5 w-5" />
+                                                             <span className="sr-only lg:not-sr-only lg:ml-1">Orders</span> {/* Screen reader only on small */}
+                                                        </Button>
+                                                    </div>
+                                                </TableCell>
+                                            </TableRow>
+                                            {/* Row for expanded content (Orders) */}
+                                            {isExpanded && (
+                                                <TableRow>
+                                                    <TableCell colSpan={numberOfColumns} className="p-0 border-b-0">
+                                                         <div className="p-4 bg-gray-50">
+                                                             {/* Order Details Section */}
+                                                             <h3 className="text-lg font-medium text-gray-800 mb-3">Orders for Cycle {cycle.id}</h3>
+                                                             {loadingOrders ? (
+                                                                 <div className="flex justify-center items-center p-4">
+                                                                      <Spinner />
+                                                                 </div>
+                                                             ) : ordersError ? (
+                                                                <Alert type="error" message={ordersError} />
+                                                             ) : cycleOrders.length > 0 ? (
+                                                                 // Simplified Order Table (Can be enhanced later)
+                                                                 <div className="overflow-x-auto">
+                                                                     <table className="min-w-full divide-y divide-gray-200">
+                                                                          <thead className="bg-gray-100">
+                                                                            <tr>
+                                                                                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+                                                                                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Meals</th>
+                                                                                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Container</th>
+                                                                                <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Timestamp</th>
+                                                                            </tr>
+                                                                          </thead>
+                                                                         <tbody className="bg-white divide-y divide-gray-200">
+                                                                            {cycleOrders.map(order => (
+                                                                                <tr key={order.id}>
+                                                                                    <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-700">{order.userName || order.userId}</td>
+                                                                                    <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-700">{formatProteinCounts(order.mealCounts)}</td>
+                                                                                    <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-700">{order.containerChoice}</td>
+                                                                                    <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">{order.orderTimestamp}</td>
+                                                                                </tr>
+                                                                            ))}
+                                                                         </tbody>
+                                                                     </table>
+                                                                 </div>
+                                                             ) : (
+                                                                 <p className="text-sm text-gray-500">No orders found for this cycle.</p>
+                                                             )}
+                                                         </div>
+                                                    </TableCell>
+                                                </TableRow>
+                                            )}
+                                        </React.Fragment>
+                                    );
+                                })}
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
+                </div>
             )}
-             {/* Snackbar for feedback */}
-            <Snackbar 
-                open={snackbarOpen} 
-                autoHideDuration={6000} 
-                onClose={handleCloseSnackbar}
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-            >
-                <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity} sx={{ width: '100%' }}>
-                    {snackbarMessage}
-                </Alert>
-            </Snackbar>
-        </Container>
+        </div>
     );
 }
 
