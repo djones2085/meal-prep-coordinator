@@ -1,31 +1,33 @@
 import React, { useState, useEffect } from 'react';
-import { Link as RouterLink } from 'react-router-dom'; // Keep if needed elsewhere
-import { collection, getDocs, query, where, limit, addDoc, serverTimestamp, Timestamp, doc, getDoc, onSnapshot } from 'firebase/firestore';
+import { Link as RouterLink } from 'react-router-dom';
+import { collection, getDocs, query, where, limit, addDoc, updateDoc, serverTimestamp, Timestamp, doc, getDoc, onSnapshot } from 'firebase/firestore';
 import { db } from '../firebaseConfig';
 import { useAuth } from '../contexts/AuthContext';
 import {
-    Container,
+    PageContainer,
+    LoadingSpinner,
+    Alert,
+    Button,
+    TextField,
+    Card,
+    StatusChip
+} from '../components/mui';
+import {
     Typography,
     Box,
-    Paper,
+    Divider,
+    Grid,
     List,
     ListItem,
     ListItemText,
-    Button,
-    CircularProgress,
-    Alert,
+    Link,
+    Paper,
+    Chip,
     FormControl,
     FormLabel,
-    Divider,
-    TextField,
-    Select,
-    MenuItem,
-    InputLabel,
-    Checkbox,
     FormGroup,
-    Grid,
-    LinearProgress,
-    FormHelperText
+    FormControlLabel,
+    Checkbox
 } from '@mui/material';
 
 // Assume commonUnits are defined or import them if needed from AddRecipePage
@@ -33,39 +35,61 @@ const commonUnits = ['g', 'kg', 'ml', 'l', 'unit', 'tsp', 'tbsp', 'cup', 'oz', '
 
 function DashboardPage() {
     const { currentUser } = useAuth();
-    const [activeCycle, setActiveCycle] = useState(null); // Can be planned or ordering cycle
+    const [activeCycle, setActiveCycle] = useState(null);
     const [chosenRecipeDetails, setChosenRecipeDetails] = useState(null);
-    const [userOrder, setUserOrder] = useState(null); // Stores user's existing order for the cycle
+    const [userOrder, setUserOrder] = useState(null);
+    const [userProfile, setUserProfile] = useState(null);
 
-    // --- State for Ordering Form ---
-    const [orderQuantities, setOrderQuantities] = useState({}); // { proteinName: quantity }
-    const [orderCustomizations, setOrderCustomizations] = useState([]); // e.g., ['no cheese']
+    const [orderQuantities, setOrderQuantities] = useState({});
+    const [orderCustomizations, setOrderCustomizations] = useState([]);
+    const [isModifyingOrder, setIsModifyingOrder] = useState(false);
 
-    // --- Loading / Error States ---
     const [loadingCycle, setLoadingCycle] = useState(true);
     const [loadingOrderCheck, setLoadingOrderCheck] = useState(true);
     const [loadingRecipeDetails, setLoadingRecipeDetails] = useState(false);
+    const [loadingProfile, setLoadingProfile] = useState(true);
     const [isSubmittingOrder, setIsSubmittingOrder] = useState(false);
     const [error, setError] = useState('');
     const [orderSuccess, setOrderSuccess] = useState('');
-    const [orderValidationError, setOrderValidationError] = useState(''); // Specific for quantity validation
+    const [orderValidationError, setOrderValidationError] = useState('');
 
-    // --- Fetch Active Cycle (Planned or Ordering) ---
+    // Fetch User Profile
+    useEffect(() => {
+        if (!currentUser) {
+            setLoadingProfile(false);
+            return;
+        }
+        setLoadingProfile(true);
+        const userDocRef = doc(db, 'users', currentUser.uid);
+        const unsubscribe = onSnapshot(userDocRef, (docSnap) => {
+            if (docSnap.exists()) {
+                setUserProfile({ id: docSnap.id, ...docSnap.data() });
+            } else {
+                console.warn("User profile document not found for UID:", currentUser.uid);
+                setUserProfile(null);
+            }
+            setLoadingProfile(false);
+        }, (err) => {
+            console.error("Error fetching user profile:", err);
+            setError("Could not load user profile information.");
+            setLoadingProfile(false);
+        });
+        return () => unsubscribe();
+    }, [currentUser]);
+
+    // Fetch Active Cycle
     useEffect(() => {
         const fetchActiveCycle = async () => {
             setLoadingCycle(true);
             setError('');
-            setActiveCycle(null); // Reset on fetch
+            setActiveCycle(null);
             setChosenRecipeDetails(null);
             setUserOrder(null);
             setOrderSuccess('');
-
             try {
                 const cyclesRef = collection(db, "mealCycles");
-                // Look for 'planned' OR 'ordering_open' cycle
                 const q = query(cyclesRef, where("status", "in", ["planned", "ordering_open"]), limit(1));
                 const querySnapshot = await getDocs(q);
-
                 if (!querySnapshot.empty) {
                     const cycleDoc = querySnapshot.docs[0];
                     const cycleData = cycleDoc.data();
@@ -76,16 +100,11 @@ function DashboardPage() {
                         targetCookDate: cycleData.targetCookDate?.toDate ? cycleData.targetCookDate.toDate() : null,
                     };
                     setActiveCycle(cycle);
-
-                    // If cycle exists and has a chosen recipe, fetch its details
                     if (cycle.chosenRecipe?.recipeId) {
                         fetchChosenRecipe(cycle.chosenRecipe.recipeId);
                     } else {
-                        // Handle case where cycle exists but recipe is missing (shouldn't happen with new flow)
                         setError("Active cycle found, but recipe details are missing.");
                     }
-                } else {
-                    // No active cycle found with status 'planned' or 'ordering_open'
                 }
             } catch (err) {
                 console.error("Error fetching active cycle:", err);
@@ -95,9 +114,9 @@ function DashboardPage() {
             }
         };
         fetchActiveCycle();
-    }, []); // Fetch cycle on initial load
+    }, []);
 
-    // --- Fetch Chosen Recipe Details ---
+    // Fetch Chosen Recipe Details
     const fetchChosenRecipe = async (recipeId) => {
         if (!recipeId) return;
         setLoadingRecipeDetails(true);
@@ -107,14 +126,13 @@ function DashboardPage() {
             if (docSnap.exists()) {
                 const recipeData = { id: docSnap.id, ...docSnap.data() };
                 setChosenRecipeDetails(recipeData);
-                // Initialize orderQuantities with 0 for each protein option
                 const initialQuantities = {};
                 if (recipeData.proteinOptions && recipeData.proteinOptions.length > 0) {
                     recipeData.proteinOptions.forEach(opt => {
                         initialQuantities[opt.optionName] = 0;
                     });
                 } else {
-                     initialQuantities["default"] = 1; // Default quantity if no protein options
+                    initialQuantities["default"] = 1;
                 }
                 setOrderQuantities(initialQuantities);
             } else {
@@ -129,297 +147,330 @@ function DashboardPage() {
         }
     };
 
-    // --- Check User Order (if cycle is ordering_open or planned) ---
+    // Check User Order
     useEffect(() => {
-        // Check order status if the cycle allows ordering (either planned or ordering_open)
         if (!activeCycle || !['planned', 'ordering_open'].includes(activeCycle.status) || !currentUser) {
             setLoadingOrderCheck(false);
-            setUserOrder(null); // Ensure order state is clear if conditions aren't met
+            setUserOrder(null);
+            setIsModifyingOrder(false);
             return;
         }
-
-        const checkUserOrder = async () => {
-            setLoadingOrderCheck(true);
-            setUserOrder(null); // Reset before checking
-            try {
-                const ordersRef = collection(db, "orders");
-                const q = query(
-                    ordersRef,
-                    where("cycleId", "==", activeCycle.id),
-                    where("userId", "==", currentUser.uid),
-                    limit(1)
-                );
-                const orderSnapshot = await getDocs(q);
-
-                if (!orderSnapshot.empty) {
-                    const orderDoc = orderSnapshot.docs[0];
-                    setUserOrder({ id: orderDoc.id, ...orderDoc.data() });
-                    setOrderSuccess("You have already placed an order for this cycle.");
-                    // Pre-fill form with existing order details? (Optional)
-                    // const existingOrder = orderDoc.data();
-                    // setOrderServings(existingOrder.servings || 1);
-                    // setOrderProteinChoice(existingOrder.proteinChoice || '');
-                    // setOrderCustomizations(existingOrder.customizations || []);
+        setLoadingOrderCheck(true);
+        setUserOrder(null);
+        setIsModifyingOrder(false);
+        const ordersRef = collection(db, "orders");
+        const q = query(
+            ordersRef,
+            where("cycleId", "==", activeCycle.id),
+            where("userId", "==", currentUser.uid),
+            limit(1)
+        );
+        const unsubscribe = onSnapshot(q, (querySnapshot) => {
+            if (!querySnapshot.empty) {
+                const orderDoc = querySnapshot.docs[0];
+                const orderData = { id: orderDoc.id, ...orderDoc.data() };
+                setUserOrder(orderData);
+                const initialQuantities = {};
+                if (chosenRecipeDetails?.proteinOptions && chosenRecipeDetails.proteinOptions.length > 0) {
+                    chosenRecipeDetails.proteinOptions.forEach(opt => {
+                        const existingItem = orderData.items?.find(item => item.protein === opt.optionName);
+                        initialQuantities[opt.optionName] = existingItem ? existingItem.quantity : 0;
+                    });
                 } else {
-                    setUserOrder(null);
-                     setOrderSuccess(''); // Clear success message if no order found
+                    const existingItem = orderData.items?.find(item => item.protein === 'default');
+                    initialQuantities["default"] = existingItem ? existingItem.quantity : (orderData.totalServings || 0);
                 }
-            } catch (err) {
-                console.error("Error checking user order:", err);
-                setError("Could not verify order status.");
-            } finally {
-                setLoadingOrderCheck(false);
+                setOrderQuantities(initialQuantities);
+                setOrderCustomizations(orderData.customizations || []);
+            } else {
+                setUserOrder(null);
+                if (chosenRecipeDetails) {
+                    const initialQuantities = {};
+                    if (chosenRecipeDetails.proteinOptions && chosenRecipeDetails.proteinOptions.length > 0) {
+                        chosenRecipeDetails.proteinOptions.forEach(opt => {
+                            initialQuantities[opt.optionName] = 0;
+                        });
+                    } else {
+                        initialQuantities["default"] = 1;
+                    }
+                    setOrderQuantities(initialQuantities);
+                    setOrderCustomizations([]);
+                }
             }
-        };
+            setLoadingOrderCheck(false);
+        }, (err) => {
+            console.error("Error checking user order:", err);
+            setError("Could not verify order status.");
+            setLoadingOrderCheck(false);
+        });
+        return () => unsubscribe();
+    }, [activeCycle, currentUser, chosenRecipeDetails]);
 
-        checkUserOrder();
-    }, [activeCycle, currentUser]);
-
-    // --- Handler for Quantity Input Change ---
     const handleQuantityChange = (proteinName, value) => {
         const quantity = parseInt(value, 10);
-        // Allow 0, but treat NaN or negative as 0
         const validQuantity = !isNaN(quantity) && quantity >= 0 ? quantity : 0;
         setOrderQuantities(prev => ({
             ...prev,
             [proteinName]: validQuantity
         }));
-        setOrderValidationError(''); // Clear validation error on change
+        setOrderValidationError('');
     };
 
-    // --- Handle Order Submission ---
+    const handleCustomizationChange = (event) => {
+        const { name, checked } = event.target;
+        setOrderCustomizations(prev =>
+            checked ? [...prev, name] : prev.filter(c => c !== name)
+        );
+    };
+
+    const handleModifyOrderClick = () => {
+        if (!userOrder) return;
+        // Quantities are already pre-filled by the useEffect
+        setIsModifyingOrder(true);
+        setOrderSuccess(''); // Clear previous success message
+    };
+
     const handleOrderSubmit = async () => {
-        if (!currentUser || !activeCycle || !chosenRecipeDetails) {
-            setError("Cannot submit order: missing user, cycle, or recipe details.");
+        // Basic validation: Ensure at least one item is ordered
+        const totalQuantity = Object.values(orderQuantities).reduce((sum, qty) => sum + qty, 0);
+        if (totalQuantity <= 0) {
+            setOrderValidationError("Please select at least one meal.");
             return;
         }
-
-        setOrderValidationError(''); // Clear previous validation errors
-
-        // 1. Create items array from orderQuantities
-        const items = Object.entries(orderQuantities)
-            .map(([protein, quantity]) => ({ protein, quantity }))
-            .filter(item => item.quantity > 0); // Only include items with quantity > 0
-
-        // 2. Calculate totalServings
-        const totalServings = items.reduce((sum, item) => sum + item.quantity, 0);
-
-        // 3. Validation
-        if (totalServings <= 0) {
-            setOrderValidationError("Please order at least one serving.");
-            return;
-        }
-
+        setOrderValidationError(''); // Clear validation error
         setIsSubmittingOrder(true);
         setError('');
         setOrderSuccess('');
 
-        // 4. Prepare orderData with new structure
-        const orderData = {
-            userId: currentUser.uid,
-            userName: currentUser.displayName || currentUser.email,
-            cycleId: activeCycle.id,
-            recipeId: chosenRecipeDetails.id,
-            recipeName: chosenRecipeDetails.name,
-            items: items, // Array of { protein, quantity }
-            totalServings: totalServings,
-            customizations: orderCustomizations || [],
-            orderTimestamp: serverTimestamp(),
-            status: 'placed',
-        };
-
         try {
-            const ordersRef = collection(db, "orders");
-            const docRef = await addDoc(ordersRef, orderData);
-            console.log("Order placed with ID: ", docRef.id);
-            setOrderSuccess("Your order has been placed successfully!");
-            setUserOrder({ id: docRef.id, ...orderData }); // Update local state
+            const orderData = {
+                cycleId: activeCycle.id,
+                userId: currentUser.uid,
+                userName: userProfile?.displayName || currentUser.email, // Use profile name or email
+                orderTimestamp: serverTimestamp(),
+                status: 'placed', // Initial status
+                items: Object.entries(orderQuantities)
+                            .filter(([_, qty]) => qty > 0) // Only include items with quantity > 0
+                            .map(([protein, quantity]) => ({ protein, quantity })),
+                customizations: orderCustomizations,
+                locationStatus: userProfile?.defaultLocation || 'carry_out', // Default from profile or fallback
+                totalServings: totalQuantity,
+                // Add recipe details for easy reference if needed
+                recipeName: chosenRecipeDetails?.name || 'N/A',
+                recipeId: chosenRecipeDetails?.id || 'N/A',
+            };
+
+            if (isModifyingOrder && userOrder?.id) {
+                // Update existing order
+                const orderRef = doc(db, 'orders', userOrder.id);
+                // Overwrite timestamp only if specifically desired, otherwise keep original
+                // Here, we update everything including the timestamp to reflect modification time
+                await updateDoc(orderRef, orderData);
+                setOrderSuccess("Order updated successfully!");
+            } else {
+                // Add new order
+                const ordersRef = collection(db, "orders");
+                await addDoc(ordersRef, orderData);
+                setOrderSuccess("Order placed successfully!");
+            }
+            setIsModifyingOrder(false); // Exit modification mode after successful submission
         } catch (err) {
-            console.error("Error placing order:", err);
-            setError("Failed to place order. Please check the details and try again.");
+            console.error("Error submitting order:", err);
+            setError("Failed to submit your order. Please try again.");
         } finally {
             setIsSubmittingOrder(false);
         }
     };
 
-    // --- Render Ordering Section (If applicable) ---
     const renderOrderingSection = () => {
-        if (loadingOrderCheck || loadingRecipeDetails) {
-            return <CircularProgress sx={{ display: 'block', margin: '20px auto' }} />;
+        if (!activeCycle || !chosenRecipeDetails) {
+            return <Typography>Recipe details are loading or unavailable.</Typography>;
         }
 
-        if (userOrder) {
-            // User has already ordered - display confirmation or order details
-            return (
-                <Box sx={{ mt: 3 }}>
-                    <Alert severity="info">{orderSuccess || "You have already placed an order for this cycle."}</Alert>
-                    {/* Optionally display order details: */}
-                    {/* <Typography>Your Order: {userOrder.servings} servings...</Typography> */}
-                </Box>
-            );
-        }
-
-        // Check if ordering deadline has passed
-        const now = new Date();
-        if (activeCycle.orderDeadline && now > activeCycle.orderDeadline) {
-            return (
-                 <Alert severity="warning" sx={{ mt: 3 }}>The ordering deadline for this cycle has passed.</Alert>
-            );
-        }
-
-        const proteinOptions = chosenRecipeDetails?.proteinOptions;
-        const hasProteinOptions = proteinOptions && proteinOptions.length > 0;
+        const isOrderingOpen = activeCycle.status === 'ordering_open';
+        const deadlinePassed = activeCycle.orderDeadline && new Date() > activeCycle.orderDeadline;
+        const showForm = isOrderingOpen && !deadlinePassed && (!userOrder || isModifyingOrder);
+        const showExistingOrder = userOrder && !isModifyingOrder;
 
         return (
-            <Box sx={{ mt: 3 }}>
-                <Typography variant="h6" gutterBottom>Place Your Order</Typography>
-                <Grid container spacing={2} alignItems="center">
-                    {hasProteinOptions ? (
-                        // Render quantity input for each protein option
-                        proteinOptions.map((opt) => (
-                            <Grid item xs={12} sm={6} key={opt.optionName} sx={{ display: 'flex', alignItems: 'center' }}>
-                                <Typography sx={{ flexGrow: 1, mr: 1 }}>
-                                    {opt.optionName} 
-                                    {opt.addedCost > 0 && `(+${opt.addedCost.toFixed(2)})`}
+            <Card sx={{ mt: 3 }}>
+                 <Box sx={{ p: 2 }}>
+                     <Typography variant="h6" gutterBottom>
+                         Order: {chosenRecipeDetails.name}
+                     </Typography>
+
+                    {isOrderingOpen && activeCycle.orderDeadline && (
+                         <Typography variant="body2" color={deadlinePassed ? "error" : "text.secondary"} gutterBottom>
+                             Order Deadline: {activeCycle.orderDeadline.toLocaleString()}
+                             {deadlinePassed && " (Deadline Passed)"}
+                         </Typography>
+                     )}
+                    {!isOrderingOpen && activeCycle.status === 'planned' && (
+                        <Chip label="Ordering Not Yet Open" color="info" size="small" sx={{ mb: 1 }}/>
+                    )}
+
+                    {(loadingOrderCheck || loadingRecipeDetails) && <LoadingSpinner size={30} sx={{ my: 2 }}/>}
+
+                    {showExistingOrder && (
+                        <Box sx={{ my: 2, p: 2, border: '1px solid', borderColor: 'success.light', borderRadius: 1, bgcolor: 'success.ultralight' }}>
+                            <Typography variant="subtitle1" gutterBottom sx={{ color: 'success.dark' }}>Your Current Order:</Typography>
+                            {userOrder.items.map(item => (
+                                <Typography key={item.protein} variant="body2" sx={{ color: 'success.dark' }}>
+                                    {item.protein}: {item.quantity}
                                 </Typography>
-                                <TextField
-                                    label="Quantity"
-                                    type="number"
-                                    size="small"
-                                    value={orderQuantities[opt.optionName] || 0} // Use state object
-                                    onChange={(e) => handleQuantityChange(opt.optionName, e.target.value)}
-                                    InputProps={{ inputProps: { min: 0, style: { textAlign: 'center' } } }} // Allow 0
-                                    sx={{ width: '80px' }} // Adjust width as needed
-                                    disabled={isSubmittingOrder}
-                                />
+                            ))}
+                            {userOrder.customizations && userOrder.customizations.length > 0 && (
+                                <Typography variant="body2" sx={{ mt: 1, color: 'success.dark' }}>
+                                    Customizations: {userOrder.customizations.join(', ')}
+                                </Typography>
+                            )}
+                            <Button
+                                variant="outlined"
+                                size="small"
+                                onClick={handleModifyOrderClick}
+                                sx={{ mt: 1.5 }}
+                                disabled={!isOrderingOpen || deadlinePassed}
+                            >
+                                Modify Order
+                            </Button>
+                        </Box>
+                    )}
+
+                    {showForm && (
+                        <Box component="form" onSubmit={(e) => { e.preventDefault(); handleOrderSubmit(); }} sx={{ mt: 2 }}>
+                            <Typography variant="subtitle1" gutterBottom>
+                                {isModifyingOrder ? "Modify Your Meal Quantities" : "Select Meal Quantities"}
+                            </Typography>
+                             <Grid container spacing={2} sx={{ mb: 2 }}>
+                                {chosenRecipeDetails.proteinOptions && chosenRecipeDetails.proteinOptions.length > 0 ? (
+                                     chosenRecipeDetails.proteinOptions.map(option => (
+                                         <Grid item xs={6} sm={4} key={option.optionName}>
+                                             <TextField
+                                                 label={option.optionName}
+                                                 type="number"
+                                                 value={orderQuantities[option.optionName] || 0}
+                                                 onChange={(e) => handleQuantityChange(option.optionName, e.target.value)}
+                                                 inputProps={{ min: 0 }}
+                                                 size="small"
+                                                 fullWidth
+                                             />
+                                         </Grid>
+                                     ))
+                                ) : (
+                                     <Grid item xs={6} sm={4}>
+                                         <TextField
+                                             label="Quantity"
+                                             type="number"
+                                             value={orderQuantities["default"] || 1}
+                                             onChange={(e) => handleQuantityChange("default", e.target.value)}
+                                             inputProps={{ min: 0 }}
+                                             size="small"
+                                             fullWidth
+                                         />
+                                     </Grid>
+                                )}
                             </Grid>
-                        ))
-                    ) : (
-                         // Fallback: Render single quantity input if no protein options
-                         <Grid item xs={12} sm={6}>
-                             <TextField
-                                label="Quantity"
-                                type="number"
-                                value={orderQuantities["default"] || 0} // Use default key
-                                onChange={(e) => handleQuantityChange("default", e.target.value)}
-                                InputProps={{ inputProps: { min: 0 } }} // Allow 0
+
+                            {chosenRecipeDetails.customizationOptions && chosenRecipeDetails.customizationOptions.length > 0 && (
+                                <FormControl component="fieldset" sx={{ mt: 2, mb: 2 }}>
+                                    <FormLabel component="legend">Customizations</FormLabel>
+                                    <FormGroup row>
+                                        {chosenRecipeDetails.customizationOptions.map(cust => (
+                                            <FormControlLabel
+                                                key={cust}
+                                                control={
+                                                    <Checkbox
+                                                        checked={orderCustomizations.includes(cust)}
+                                                        onChange={handleCustomizationChange}
+                                                        name={cust}
+                                                        size="small"
+                                                    />
+                                                }
+                                                label={cust}
+                                            />
+                                        ))}
+                                    </FormGroup>
+                                </FormControl>
+                            )}
+
+                            {orderValidationError && (
+                                <Alert severity="error" sx={{ mb: 2 }}>{orderValidationError}</Alert>
+                            )}
+
+                            <Button
+                                type="submit"
+                                variant="contained"
                                 fullWidth
-                                disabled={isSubmittingOrder}
-                                required
-                            />
-                        </Grid>
+                                isLoading={isSubmittingOrder}
+                                disabled={isSubmittingOrder || !isOrderingOpen || deadlinePassed}
+                            >
+                                {isModifyingOrder ? 'Update Order' : 'Place Order'}
+                            </Button>
+                            {isModifyingOrder && (
+                                <Button
+                                    variant="text"
+                                    onClick={() => setIsModifyingOrder(false)} // Cancel modification
+                                    sx={{ mt: 1, ml: 1 }} // Align properly
+                                    size="small"
+                                >
+                                    Cancel
+                                </Button>
+                            )}
+                        </Box>
                     )}
-                     {/* Display validation error */} 
-                     {orderValidationError && (
-                        <Grid item xs={12}>
-                            <FormHelperText error>{orderValidationError}</FormHelperText>
-                        </Grid>
+
+                    {/* Display success/error messages */} 
+                    {orderSuccess && (
+                        <Alert severity="success" sx={{ mt: 2 }}>{orderSuccess}</Alert>
                     )}
-                    {/* Optional: Add Customizations Section (e.g., checkboxes for 'no onion', 'extra sauce') */}
-                    {/* <Grid xs={12}>
-                         <FormControl component="fieldset" variant="standard">
-                            <FormLabel component="legend">Customizations</FormLabel>
-                            <FormGroup>
-                                <FormControlLabel control={<Checkbox />} label="No Cheese" />
-                                <FormControlLabel control={<Checkbox />} label="Extra Spicy" />
-                            </FormGroup>
-                         </FormControl>
-                    </Grid> */}
-                </Grid>
-                <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={handleOrderSubmit}
-                    disabled={isSubmittingOrder || loadingOrderCheck}
-                    sx={{ mt: 2 }}
-                    fullWidth
-                    size="large"
-                >
-                    {isSubmittingOrder ? <CircularProgress size={24} /> : 'Submit Order'}
-                </Button>
-            </Box>
+                    {error && (
+                        <Alert severity="error" sx={{ mt: 2 }}>{error}</Alert>
+                    )}
+
+                </Box>
+             </Card>
         );
     };
 
-    // --- Main Render Logic ---
-    return (
-        <Container maxWidth="md" sx={{ px: { xs: 2, sm: 3 }, mb: 4 }}>
-            <Typography variant="h4" component="h1" gutterBottom sx={{ my: { xs: 3, md: 4 } }}>
-                Meal Cycle Dashboard
+    const renderWelcome = () => (
+         <Card sx={{ mt: 3, p: 2 }}>
+             <Typography variant="h5" gutterBottom>
+                 Welcome, {userProfile?.displayName || currentUser?.email}!
+             </Typography>
+            <Typography variant="body1">
+                Check the current meal cycle below or manage your recipes.
             </Typography>
-
-            {loadingCycle && <CircularProgress sx={{ display: 'block', margin: 'auto' }} />}
-            {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
-
-            {!loadingCycle && !activeCycle && (
-                <Typography variant="h6" color="text.secondary" sx={{ textAlign: 'center', mt: 4 }}>
-                    No active meal cycle found (planned or accepting orders).
+            {userProfile?.isAdmin && (
+                <Typography variant="body2" sx={{ mt: 1 }}>
+                    Admin Links: <Link component={RouterLink} to="/admin/cycles">Manage Cycles</Link> | <Link component={RouterLink} to="/admin/planning">Plan Next Cycle</Link>
                 </Typography>
             )}
+        </Card>
+    );
 
-            {activeCycle && (
-                <Paper elevation={3} sx={{ p: 3 }}>
-                    <Typography variant="h5" gutterBottom>
-                        Upcoming Meal: {activeCycle.chosenRecipe?.recipeName || 'Recipe Loading...'}
-                    </Typography>
-                    <Divider sx={{ my: 2 }} />
+    return (
+        <PageContainer>
+            {(loadingProfile || loadingCycle) ? (
+                <LoadingSpinner centered size={60} />
+            ) : (
+                <>
+                    {renderWelcome()}
 
-                    <Grid container spacing={1} sx={{ mb: 2 }}>
-                        <Grid xs={6} sm={4}>
-                             <Typography variant="body1"><strong>Target Cook Date:</strong></Typography>
-                        </Grid>
-                        <Grid xs={6} sm={8}>
-                            <Typography variant="body1">
-                                {activeCycle.targetCookDate ? activeCycle.targetCookDate.toLocaleDateString() : 'N/A'}
-                            </Typography>
-                        </Grid>
-                        <Grid xs={6} sm={4}>
-                             <Typography variant="body1"><strong>Order Deadline:</strong></Typography>
-                        </Grid>
-                        <Grid xs={6} sm={8}>
-                             <Typography variant="body1">
-                                {activeCycle.orderDeadline ? activeCycle.orderDeadline.toLocaleString() : 'N/A'}
+                    {activeCycle ? (
+                        renderOrderingSection()
+                    ) : (
+                         <Card sx={{ mt: 3, p: 2, textAlign: 'center' }}>
+                             <Typography variant="h6" gutterBottom>
+                                 No Active Meal Cycle
                              </Typography>
-                        </Grid>
-                         <Grid xs={6} sm={4}>
-                            <Typography variant="body1"><strong>Status:</strong></Typography>
-                        </Grid>
-                        <Grid xs={6} sm={8}>
-                            <Typography variant="body1" sx={{ textTransform: 'capitalize' }}>
-                                {activeCycle.status.replace('_', ' ')}
+                            <Typography color="text.secondary">
+                                There isn't an active meal cycle for ordering right now.
                             </Typography>
-                        </Grid>
-                    </Grid>
-
-                    {loadingRecipeDetails && <LinearProgress sx={{ my: 2 }} />}
-                    {chosenRecipeDetails && (
-                        <Box sx={{ mt: 2 }}>
-                            <Typography variant="h6">Recipe Details</Typography>
-                            <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
-                                {chosenRecipeDetails.description}
-                            </Typography>
-                            {/* Optionally display ingredients or other details here */} 
-                            {/* <Typography variant="subtitle2">Ingredients:</Typography>
-                            <List dense>
-                                {chosenRecipeDetails.ingredients?.map((ing, index) => (
-                                    <ListItem key={index} disablePadding>
-                                        <ListItemText primary={`${ing.name} - ${ing.quantity} ${ing.unit}`} />
-                                    </ListItem>
-                                ))}
-                            </List> */}
-                         </Box>
+                        </Card>
                     )}
-
-                    {/* Render Ordering Section if cycle status allows and recipe is loaded */}
-                    {activeCycle.status === 'ordering_open' && chosenRecipeDetails && renderOrderingSection()}
-                     {/* Show a message if cycle is planned but not yet open for ordering */}
-                     {activeCycle.status === 'planned' && (
-                        <Alert severity="info" sx={{ mt: 3 }}>Ordering for this cycle has not opened yet.</Alert>
-                     )}
-
-                </Paper>
+                </>
             )}
-        </Container>
+        </PageContainer>
     );
 }
 

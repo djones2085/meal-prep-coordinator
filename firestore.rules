@@ -45,9 +45,9 @@ service cloud.firestore {
 
     // Orders
     match /orders/{orderId} {
-      // Allow reading own order(s)
+      // Allow reading order(s)
       // TODO: Allow admin/cook/shopper to read orders relevant to the cycle?
-      allow read: if request.auth != null && resource.data.userId == request.auth.uid;
+      allow read: if request.auth != null;
 
       // Allow creating an order if:
       // 1. User is logged in.

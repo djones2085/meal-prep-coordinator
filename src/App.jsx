@@ -1,5 +1,6 @@
 import { Routes, Route } from 'react-router-dom'
-import Layout from './components/Layout'
+// import MainLayout from './components/layout/MainLayout.jsx'; // Remove MainLayout import
+import Layout from './components/Layout.jsx'; // Import restored Layout
 import ProtectedRoute from './components/ProtectedRoute'
 import './App.css'
 
@@ -20,7 +21,7 @@ import AdminHomePage from './pages/admin/AdminHomePage'
 
 function NotFoundPage() {
     // Maybe use MUI Typography here later
-    return <h2>404 - Page Not Found</h2>
+    return <h2 className="text-center text-xl mt-8">404 - Page Not Found</h2>
 }
 // --- End Placeholders ---
 
@@ -38,12 +39,10 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignUpPage />} />
 
-        {/* Protected routes rendered within the Layout */}
-        {/* Routes nested under ProtectedRoute require authentication */}
-        {/* The ProtectedRoute now renders the Layout, which contains the Outlet */}
+        {/* Protected routes rendered within the restored Layout */}
         <Route element={<ProtectedRoute />}>
-             <Route element={<Layout />}> {/* Wrap protected pages in Layout */}
-                <Route path="/" element={<DashboardPage />} />
+             <Route element={<Layout />}> {/* Wrap protected pages in Layout again */}
+                <Route path="/dashboard" element={<DashboardPage />} /> 
                 <Route path="/recipes" element={<RecipesPage />} />
                 <Route path="/recipes/:recipeId" element={<RecipeDetailPage />} />
                 <Route path="/add-recipe" element={<AddRecipePage />} />
@@ -51,12 +50,11 @@ function App() {
                 <Route path="/admin/planning" element={<MealPlanningPage />} />
                 <Route path="/admin/cycles" element={<MealCycleManagementPage />} />
                 <Route path="/meal-cycle" element={<MealCyclePage />} />
-                {/* Add other protected routes inside Layout here */}
+                <Route index element={<DashboardPage />} /> 
             </Route>
         </Route>
 
         {/* Catch-all route for 404 Not Found */}
-        {/* This should ideally be outside the Layout/ProtectedRoute or handled within */}
          <Route path="*" element={<NotFoundPage />} />
       </Routes>
       {/* --- End Route Definitions --- */}

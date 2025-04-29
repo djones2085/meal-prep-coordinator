@@ -2,20 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { collection, addDoc, getDocs, query, where, serverTimestamp, Timestamp } from 'firebase/firestore';
 import { db } from '../../firebaseConfig';
-import {
-    Container,
-    Typography,
-    Button,
-    Box,
-    CircularProgress,
-    Alert,
-    Grid,
-    Paper,
-    Select,
-    MenuItem,
-    FormControl,
-    InputLabel
-} from '@mui/material';
+import { PageContainer, Button, LoadingSpinner, Alert, Select, Card } from '../../components/mui';
+import { Typography, Box, Grid } from '@mui/material';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
@@ -69,12 +57,12 @@ const getDefaultDates = () => {
 function MealPlanningPage() {
     const navigate = useNavigate();
     const [availableRecipes, setAvailableRecipes] = useState([]);
-    const [selectedRecipeId, setSelectedRecipeId] = useState(''); // Store only the ID of the single selected recipe
+    const [selectedRecipeId, setSelectedRecipeId] = useState('');
     const [orderDeadline, setOrderDeadline] = useState(() => getDefaultDates().defaultOrderDeadline);
     const [targetCookDate, setTargetCookDate] = useState(() => getDefaultDates().defaultTargetCookDate);
 
     const [loading, setLoading] = useState(false);
-    const [fetchLoading, setFetchLoading] = useState(true); // Separate loading for fetch
+    const [fetchLoading, setFetchLoading] = useState(true);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
 
@@ -144,8 +132,8 @@ function MealPlanningPage() {
                  recipeId: selectedRecipe.id,
                  recipeName: selectedRecipe.name,
             },
-            orderDeadline: orderDeadline,
-            targetCookDate: targetCookDate,
+            orderDeadline: Timestamp.fromDate(orderDeadline),
+            targetCookDate: Timestamp.fromDate(targetCookDate),
             creationDate: serverTimestamp(),
             // Other fields like assignments, totals will be set later
         };
@@ -157,8 +145,9 @@ function MealPlanningPage() {
             setSuccess(`New Meal Cycle created (Status: Ordering Open) with recipe: ${selectedRecipe.name}. ID: ${docRef.id}`); // Updated success message
             // Optionally clear form
             setSelectedRecipeId('');
-            setOrderDeadline(null);
-            setTargetCookDate(null);
+            const { defaultOrderDeadline, defaultTargetCookDate } = getDefaultDates();
+            setOrderDeadline(defaultOrderDeadline);
+            setTargetCookDate(defaultTargetCookDate);
             setLoading(false);
             // Optionally navigate away
             // navigate('/dashboard'); // Or wherever appropriate
@@ -169,82 +158,79 @@ function MealPlanningPage() {
         }
     };
 
+    // Prepare options for StyledSelect
+    const recipeOptions = availableRecipes.map(recipe => ({ value: recipe.id, label: recipe.name }));
+
     return (
         <LocalizationProvider dateAdapter={AdapterDateFns}>
-            <Container maxWidth="md" sx={{ px: { xs: 2, sm: 3 }, mb: 4 }}>
-                <Typography variant="h4" component="h1" gutterBottom sx={{ my: { xs: 3, md: 4 } }}>
+            <PageContainer>
+                <Typography variant="h4" component="h1" gutterBottom>
                     Plan New Meal Cycle
                 </Typography>
 
-                <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
-                    <Paper elevation={2} sx={{ p: 3, mb: 3 }}>
-                        <Typography variant="h6" gutterBottom>Select Recipe for the Cycle</Typography>
-                        {fetchLoading && <CircularProgress size={24} />}
+                <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 2, display: 'flex', flexDirection: 'column', gap: 3 }}>
+                    <Card>
+                        <Typography variant="h6" gutterBottom sx={{ mb: 2 }}>Select Recipe for the Cycle</Typography>
+                        {fetchLoading && <LoadingSpinner centered />}
                         {!fetchLoading && availableRecipes.length === 0 && !error && (
                             <Typography color="text.secondary">No 'approved' or 'testing' recipes found.</Typography>
                         )}
                         {!fetchLoading && availableRecipes.length > 0 && (
-                             <FormControl fullWidth sx={{ mt: 1 }}>
-                                <InputLabel id="recipe-select-label">Recipe</InputLabel>
-                                <Select
-                                    labelId="recipe-select-label"
-                                    id="recipe-select"
-                                    value={selectedRecipeId}
-                                    label="Recipe"
-                                    onChange={(e) => setSelectedRecipeId(e.target.value)}
-                                    disabled={loading}
-                                >
-                                    {availableRecipes.map((recipe) => (
-                                        <MenuItem key={recipe.id} value={recipe.id}>
-                                            {recipe.name}
-                                        </MenuItem>
-                                    ))}
-                                </Select>
-                            </FormControl>
+                             <Select
+                                label="Recipe *"
+                                value={selectedRecipeId}
+                                onChange={(e) => setSelectedRecipeId(e.target.value)}
+                                options={recipeOptions}
+                                disabled={loading || fetchLoading}
+                                required
+                                margin="none"
+                                size="medium" // Ensure consistent size
+                             />
                         )}
-                         {error && !fetchLoading && <Alert severity="error" sx={{ mt: 1 }}>{error}</Alert>}
-                    </Paper>
+                         {error && fetchLoading && <Alert severity="error" sx={{ mt: 2 }}>{error}</Alert>}
+                    </Card>
 
-                    <Paper elevation={2} sx={{ p: 3 }}>
-                        <Typography variant="h6" gutterBottom>Set Deadlines & Dates</Typography>
-                         <Grid container spacing={3}>
+                    <Card>
+                         <Typography variant="h6" gutterBottom sx={{ mb: 2 }}>Set Deadlines & Dates</Typography>
+                         <Grid container spacing={3}> 
                             <Grid item xs={12} sm={6}>
                                  <DateTimePicker
                                     label="Order Deadline *"
                                     value={orderDeadline}
-                                    onChange={(newValue) => setOrderDeadline(newValue)}
+                                    onChange={setOrderDeadline}
                                     disabled={loading}
-                                    slotProps={{ textField: { fullWidth: true, required: true, helperText:"Select date and time" } }}
+                                    ampm={true} // Use AM/PM
+                                    slotProps={{ textField: { fullWidth: true, required: true, variant: 'outlined' } }} // Ensure consistent styling
                                  />
                             </Grid>
                              <Grid item xs={12} sm={6}>
                                 <DatePicker
                                     label="Target Cook Date *"
                                     value={targetCookDate}
-                                    onChange={(newValue) => setTargetCookDate(newValue)}
+                                    onChange={setTargetCookDate}
                                     disabled={loading}
-                                    slotProps={{ textField: { fullWidth: true, required: true, helperText:"Select date" } }}
+                                    slotProps={{ textField: { fullWidth: true, required: true, variant: 'outlined' } }} // Ensure consistent styling
                                 />
                             </Grid>
                          </Grid>
-                    </Paper>
+                    </Card>
 
-                     <Box sx={{ mt: 3 }}>
-                        {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+                    <Box sx={{ mt: 2 }}> 
+                        {error && !fetchLoading && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
                         {success && <Alert severity="success" sx={{ mb: 2 }}>{success}</Alert>}
                         <Button
                             type="submit"
                             variant="contained"
-                            color="primary"
+                            isLoading={loading}
                             disabled={loading || fetchLoading || !selectedRecipeId}
                             fullWidth
                             size="large"
                         >
-                            {loading ? <CircularProgress size={24} /> : 'Create Meal Cycle'}
+                            Create Meal Cycle
                         </Button>
                     </Box>
                 </Box>
-            </Container>
+            </PageContainer>
         </LocalizationProvider>
     );
 }

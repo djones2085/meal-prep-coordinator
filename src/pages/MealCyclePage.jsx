@@ -1,31 +1,34 @@
 import React, { useState, useEffect } from 'react';
 import { doc, getDoc, collection, query, where, orderBy, limit, getDocs } from 'firebase/firestore';
 import { db } from '../firebaseConfig';
+import { PageContainer, LoadingSpinner, Alert, StatusChip, Card } from '../components/mui';
 import {
-    Container, Typography, Box, Paper, CircularProgress, Alert,
-    Divider, List, ListItem, ListItemText, Grid, Chip,
-    ListItemIcon
+    Typography,
+    Box,
+    Divider,
+    Grid,
+    List,
+    ListItem,
+    ListItemText
 } from '@mui/material';
-import RestaurantMenuIcon from '@mui/icons-material/RestaurantMenu'; // Example icon
 
-// Helper function to format protein counts (same as in MealCycleManagementPage)
+// Helper function to format protein counts
 const formatProteinCounts = (counts) => {
     if (!counts || typeof counts !== 'object' || Object.keys(counts).length === 0) {
-        return 'N/A'; // Return N/A if no counts
+        return 'N/A';
     }
     return Object.entries(counts)
         .map(([protein, count]) => `${protein}: ${count}`)
         .join(', ');
 };
 
-// Helper to round numbers nicely (can copy from RecipeDetailPage if needed, or simple rounding)
+// Helper to round numbers nicely
 function roundNicely(num) {
     if (num === 0 || !num) return 0;
     if (Math.abs(num) < 0.1) return num.toPrecision(1);
     if (Math.abs(num) < 1) return Math.round(num * 100) / 100;
     return Math.round(num * 10) / 10;
 }
-
 
 function MealCyclePage() {
     const [cycle, setCycle] = useState(null);
@@ -41,13 +44,12 @@ function MealCyclePage() {
             setRecipe(null);
 
             try {
-                // 1. Find the most recent active cycle (not planned, completed, or cancelled)
                 const cyclesRef = collection(db, "mealCycles");
                 const activeStatuses = ['ordering_open', 'ordering_closed', 'shopping', 'cooking', 'packaging', 'distributing'];
                 const q = query(
                     cyclesRef,
                     where("status", "in", activeStatuses),
-                    orderBy("creationDate", "desc"), // Get the latest one first
+                    orderBy("creationDate", "desc"),
                     limit(1)
                 );
                 const cycleSnapshot = await getDocs(q);
@@ -62,16 +64,13 @@ function MealCyclePage() {
                 const cycleData = {
                     id: cycleDoc.id,
                     ...cycleDoc.data(),
-                    // Ensure dates are JS Dates if needed (they are needed for display here)
-                     orderDeadline: cycleDoc.data().orderDeadline?.toDate ? cycleDoc.data().orderDeadline.toDate() : null,
-                     targetCookDate: cycleDoc.data().targetCookDate?.toDate ? cycleDoc.data().targetCookDate.toDate() : null,
-                     creationDate: cycleDoc.data().creationDate?.toDate ? cycleDoc.data().creationDate.toDate() : null,
-                      // aggregationTimestamp might also be useful
-                     aggregationTimestamp: cycleDoc.data().aggregationTimestamp?.toDate ? cycleDoc.data().aggregationTimestamp.toDate() : null,
+                    orderDeadline: cycleDoc.data().orderDeadline?.toDate ? cycleDoc.data().orderDeadline.toDate() : null,
+                    targetCookDate: cycleDoc.data().targetCookDate?.toDate ? cycleDoc.data().targetCookDate.toDate() : null,
+                    creationDate: cycleDoc.data().creationDate?.toDate ? cycleDoc.data().creationDate.toDate() : null,
+                    aggregationTimestamp: cycleDoc.data().aggregationTimestamp?.toDate ? cycleDoc.data().aggregationTimestamp.toDate() : null,
                 };
                 setCycle(cycleData);
 
-                // 2. Fetch the associated recipe
                 const recipeId = cycleData.chosenRecipe?.recipeId;
                 if (recipeId) {
                     const recipeDocRef = doc(db, 'recipes', recipeId);
@@ -80,7 +79,6 @@ function MealCyclePage() {
                         setRecipe({ id: recipeSnap.id, ...recipeSnap.data() });
                     } else {
                         setError(`Recipe (ID: ${recipeId}) for the current cycle not found.`);
-                         // Still show cycle data even if recipe fetch fails
                     }
                 } else {
                     setError("Current cycle is missing recipe information.");
@@ -98,98 +96,132 @@ function MealCyclePage() {
     }, []);
 
     return (
-        <Container maxWidth="lg" sx={{ px: { xs: 2, sm: 3 }, mb: 4 }}>
-            <Typography variant="h4" component="h1" gutterBottom sx={{ my: { xs: 3, md: 4 } }}>
+        <PageContainer maxWidth="md">
+            <Typography variant="h4" component="h1" gutterBottom>
                 Current Meal Cycle Details
             </Typography>
 
-            {loading && <CircularProgress sx={{ display: 'block', margin: 'auto' }} />}
-            {error && !cycle && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>} {/* Show primary error only if cycle fails */}
+            {loading && (
+                <LoadingSpinner centered size={60} />
+            )}
+
+            {error && !cycle && !loading && (
+                <Alert severity="error" sx={{ mt: 2 }}>{error}</Alert>
+            )}
+
             {!loading && !cycle && !error && (
-                <Typography variant="h6" color="text.secondary" sx={{ textAlign: 'center', mt: 4 }}>
-                    No active meal cycle is currently available.
-                </Typography>
-            )}
-
-            {cycle && (
-                <Paper elevation={3} sx={{ p: 3, mb: 3 }}>
-                    {/* Display basic cycle info */} 
-                    <Typography variant="h5" gutterBottom>
-                         Cycle ID: {cycle.id}
+                <Card sx={{ mt: 3, textAlign: 'center' }}>
+                    <Typography variant="h6" component="p" gutterBottom>
+                        No Active Cycle
                     </Typography>
-                     <Typography variant="body1" sx={{ mb: 1 }}>
-                        Status: <Chip label={cycle.status.replace('_', ' ')} size="small" color={cycle.status === 'ordering_open' ? 'success' : 'default'} />
-                     </Typography>
-                    <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                        {cycle.orderDeadline ? `Order Deadline: ${cycle.orderDeadline.toLocaleString()}` : ''}
-                        {cycle.targetCookDate ? ` | Cook Date: ${cycle.targetCookDate.toLocaleDateString()}` : ''}
-                     </Typography>
-                    <Divider sx={{ my: 2 }} />
-
-                     {/* Display Recipe Info */} 
-                     <Typography variant="h6" gutterBottom>Recipe</Typography>
-                     {recipe ? (
-                         <Box sx={{ mb: 2 }}>
-                            <Typography variant="h5" component="h2">{recipe.name}</Typography>
-                            <Typography variant="body1" color="text.secondary" paragraph>
-                                {recipe.description}
-                            </Typography>
-                             {/* Add other recipe details if needed e.g., prep/cook time */} 
-                        </Box>
-                     ) : (
-                         <Alert severity="warning">Recipe details could not be loaded.</Alert>
-                     )}
-                     <Divider sx={{ my: 2 }} />
-
-                    {/* Display Aggregated Order Info */} 
-                    <Typography variant="h6" gutterBottom>Order Summary</Typography>
-                    {cycle.aggregationTimestamp ? (
-                        <Grid container spacing={1} sx={{ mb: 2 }}>
-                            <Grid xs={6} sm={4}><strong>Total Servings:</strong></Grid>
-                            <Grid xs={6} sm={8}>{cycle.totalMealCounts ?? 'N/A'}</Grid>
-
-                            <Grid xs={6} sm={4}><strong>Protein Counts:</strong></Grid>
-                            <Grid xs={6} sm={8}>{formatProteinCounts(cycle.totalCountsByProtein)}</Grid>
-
-                            <Grid xs={6} sm={4}><strong>Dine-In:</strong></Grid>
-                            <Grid xs={6} sm={8}>{cycle.dineInContainers ?? 'N/A'}</Grid>
-
-                            <Grid xs={6} sm={4}><strong>Carry-Out:</strong></Grid>
-                            <Grid xs={6} sm={8}>{cycle.carryOutContainers ?? 'N/A'}</Grid>
-                            
-                            <Grid xs={12} sm={12} sx={{mt: 1}}>
-                                 <Typography variant="caption" color="text.secondary">Aggregated on: {cycle.aggregationTimestamp.toLocaleString()}</Typography>
-                             </Grid>
-                        </Grid>
-                     ) : (
-                         <Typography variant="body2" color="text.secondary" sx={{ fontStyle: 'italic' }}>
-                             Order aggregation has not run yet for this cycle.
-                        </Typography>
-                     )}
-                    <Divider sx={{ my: 2 }} />
-
-                    {/* Display Aggregated Ingredients (Shopping List) */} 
-                     <Typography variant="h6" gutterBottom>Shopping List</Typography>
-                    {(cycle.aggregationTimestamp && cycle.totalIngredients && cycle.totalIngredients.length > 0) ? (
-                        <List dense>
-                            {cycle.totalIngredients.map((ing, index) => (
-                                <ListItem key={index} disablePadding>
-                                     <ListItemIcon sx={{minWidth: '30px'}}><RestaurantMenuIcon fontSize="small" /></ListItemIcon>
-                                    <ListItemText 
-                                         primary={ing.name}
-                                         secondary={`${roundNicely(ing.quantity)} ${ing.unit}`}
-                                    />
-                                </ListItem>
-                            ))}
-                        </List>
-                     ) : (
-                         <Typography variant="body2" color="text.secondary" sx={{ fontStyle: 'italic' }}>
-                             {cycle.aggregationTimestamp ? 'No ingredients calculated (check orders/recipe).' : 'Shopping list will be generated after order aggregation.'}
-                        </Typography>
-                     )}
-                </Paper>
+                    <Typography color="text.secondary">
+                        There isn't an active meal cycle currently available. Check back later!
+                    </Typography>
+                </Card>
             )}
-        </Container>
+
+            {cycle && !loading && (
+                <Card sx={{ mt: 3 }}>
+                     <Box sx={{ p: 2, pb: 0 }}>
+                        <Typography variant="h6" gutterBottom>
+                            Cycle Overview
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary" display="block" gutterBottom>
+                            ID: {cycle.id}
+                        </Typography>
+                        <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 2, mt: 1 }}>
+                            <StatusChip status={cycle.status} />
+                            {cycle.orderDeadline && (
+                                <Typography variant="body2" color="text.secondary">
+                                    Deadline: {cycle.orderDeadline.toLocaleString()}
+                                </Typography>
+                            )}
+                            {cycle.targetCookDate && (
+                                <Typography variant="body2" color="text.secondary">
+                                    Cook Date: {cycle.targetCookDate.toLocaleDateString()}
+                                </Typography>
+                            )}
+                        </Box>
+                    </Box>
+
+                    <Divider sx={{ my: 2 }} />
+
+                    <Box sx={{ p: 2 }}>
+                        <Typography variant="h6" gutterBottom>Recipe</Typography>
+                        {recipe ? (
+                            <Box>
+                                <Typography variant="h5" color="primary" gutterBottom>{recipe.name}</Typography>
+                                <Typography variant="body1">
+                                    {recipe.description}
+                                </Typography>
+                            </Box>
+                        ) : (
+                            <Alert severity="warning">{error || `Recipe details could not be loaded.`}</Alert>
+                        )}
+                    </Box>
+
+                    <Divider sx={{ my: 2 }} />
+
+                    <Box sx={{ p: 2 }}>
+                        <Typography variant="h6" gutterBottom>Order Summary</Typography>
+                        {cycle.aggregationTimestamp ? (
+                            <Grid container spacing={2}>
+                                <Grid item xs={12} sm={6}>
+                                    <Typography variant="body2" color="text.secondary">Total Servings</Typography>
+                                    <Typography variant="body1">{cycle.Servings ?? 'N/A'}</Typography>
+                                </Grid>
+                                <Grid item xs={12} sm={6}>
+                                    <Typography variant="body2" color="text.secondary">Protein Counts</Typography>
+                                    <Typography variant="body1">{formatProteinCounts(cycle.Proteins)}</Typography>
+                                </Grid>
+                                <Grid item xs={12} sm={6}>
+                                    <Typography variant="body2" color="text.secondary">Dine-In Containers</Typography>
+                                    <Typography variant="body1">{cycle.DineIn ?? 'N/A'}</Typography>
+                                </Grid>
+                                <Grid item xs={12} sm={6}>
+                                    <Typography variant="body2" color="text.secondary">Carry-Out Containers</Typography>
+                                    <Typography variant="body1">{cycle.CarryOut ?? 'N/A'}</Typography>
+                                </Grid>
+                                <Grid item xs={12}>
+                                     <Typography variant="caption" color="text.secondary" sx={{ mt: 1 }}>
+                                        Summary generated on: {cycle.aggregationTimestamp.toLocaleString()}
+                                    </Typography>
+                                </Grid>
+                            </Grid>
+                        ) : (
+                            <Typography variant="body2" color="text.secondary" fontStyle="italic">
+                                Order aggregation has not run yet. Summary will appear once orders are finalized.
+                            </Typography>
+                        )}
+                    </Box>
+
+                    <Divider sx={{ my: 2 }} />
+
+                    <Box sx={{ p: 2 }}>
+                        <Typography variant="h6" gutterBottom>Shopping List</Typography>
+                        {(cycle.aggregationTimestamp && cycle.totalIngredients && cycle.totalIngredients.length > 0) ? (
+                             <List dense disablePadding>
+                                {cycle.totalIngredients.map((ing, index) => (
+                                    <ListItem key={index} disableGutters>
+                                        <ListItemText
+                                            primary={ing.name}
+                                            secondary={`${roundNicely(ing.quantity)} ${ing.unit}`}
+                                        />
+                                    </ListItem>
+                                ))}
+                            </List>
+                         ) : (
+                            <Typography variant="body2" color="text.secondary" fontStyle="italic">
+                                {cycle.aggregationTimestamp 
+                                    ? "No ingredients calculated yet. Check orders or recipe data."
+                                    : "Shopping list will be generated after order aggregation runs."
+                                }
+                            </Typography>
+                         )}
+                    </Box>
+                </Card>
+            )}
+        </PageContainer>
     );
 }
 
