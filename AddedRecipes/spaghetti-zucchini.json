@@ -1,0 +1,49 @@
+{
+  "name": "Spaghetti with Meaty Sauce and Grilled Zucchini",
+  "description": "Classic spaghetti with a rich meat sauce and a side of fresh grilled zucchini.",
+  "status": "new",
+  "baseYield": 1,
+  "baseYieldUnit": "serving",
+  "prepTime": "20 minutes",
+  "cookTime": "40 minutes",
+  "ingredients": [
+    { "name": "Ground beef (80/20)", "quantity": 0.5, "unit": "lb" },
+    { "name": "Olive oil", "quantity": 2.25, "unit": "tsp", "notes": "Divided: 3/4 tsp for sauce, 1 1/2 tsp for zucchini" },
+    { "name": "Yellow onion", "quantity": 0.25, "unit": "cup", "notes": "Finely diced" },
+    { "name": "Garlic", "quantity": 1, "unit": "clove", "notes": "Minced" },
+    { "name": "Crushed tomatoes", "quantity": 0.75, "unit": "cup" },
+    { "name": "Tomato paste", "quantity": 2, "unit": "tsp" },
+    { "name": "Red wine", "quantity": 1, "unit": "tbsp", "notes": "Optional" },
+    { "name": "Dried oregano", "quantity": 0.25, "unit": "tsp" },
+    { "name": "Dried basil", "quantity": 0.25, "unit": "tsp" },
+    { "name": "Red pepper flakes", "quantity": 1, "unit": "pinch", "notes": "Optional" },
+    { "name": "Sugar", "quantity": 1, "unit": "pinch" },
+    { "name": "Salt", "quantity": 0.375, "unit": "tsp", "notes": "Divided: 1/4 tsp for sauce, 1/8 tsp for zucchini" },
+    { "name": "Black pepper", "quantity": 0.125, "unit": "tsp", "notes": "+ 1 pinch for zucchini" },
+    { "name": "Dry spaghetti", "quantity": 4, "unit": "oz" },
+    { "name": "Zucchini", "quantity": 0.5, "unit": "lb", "notes": "1 small, sliced into 1/4-inch rounds" },
+    { "name": "Garlic powder", "quantity": 0.125, "unit": "tsp" },
+    { "name": "Dried thyme", "quantity": 0.125, "unit": "tsp" },
+    { "name": "Lemon juice", "quantity": 1, "unit": "tsp" }
+  ],
+  "proteinOptions": [],
+  "instructions": [
+    "Meaty Sauce: Heat 3/4 tsp olive oil in a medium saucepan over medium heat. Cook onion until soft, ~3 minutes.",
+    "Meaty Sauce: Add garlic, cook 30 seconds.",
+    "Meaty Sauce: Add beef, cook until browned, ~5 minutes, drain excess fat if desired.",
+    "Meaty Sauce: Stir in tomato paste, cook 1 minute.",
+    "Meaty Sauce: Add red wine (if using), simmer 1 minute.",
+    "Meaty Sauce: Add crushed tomatoes, oregano, basil, red pepper flakes, sugar, 1/4 tsp salt, and 1/8 tsp pepper. Simmer on low, covered, ~20 minutes, stirring occasionally.",
+    "Spaghetti: Boil salted water in a pot. Cook spaghetti until al dente, ~8 minutes. Drain, toss with a drizzle of olive oil.",
+    "Grilled Zucchini: Heat a grill pan or skillet over medium-high.",
+    "Grilled Zucchini: Toss sliced zucchini with 1 1/2 tsp olive oil, garlic powder, thyme, 1/8 tsp salt, and pinch black pepper.",
+    "Grilled Zucchini: Grill ~2 minutes per side until charred and tender. Drizzle with lemon juice.",
+    "Assemble: Plate ~1 1/2 cups cooked spaghetti. Top with ~1 cup sauce. Add ~1 cup zucchini on the side."
+  ],
+  "cookNotes": [
+    "Storage: Refrigerate in an airtight container for up to 4 days or freeze for 3 months.",
+    "Reheating: Microwave 1-2 minutes, stirring halfway, or heat in a skillet with a splash of water."
+  ],
+  "tags": ["pasta", "beef", "italian", "zucchini"],
+  "imageUrl": ""
+} 
