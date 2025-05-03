@@ -33,6 +33,7 @@ A web application for coordinating meal preparation among a group of people, man
 - [ ] Recipe photo uploads/display
 - [ ] Recipe scaling functionality
 - [ ] Recipe formatting AI integration
+- [ ] Ingredient unit normalization/conversion (e.g., tsp to tbsp, cups to ml)
 
 ### Meal Cycle Workflow 🟨
 - [x] Basic cycle creation (Admin)
@@ -40,6 +41,7 @@ A web application for coordinating meal preparation among a group of people, man
 - [x] Order aggregation
 - [x] Status management
 - [x] Shopping list generation
+- [ ] Robust ingredient unit conversion/aggregation for shopping lists (handle metric, imperial, informal units like 'pinch')
 - [ ] Voting system
 - [ ] Cook assignment
 - [ ] Shopper assignment
@@ -62,6 +64,7 @@ A web application for coordinating meal preparation among a group of people, man
 - [x] Real-time updates
 - [ ] AI Services integration
 - [ ] Advanced security rules
+- [ ] Robust unit conversion logic (potentially as a shared utility or microservice)
 - [ ] Automated testing
 
 ## Current Focus
@@ -99,7 +102,7 @@ The project is currently in Phase 1 of development, focusing on the core meal cy
 2. **Phase 3: Automation & Integration**
    - Integrate AI services
    - Implement recipe scaling
-   - Enhance shopping list generation
+   - Enhance shopping list generation (including robust unit conversion)
    - Add automated notifications
 
 3. **Phase 4: Feedback & Polish**
