@@ -31,17 +31,15 @@ A web application for coordinating meal preparation among a group of people, man
 - [x] Recipe List (RecipesPage)
 - [x] Recipe Detail (RecipeDetailPage)
 - [ ] Recipe photo uploads/display
-- [ ] Recipe scaling functionality
-- [ ] Recipe formatting AI integration
-- [ ] Ingredient unit normalization/conversion (e.g., tsp to tbsp, cups to ml)
+- [ ] Agent: Recipe Processing (Parse unstructured text, standardize units/format, apply standards like protein goals, create structured recipe object)
 
 ### Meal Cycle Workflow 🟨
 - [x] Basic cycle creation (Admin)
 - [x] Order submission (Users)
 - [x] Order aggregation
 - [x] Status management
-- [x] Shopping list generation
-- [ ] Robust ingredient unit conversion/aggregation for shopping lists (handle metric, imperial, informal units like 'pinch')
+- [x] Shopping list generation (Basic)
+- [ ] Agent: Shopping List Generation (Aggregate ingredients intelligently across orders, handle complex unit conversions/standardization, potentially optimize quantities)
 - [ ] Voting system
 - [ ] Cook assignment
 - [ ] Shopper assignment
