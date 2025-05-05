@@ -61,6 +61,7 @@ A web application for coordinating meal preparation among a group of people, man
 - [x] Order aggregation
 - [x] Real-time updates
 - [ ] AI Services integration
+- [ ] Suggested Framework: CrewAI for multi-agent workflows (Recipe Processing, Shopping List)
 - [ ] Advanced security rules
 - [ ] Robust unit conversion logic (potentially as a shared utility or microservice)
 - [ ] Automated testing
