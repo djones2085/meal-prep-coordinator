@@ -125,6 +125,7 @@ The project is currently in Phase 1 of development, focusing on the core meal cy
    ```bash
    npm run dev
    ```
+5. **TODO:** Create a robust set of `.cursorrules` to guide AI assistance.
 
 ## Contributing
 
