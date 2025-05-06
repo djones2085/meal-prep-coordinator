@@ -97,6 +97,11 @@ service cloud.firestore {
     // Add rules for other collections (mealCycles, orders, etc.) here as needed.
     // It's crucial to define rules for every collection you use.
 
+    // Rules for application configuration (e.g., admin-settable defaults)
+    match /app_config/{configId} {
+      allow read, write: if isAdmin(); // Only admins can read/write app config
+    }
+
     // Default Deny: Disallow read/write access to any other path not explicitly matched above.
     // This is important for security.
     match /{document=**} {

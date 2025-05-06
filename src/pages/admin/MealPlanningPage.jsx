@@ -1,13 +1,31 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { collection, addDoc, getDocs, query, where, serverTimestamp, Timestamp } from 'firebase/firestore';
-import { db } from '../../firebaseConfig';
+import {
+    collection,
+    addDoc,
+    getDocs,
+    query,
+    where,
+    serverTimestamp,
+    Timestamp,
+    doc,
+    getDoc
+} from 'firebase/firestore';
+import { db } from '../../firebaseConfig.js';
 import { PageContainer, Button, LoadingSpinner, Alert, Select, Card } from '../../components/mui';
-import { Typography, Box, Grid } from '@mui/material';
+import { Typography, Box, Grid, CircularProgress } from '@mui/material';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import {
+    nextDay,
+    setHours,
+    setMinutes,
+    setSeconds,
+    setMilliseconds,
+    parse as parseTime
+} from 'date-fns';
 
 // Helper function to calculate default dates
 const getDefaultDates = () => {
@@ -54,17 +72,133 @@ const getDefaultDates = () => {
     return { defaultOrderDeadline, defaultTargetCookDate };
 };
 
+const dayStringToNumber = {
+    Sunday: 0,
+    Monday: 1,
+    Tuesday: 2,
+    Wednesday: 3,
+    Thursday: 4,
+    Friday: 5,
+    Saturday: 6
+};
+
+// New helper function to calculate dates based on admin defaults
+const calculateDatesFromAdminSettings = (settings, fallbackFn) => {
+    if (!settings || !settings.defaultOrderDeadlineDay || !settings.defaultOrderDeadlineTime || !settings.defaultTargetCookDay) {
+        console.log("Admin settings incomplete or not found, using fallback dates.");
+        return fallbackFn();
+    }
+
+    try {
+        const { defaultOrderDeadlineDay, defaultOrderDeadlineTime, defaultTargetCookDay } = settings;
+
+        const orderDayNumber = dayStringToNumber[defaultOrderDeadlineDay];
+        const targetCookDayNumber = dayStringToNumber[defaultTargetCookDay];
+
+        if (orderDayNumber === undefined || targetCookDayNumber === undefined) {
+            console.error("Invalid day string in admin settings. Using fallback.");
+            return fallbackFn();
+        }
+
+        let now = new Date();
+        
+        // Calculate Order Deadline
+        let orderDeadline = nextDay(now, orderDayNumber);
+        const [hours, minutes] = defaultOrderDeadlineTime.split(':').map(Number);
+        orderDeadline = setHours(orderDeadline, hours || 0); // Default to 0 if hours is NaN
+        orderDeadline = setMinutes(orderDeadline, minutes || 0); // Default to 0 if minutes is NaN
+        orderDeadline = setSeconds(orderDeadline, 0);
+        orderDeadline = setMilliseconds(orderDeadline, 0);
+
+        // If the calculated deadline is in the past (e.g., today is Wed 6PM, deadline is Wed 5PM), advance by one week
+        if (orderDeadline < now && 
+            orderDeadline.getUTCFullYear() === now.getUTCFullYear() &&
+            orderDeadline.getUTCMonth() === now.getUTCMonth() &&
+            orderDeadline.getUTCDate() === now.getUTCDate()) {
+            orderDeadline = nextDay(orderDeadline, orderDayNumber); // Get the same day next week
+        }
+
+        // Calculate Target Cook Date (must be after order deadline)
+        let targetCookDate = nextDay(orderDeadline, targetCookDayNumber);
+        // Ensure cook date is at the start of the day (00:00:00)
+        targetCookDate = setHours(targetCookDate, 0);
+        targetCookDate = setMinutes(targetCookDate, 0);
+        targetCookDate = setSeconds(targetCookDate, 0);
+        targetCookDate = setMilliseconds(targetCookDate, 0);
+
+        // Ensure targetCookDate is strictly after orderDeadline
+        // If targetCookDay is the same day or before the orderDeadline's day of week,
+        // nextDay might pick the same week if deadline is late in its day.
+        // We want cook day to be *after* the full deadline moment.
+        if (targetCookDate <= orderDeadline) {
+            // If cook day is on or before deadline day, advance it by a week from its current calculation
+            // e.g. deadline Fri, cook day Fri -> advance cook day to next Fri
+            // e.g. deadline Fri, cook day Wed -> advance cook day to next Wed
+             targetCookDate = nextDay(setHours(targetCookDate, 23, 59, 59), targetCookDayNumber); // advance from end of current cook day to next specified day
+             targetCookDate = setHours(targetCookDate, 0,0,0,0); // reset time
+        }
+        
+        console.log("Calculated from Admin Defaults:", { orderDeadline, targetCookDate });
+        return { defaultOrderDeadline: orderDeadline, defaultTargetCookDate: targetCookDate };
+
+    } catch (error) {
+        console.error("Error calculating dates from admin settings:", error);
+        return fallbackFn();
+    }
+};
+
+const ADMIN_SETTINGS_DOC_PATH = 'app_config/adminDefaults';
+
 function MealPlanningPage() {
     const navigate = useNavigate();
     const [availableRecipes, setAvailableRecipes] = useState([]);
     const [selectedRecipeId, setSelectedRecipeId] = useState('');
-    const [orderDeadline, setOrderDeadline] = useState(() => getDefaultDates().defaultOrderDeadline);
-    const [targetCookDate, setTargetCookDate] = useState(() => getDefaultDates().defaultTargetCookDate);
+    const [adminDefaults, setAdminDefaults] = useState(null);
+    const [loadingAdminDefaults, setLoadingAdminDefaults] = useState(true);
+
+    // State for dates, initially null or a very past date to indicate they need setting
+    const [orderDeadline, setOrderDeadline] = useState(null);
+    const [targetCookDate, setTargetCookDate] = useState(null);
 
     const [loading, setLoading] = useState(false);
     const [fetchLoading, setFetchLoading] = useState(true);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
+
+    // Effect to fetch admin-defined default settings
+    useEffect(() => {
+        const fetchAdminDefaults = async () => {
+            setLoadingAdminDefaults(true);
+            try {
+                const settingsDocRef = doc(db, ADMIN_SETTINGS_DOC_PATH);
+                const docSnap = await getDoc(settingsDocRef);
+                if (docSnap.exists()) {
+                    setAdminDefaults(docSnap.data());
+                    console.log("Admin defaults loaded:", docSnap.data());
+                } else {
+                    console.log('No admin default settings found in Firestore.');
+                    setAdminDefaults(null);
+                }
+            } catch (err) {
+                console.error("Error fetching admin default settings:", err);
+                setError("Failed to load admin settings. Using fallback date calculations.");
+                setAdminDefaults(null);
+            }
+            setLoadingAdminDefaults(false);
+        };
+        fetchAdminDefaults();
+    }, []);
+
+    // New useEffect to calculate and set initial dates once adminDefaults are loaded
+    useEffect(() => {
+        if (!loadingAdminDefaults) {
+            const { defaultOrderDeadline: newDeadline, defaultTargetCookDate: newCookDate } = 
+                calculateDatesFromAdminSettings(adminDefaults, getDefaultDates);
+            setOrderDeadline(newDeadline);
+            setTargetCookDate(newCookDate);
+            console.log("Dates set in useEffect:", {newDeadline, newCookDate})
+        }
+    }, [adminDefaults, loadingAdminDefaults]);
 
     // Fetch 'approved' or 'testing' recipes
     useEffect(() => {
@@ -77,7 +211,7 @@ function MealPlanningPage() {
                 const querySnapshot = await getDocs(q);
                 const recipesList = querySnapshot.docs.map(doc => ({
                     id: doc.id,
-                    name: doc.data().name || 'Unnamed Recipe' // Ensure name exists
+                    name: doc.data().name || 'Unnamed Recipe'
                 }));
                 setAvailableRecipes(recipesList);
             } catch (err) {
@@ -89,6 +223,13 @@ function MealPlanningPage() {
         };
         fetchAvailableRecipes();
     }, []);
+
+    const resetDatePickers = () => {
+        const { defaultOrderDeadline: newDeadline, defaultTargetCookDate: newCookDate } = 
+            calculateDatesFromAdminSettings(adminDefaults, getDefaultDates);
+        setOrderDeadline(newDeadline);
+        setTargetCookDate(newCookDate);
+    };
 
     const handleSubmit = async (event) => {
         event.preventDefault();
@@ -145,9 +286,7 @@ function MealPlanningPage() {
             setSuccess(`New Meal Cycle created (Status: Ordering Open) with recipe: ${selectedRecipe.name}. ID: ${docRef.id}`); // Updated success message
             // Optionally clear form
             setSelectedRecipeId('');
-            const { defaultOrderDeadline, defaultTargetCookDate } = getDefaultDates();
-            setOrderDeadline(defaultOrderDeadline);
-            setTargetCookDate(defaultTargetCookDate);
+            resetDatePickers(); // Use the new reset function
             setLoading(false);
             // Optionally navigate away
             // navigate('/dashboard'); // Or wherever appropriate
@@ -161,12 +300,24 @@ function MealPlanningPage() {
     // Prepare options for StyledSelect
     const recipeOptions = availableRecipes.map(recipe => ({ value: recipe.id, label: recipe.name }));
 
+    // Disable form elements if dates are not yet calculated (i.e., orderDeadline is null)
+    const formDisabled = loading || fetchLoading || loadingAdminDefaults || !orderDeadline;
+
     return (
         <LocalizationProvider dateAdapter={AdapterDateFns}>
             <PageContainer>
                 <Typography variant="h4" component="h1" gutterBottom>
                     Plan New Meal Cycle
                 </Typography>
+                 {/* Optionally show a loading indicator while admin defaults are loading */}
+                {(loadingAdminDefaults || (!orderDeadline && !error)) && ( // Show loading if admin defaults loading OR if dates not set yet (and no error)
+                    <Box sx={{ display: 'flex', justifyContent: 'center', my: 2}}>
+                        <CircularProgress size={24} />
+                        <Typography sx={{ ml: 1 }}>
+                            {loadingAdminDefaults ? 'Loading admin settings...' : 'Calculating default dates...'}
+                        </Typography>
+                    </Box>
+                )}
 
                 <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 2, display: 'flex', flexDirection: 'column', gap: 3 }}>
                     <Card>
@@ -181,7 +332,7 @@ function MealPlanningPage() {
                                 value={selectedRecipeId}
                                 onChange={(e) => setSelectedRecipeId(e.target.value)}
                                 options={recipeOptions}
-                                disabled={loading || fetchLoading}
+                                disabled={formDisabled}
                                 required
                                 margin="none"
                                 size="medium" // Ensure consistent size
@@ -198,7 +349,7 @@ function MealPlanningPage() {
                                     label="Order Deadline *"
                                     value={orderDeadline}
                                     onChange={setOrderDeadline}
-                                    disabled={loading}
+                                    disabled={formDisabled}
                                     ampm={true} // Use AM/PM
                                     slotProps={{ textField: { fullWidth: true, required: true, variant: 'outlined' } }} // Ensure consistent styling
                                  />
@@ -208,7 +359,7 @@ function MealPlanningPage() {
                                     label="Target Cook Date *"
                                     value={targetCookDate}
                                     onChange={setTargetCookDate}
-                                    disabled={loading}
+                                    disabled={formDisabled}
                                     slotProps={{ textField: { fullWidth: true, required: true, variant: 'outlined' } }} // Ensure consistent styling
                                 />
                             </Grid>
@@ -222,7 +373,7 @@ function MealPlanningPage() {
                             type="submit"
                             variant="contained"
                             isLoading={loading}
-                            disabled={loading || fetchLoading || !selectedRecipeId}
+                            disabled={formDisabled || !selectedRecipeId}
                             fullWidth
                             size="large"
                         >

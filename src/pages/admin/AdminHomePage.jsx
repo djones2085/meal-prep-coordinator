@@ -14,6 +14,8 @@ import {
 import SettingsApplicationsIcon from '@mui/icons-material/SettingsApplications'; // Example icon
 import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd'; // Example icon
 import LoopIcon from '@mui/icons-material/Loop'; // Example icon
+import PeopleAltIcon from '@mui/icons-material/PeopleAlt'; // Changed from SettingsApplicationsIcon for user management
+import TuneIcon from '@mui/icons-material/Tune'; // Icon for settings
 
 function AdminHomePage() {
     return (
@@ -50,9 +52,17 @@ function AdminHomePage() {
                     <ListItem disablePadding>
                         <ListItemButton component={RouterLink} to="/admin/users">
                              <ListItemIcon>
-                                <SettingsApplicationsIcon />
+                                <PeopleAltIcon />
                             </ListItemIcon>
                             <ListItemText primary="Manage Users" secondary="Assign roles, households, etc." />
+                        </ListItemButton>
+                    </ListItem>
+                    <ListItem disablePadding>
+                        <ListItemButton component={RouterLink} to="/admin/settings">
+                            <ListItemIcon>
+                                <TuneIcon />
+                            </ListItemIcon>
+                            <ListItemText primary="Application Settings" secondary="Configure default meal cycle parameters, etc." />
                         </ListItemButton>
                     </ListItem>
                     {/* Add links to other future admin pages here */}

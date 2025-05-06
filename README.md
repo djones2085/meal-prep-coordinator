@@ -43,8 +43,8 @@ A web application for coordinating meal preparation among a group of people, man
 - [x] Order aggregation
 - [ ] Store scaled recipe (ingredients, instructions) in mealCycle document after aggregation/scaling
 - [x] Status management
-- [x] Shopping list generation (Basic)
-- [ ] Assign roles (cook, shopper) for specific meal cycles
+- [ ] Shopping list generation (Basic)
+- [ ] Assign roles (cook, shopper) for specific meal cycles (Future)
 - [ ] Agent: Shopping List Generation (Aggregate ingredients intelligently across orders, handle complex unit conversions/standardization, potentially optimize quantities)
 - [ ] Shopping list: Admin approval step
 - [ ] Shopping list: Editable by admin/shopper
@@ -72,7 +72,7 @@ A web application for coordinating meal preparation among a group of people, man
 - [ ] UI/UX polish
     - [ ] Address top bar layout issues on small screens
 - [ ] UI Technology Consideration: Abstract UI and explore Tailwind CSS as an alternative/addition to MUI
-- [ ] Pagination for user list in admin user management. To handle a lot of users.
+- [ ] Pagination for user list in admin user management. To handle a lot of users. (Future)
 
 ### Backend Services 🟨
 - [x] Basic Cloud Functions
@@ -88,14 +88,13 @@ A web application for coordinating meal preparation among a group of people, man
 
 ## Current Focus
 
-
 1. **Meal Cycle Management**
    - [x] Create new cycles
    - [x] Set deadlines
-   - [ ] Admin configurable defaults (e.g., order deadline day/time, target cook date)
+   - [x] Admin configurable defaults (e.g., order deadline day/time, target cook date)
    - [x] Choose recipes
    - [x] Track status
-   - [ ] Assign roles (cook, shopper)
+   - [x] Assign roles (cook, shopper)
 
 2. **Order Management**
    - [x] Submit orders

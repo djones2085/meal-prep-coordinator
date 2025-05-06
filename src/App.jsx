@@ -19,6 +19,7 @@ import MealPlanningPage from './pages/admin/MealPlanningPage'
 import MealCycleManagementPage from './pages/admin/MealCycleManagementPage'
 import AdminHomePage from './pages/admin/AdminHomePage'
 import UserManagementPage from './pages/admin/UserManagementPage'
+import AdminSettingsPage from './pages/admin/AdminSettingsPage'
 
 function NotFoundPage() {
     // Maybe use MUI Typography here later
@@ -59,6 +60,7 @@ function App() {
                 <Route path="/admin/planning" element={<MealPlanningPage />} />
                 <Route path="/admin/cycles" element={<MealCycleManagementPage />} />
                 <Route path="/admin/users" element={<UserManagementPage />} />
+                <Route path="/admin/settings" element={<AdminSettingsPage />} />
             </Route>
         </Route>
 
