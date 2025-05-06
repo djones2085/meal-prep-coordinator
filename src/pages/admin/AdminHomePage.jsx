@@ -47,6 +47,14 @@ function AdminHomePage() {
                             <ListItemText primary="Manage Meal Cycles" secondary="View existing cycles and manually override statuses." />
                         </ListItemButton>
                     </ListItem>
+                    <ListItem disablePadding>
+                        <ListItemButton component={RouterLink} to="/admin/users">
+                             <ListItemIcon>
+                                <SettingsApplicationsIcon />
+                            </ListItemIcon>
+                            <ListItemText primary="Manage Users" secondary="Assign roles, households, etc." />
+                        </ListItemButton>
+                    </ListItem>
                     {/* Add links to other future admin pages here */}
                     {/*
                      <ListItem disablePadding>

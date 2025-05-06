@@ -44,6 +44,7 @@ A web application for coordinating meal preparation among a group of people, man
 - [ ] Store scaled recipe (ingredients, instructions) in mealCycle document after aggregation/scaling
 - [x] Status management
 - [x] Shopping list generation (Basic)
+- [ ] Assign roles (cook, shopper) for specific meal cycles
 - [ ] Agent: Shopping List Generation (Aggregate ingredients intelligently across orders, handle complex unit conversions/standardization, potentially optimize quantities)
 - [ ] Shopping list: Admin approval step
 - [ ] Shopping list: Editable by admin/shopper
@@ -71,6 +72,7 @@ A web application for coordinating meal preparation among a group of people, man
 - [ ] UI/UX polish
     - [ ] Address top bar layout issues on small screens
 - [ ] UI Technology Consideration: Abstract UI and explore Tailwind CSS as an alternative/addition to MUI
+- [ ] Pagination for user list in admin user management. To handle a lot of users.
 
 ### Backend Services 🟨
 - [x] Basic Cloud Functions
@@ -86,7 +88,6 @@ A web application for coordinating meal preparation among a group of people, man
 
 ## Current Focus
 
-The project is currently in Phase 1 of development, focusing on the core meal cycle workflow:
 
 1. **Meal Cycle Management**
    - [x] Create new cycles
@@ -114,7 +115,7 @@ The project is currently in Phase 1 of development, focusing on the core meal cy
 ## Next Steps
 
 1. **Phase 2: Role Enablement & Data Association**
-   - [ ] Implement user role management - *Basic admin role check in place. TODO: Admin UI for assigning/managing user roles. Ensure users cannot modify their own roles (partially covered by Firestore rules, client-side checks also relevant).*
+   - [x] Implement user role management - *Basic admin role check in place. TODO: Admin UI for assigning/managing user roles. Ensure users cannot modify their own roles (partially covered by Firestore rules, client-side checks also relevant).*
    - Create household management
    - [ ] Update security rules - *Initial admin/user role distinctions made. Ongoing refinement needed as features are added.*
    - Add user invites
