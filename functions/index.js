@@ -1,7 +1,7 @@
 const admin = require("firebase-admin");
 // Use v2 imports for specific function types
-const { onSchedule, onCall } = require("firebase-functions/v2/scheduler");
-const { HttpsError } = require("firebase-functions/v2/https"); // Keep HttpsError if needed elsewhere, maybe in future triggers
+const { onSchedule } = require("firebase-functions/v2/scheduler");
+const { HttpsError, onCall } = require("firebase-functions/v2/https"); // Correctly import onCall from here
 const { logger } = require("firebase-functions"); // Use logger module
 const { onDocumentWritten } = require("firebase-functions/v2/firestore"); // Keep Firestore trigger import
 
@@ -404,7 +404,7 @@ exports.createInvite = onCall(async (request) => {
 
   // 2. Input Validation
   const emailToInvite = data.email;
-  if (!emailToInvite || typeof emailToInvite !== 'string' || !/^[\S]+@[\S]+\.[\S]+$/.test(emailToInvite)) {
+  if (!emailToInvite || typeof emailToInvite !== "string" || !/^[\S]+@[\S]+\.[\S]+$/.test(emailToInvite)) {
     logger.warn("createInvite: Invalid email format provided.", { email: emailToInvite });
     throw new HttpsError("invalid-argument", "Please provide a valid email address to invite.");
   }
