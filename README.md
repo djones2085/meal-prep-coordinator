@@ -19,7 +19,7 @@ A web application for coordinating meal preparation among a group of people, man
 - [x] Protected routes
 - [x] Logout functionality
 - [x] Firestore user profile creation on signup
-- [ ] Role-based access control (Admin vs Regular users)
+- [x] Role-based access control (Admin vs Regular users) - *Frontend routes protected using roles from Firestore. Admin links in UI are conditional. Unauthorized access attempts are handled with notifications.*
 - [ ] User invites system
 - [ ] Household management
 
@@ -80,7 +80,7 @@ A web application for coordinating meal preparation among a group of people, man
 - [ ] AI Services integration
 - [ ] Suggested Frameworks: CrewAI, Google ADK for multi-agent workflows (Recipe Processing, Shopping List, Cook Sequencing)
 - [ ] Data modeling consideration: Evolve 'cook' representation to 'cook_session' for better tracking
-- [ ] Advanced security rules
+- [ ] Advanced security rules - *Initial role-based rules implemented (users, recipes, mealCycles, orders); admins have broader permissions, users restricted. MealCycles not deletable. Further review and refinement pending.*
 - [ ] Robust unit conversion logic (potentially as a shared utility or microservice)
 - [ ] Automated testing
 
@@ -114,9 +114,9 @@ The project is currently in Phase 1 of development, focusing on the core meal cy
 ## Next Steps
 
 1. **Phase 2: Role Enablement & Data Association**
-   - Implement user role management
+   - [ ] Implement user role management - *Basic admin role check in place. TODO: Admin UI for assigning/managing user roles. Ensure users cannot modify their own roles (partially covered by Firestore rules, client-side checks also relevant).*
    - Create household management
-   - Update security rules
+   - [ ] Update security rules - *Initial admin/user role distinctions made. Ongoing refinement needed as features are added.*
    - Add user invites
 
 2. **Phase 3: Automation & Integration**

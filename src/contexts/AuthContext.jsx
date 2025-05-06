@@ -1,6 +1,7 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
-import { auth } from '../firebaseConfig'; // Import your Firebase auth instance
+import { auth, db } from '../firebaseConfig'; // Import your Firebase auth instance and db
+import { doc, getDoc } from 'firebase/firestore'; // Import Firestore functions
 
 // Create the context
 const AuthContext = createContext();
@@ -8,14 +9,36 @@ const AuthContext = createContext();
 // Create a provider component
 export function AuthProvider({ children }) {
   const [currentUser, setCurrentUser] = useState(null);
+  const [userProfile, setUserProfile] = useState(null); // Add userProfile state
   const [loading, setLoading] = useState(true); // Add loading state
 
   useEffect(() => {
     // Subscribe to Firebase auth state changes
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setCurrentUser(user);
-      setLoading(false); // Set loading to false once auth state is determined
-      console.log('Auth State Changed:', user ? `Logged in as ${user.email}` : 'Logged out');
+      if (user) {
+        // User is logged in, fetch their profile
+        console.log('Auth State Changed: Logged in as', user.email, 'UID:', user.uid);
+        const userDocRef = doc(db, 'users', user.uid);
+        try {
+          const userDocSnap = await getDoc(userDocRef);
+          if (userDocSnap.exists()) {
+            setUserProfile({ uid: user.uid, ...userDocSnap.data() });
+            console.log('User profile loaded:', { uid: user.uid, ...userDocSnap.data() });
+          } else {
+            setUserProfile(null); // Or some default profile / error state
+            console.warn('User profile document does not exist for UID:', user.uid);
+          }
+        } catch (error) {
+          console.error("Error fetching user profile:", error);
+          setUserProfile(null);
+        }
+      } else {
+        // User is logged out
+        setUserProfile(null);
+        console.log('Auth State Changed: Logged out');
+      }
+      setLoading(false); // Set loading to false once auth state and profile are determined
     });
 
     // Cleanup subscription on unmount
@@ -25,6 +48,7 @@ export function AuthProvider({ children }) {
   // Value provided to consuming components
   const value = {
     currentUser,
+    userProfile, // Add userProfile to context value
     // We can add more auth-related functions here later (e.g., logout)
   };
 

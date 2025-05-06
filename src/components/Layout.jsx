@@ -7,19 +7,21 @@ import {
     Typography,
     Button,
     Box,
-    Container
+    Container,
+    Link
 } from '@mui/material';
 
 function Layout() {
-    const { currentUser, logout, isAdmin } = useAuth(); // Assuming isAdmin is available
+    const { currentUser, userProfile, logout } = useAuth(); // Get userProfile for roles
     const navigate = useNavigate();
 
     const handleLogout = async () => {
         try {
-            await logout();
+            await logout(); // Ensure logout is correctly implemented in AuthContext if not already
             navigate('/login');
         } catch (error) {
             console.error("Failed to log out:", error);
+            // TODO: Show error to user, e.g., via a Snackbar
         }
     };
 
@@ -27,22 +29,24 @@ function Layout() {
         <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
             <AppBar position="static">
                 <Toolbar>
+                    {/* App Title/Brand */}
                     <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-                        <RouterLink to="/dashboard" style={{ textDecoration: 'none', color: 'inherit' }}>
+                        <Link component={RouterLink} to={currentUser ? "/dashboard" : "/"} sx={{ textDecoration: 'none', color: 'inherit' }}>
                             Meal Prep Coordinator
-                        </RouterLink>
+                        </Link>
                     </Typography>
 
-                    {/* Conditional Navigation Buttons */}
-                    {currentUser ? (
+                    {/* Navigation Links (conditionally rendered based on auth state) */}
+                    {currentUser && (
                         <>
                             <Button color="inherit" component={RouterLink} to="/dashboard">Dashboard</Button>
                             <Button color="inherit" component={RouterLink} to="/recipes">Recipes</Button>
-                            <Button color="inherit" component={RouterLink} to="/add-recipe">Add Recipe</Button>
-                            <Button color="inherit" component={RouterLink} to="/meal-cycle">Meal Cycle</Button>
-
-                            {/* Admin Link - Temporarily removing conditional rendering */}
-                            {/* {isAdmin && ( // Removed check */} 
+                            {/* Add other common links here as needed, e.g., Add Recipe, Meal Cycle */}
+                            {/* <Button color="inherit" component={RouterLink} to="/add-recipe">Add Recipe</Button> */}
+                            {/* <Button color="inherit" component={RouterLink} to="/meal-cycle">Meal Cycle</Button> */}
+                            
+                            {/* Admin Link: Conditionally rendered based on user's role */}
+                            {userProfile?.roles?.includes('admin') && (
                                 <Button
                                     color="inherit"
                                     component={RouterLink}
@@ -50,16 +54,32 @@ function Layout() {
                                 >
                                     Admin
                                 </Button>
-                            {/* )} // Removed check */}
-
-                            <Button color="inherit" onClick={handleLogout}>Logout ({currentUser.email})</Button>
-                        </>
-                    ) : (
-                        <>
-                            <Button color="inherit" component={RouterLink} to="/login">Login</Button>
-                            <Button color="inherit" component={RouterLink} to="/signup">Sign Up</Button>
+                            )}
                         </>
                     )}
+
+                    {/* Auth actions (Login/Signup or Welcome/Logout) */}
+                    <Box sx={{ marginLeft: 'auto' }}>
+                        {currentUser ? (
+                            <>
+                                <Typography component="span" sx={{ mr: 2, color: 'inherit' }}>
+                                    {userProfile?.displayName || currentUser.email}
+                                </Typography>
+                                <Button color="inherit" onClick={handleLogout}>
+                                    Logout
+                                </Button>
+                            </>
+                        ) : (
+                            <>
+                                <Button color="inherit" component={RouterLink} to="/login" sx={{ mr: 1 }}>
+                                    Login
+                                </Button>
+                                <Button color="inherit" component={RouterLink} to="/signup">
+                                    Sign Up
+                                </Button>
+                            </>
+                        )}
+                    </Box>
                 </Toolbar>
             </AppBar>
 

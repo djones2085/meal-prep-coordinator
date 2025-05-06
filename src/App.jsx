@@ -39,18 +39,24 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignUpPage />} />
 
-        {/* Protected routes rendered within the restored Layout */}
+        {/* Protected routes for regular users, rendered within Layout */}
         <Route element={<ProtectedRoute />}>
-             <Route element={<Layout />}> {/* Wrap protected pages in Layout again */}
-                <Route path="/dashboard" element={<DashboardPage />} /> 
+             <Route element={<Layout />}>
+                <Route path="/dashboard" element={<DashboardPage />} />
                 <Route path="/recipes" element={<RecipesPage />} />
                 <Route path="/recipes/:recipeId" element={<RecipeDetailPage />} />
                 <Route path="/add-recipe" element={<AddRecipePage />} />
+                <Route path="/meal-cycle" element={<MealCyclePage />} />
+                <Route index element={<DashboardPage />} />
+            </Route>
+        </Route>
+
+        {/* Protected routes for admin users, rendered within Layout */}
+        <Route element={<ProtectedRoute requiredRole="admin" />}>
+            <Route element={<Layout />}>
                 <Route path="/admin" element={<AdminHomePage />} />
                 <Route path="/admin/planning" element={<MealPlanningPage />} />
                 <Route path="/admin/cycles" element={<MealCycleManagementPage />} />
-                <Route path="/meal-cycle" element={<MealCyclePage />} />
-                <Route index element={<DashboardPage />} /> 
             </Route>
         </Route>
 

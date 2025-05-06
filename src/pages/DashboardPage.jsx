@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink, useLocation } from 'react-router-dom';
 import { collection, getDocs, query, where, limit, addDoc, updateDoc, serverTimestamp, Timestamp, doc, getDoc, onSnapshot } from 'firebase/firestore';
 import { db } from '../firebaseConfig';
 import { useAuth } from '../contexts/AuthContext';
 import {
     PageContainer,
     LoadingSpinner,
-    Alert,
+    Alert as MuiAlert,
     Button,
     TextField,
     Card,
@@ -27,7 +27,8 @@ import {
     FormLabel,
     FormGroup,
     FormControlLabel,
-    Checkbox
+    Checkbox,
+    Snackbar
 } from '@mui/material';
 
 // Assume commonUnits are defined or import them if needed from AddRecipePage
@@ -35,6 +36,8 @@ const commonUnits = ['g', 'kg', 'ml', 'l', 'unit', 'tsp', 'tbsp', 'cup', 'oz', '
 
 function DashboardPage() {
     const { currentUser } = useAuth();
+    const location = useLocation();
+
     const [activeCycle, setActiveCycle] = useState(null);
     const [chosenRecipeDetails, setChosenRecipeDetails] = useState(null);
     const [userOrder, setUserOrder] = useState(null);
@@ -52,6 +55,29 @@ function DashboardPage() {
     const [error, setError] = useState('');
     const [orderSuccess, setOrderSuccess] = useState('');
     const [orderValidationError, setOrderValidationError] = useState('');
+
+    // State for Snackbar message from navigation
+    const [snackbarOpen, setSnackbarOpen] = useState(false);
+    const [snackbarMessage, setSnackbarMessage] = useState('');
+    const [snackbarSeverity, setSnackbarSeverity] = useState('info'); // Default severity
+
+    // Effect to show Snackbar if message is passed in location state
+    useEffect(() => {
+        if (location.state?.message) {
+            setSnackbarMessage(location.state.message);
+            setSnackbarSeverity(location.state.severity || 'info');
+            setSnackbarOpen(true);
+            // Clear the location state after displaying
+            window.history.replaceState({}, document.title)
+        }
+    }, [location.state]);
+
+    const handleSnackbarClose = (event, reason) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+        setSnackbarOpen(false);
+    };
 
     // Fetch User Profile
     useEffect(() => {
@@ -394,7 +420,7 @@ function DashboardPage() {
                             )}
 
                             {orderValidationError && (
-                                <Alert severity="error" sx={{ mb: 2 }}>{orderValidationError}</Alert>
+                                <MuiAlert severity="error" sx={{ mb: 2 }}>{orderValidationError}</MuiAlert>
                             )}
 
                             <Button
@@ -421,10 +447,10 @@ function DashboardPage() {
 
                     {/* Display success/error messages */} 
                     {orderSuccess && (
-                        <Alert severity="success" sx={{ mt: 2 }}>{orderSuccess}</Alert>
+                        <MuiAlert severity="success" sx={{ mt: 2 }}>{orderSuccess}</MuiAlert>
                     )}
                     {error && (
-                        <Alert severity="error" sx={{ mt: 2 }}>{error}</Alert>
+                        <MuiAlert severity="error" sx={{ mt: 2 }}>{error}</MuiAlert>
                     )}
 
                 </Box>
@@ -449,10 +475,22 @@ function DashboardPage() {
     );
 
     return (
-        <PageContainer>
-            {(loadingProfile || loadingCycle) ? (
-                <LoadingSpinner centered size={60} />
-            ) : (
+        <PageContainer title="Dashboard">
+            {loadingCycle || loadingOrderCheck || loadingProfile && <LoadingSpinner />}
+            {error && <MuiAlert severity="error" sx={{ mb: 2 }}>{error}</MuiAlert>}
+            {/* Snackbar for notifications */}
+            <Snackbar
+                open={snackbarOpen}
+                autoHideDuration={6000}
+                onClose={handleSnackbarClose}
+                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+            >
+                <MuiAlert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: '100%' }} elevation={6} variant="filled">
+                    {snackbarMessage}
+                </MuiAlert>
+            </Snackbar>
+
+            {!loadingCycle && !loadingOrderCheck && !loadingProfile && (
                 <>
                     {renderWelcome()}
 

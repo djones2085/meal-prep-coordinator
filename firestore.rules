@@ -3,14 +3,25 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    // Helper function to check if the user is an admin
+    function isAdmin() {
+      // Assumes user profile exists and has a 'roles' array field
+      return request.auth != null &&
+             exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+             'admin' in get(/databases/$(database)/documents/users/$(request.auth.uid)).data.roles;
+    }
+
     // Allow users to create, read, and update their own user document
     match /users/{userId} {
       // Allow creation only if the user is logged in and their UID matches the document ID
       allow create: if request.auth != null && request.auth.uid == userId;
-      // Allow reading and updating only by the owner of the document
-      allow read, update: if request.auth != null && request.auth.uid == userId;
+      // Allow reading and updating only by the owner of the document or by an admin
+      allow read: if request.auth != null && (request.auth.uid == userId || isAdmin());
+      // Allow updating only by the owner of the document or by an admin
+      allow update: if request.auth != null && 
+                      (request.auth.uid == userId || isAdmin());
       // Prevent deletion for now
-      allow delete: if false;
+      allow delete: if false; // Or if isAdmin();
       // TODO: Add isAdmin field or use custom claims for admin role check
     }
 
@@ -21,7 +32,7 @@ service cloud.firestore {
        // Allow create if user is logged in. We can restrict by role later.
        allow create: if request.auth != null; // TODO: Restrict to admin
        // Allow update/delete based on roles later (e.g., admin or original creator)
-       allow update, delete: if false; // TODO: Allow admin update
+       allow update, delete: if isAdmin();
     }
 
     // Meal Cycles: Allow read by logged-in users, create/update by admins (needs role check)
@@ -38,7 +49,7 @@ service cloud.firestore {
       // TODO: Add rule for users to update specific fields if needed (e.g., sign-up)
       // TODO: Add rule to prevent changing chosenRecipe after orderDeadline has passed.
 
-      allow delete: if false; // Or restrict to admin
+      allow delete: if false; // Meal cycles should generally not be deleted, perhaps archived
     }
 
     // Removed /votes/{voteId} rules block as voting is removed
@@ -47,7 +58,8 @@ service cloud.firestore {
     match /orders/{orderId} {
       // Allow reading order(s)
       // TODO: Allow admin/cook/shopper to read orders relevant to the cycle?
-      allow read: if request.auth != null;
+      allow read: if request.auth != null && 
+                    (request.resource.data.userId == request.auth.uid || isAdmin());
 
       // Allow creating an order if:
       // 1. User is logged in.
@@ -57,19 +69,29 @@ service cloud.firestore {
       // 5. User hasn't already ordered in this cycle (checked via client query / complex rule).
       allow create: if request.auth != null
                       && request.resource.data.userId == request.auth.uid
-                      && request.resource.data.orderTimestamp == request.time // Use server timestamp usually
-                      // Check cycle status - should be 'planned' or 'ordering_open'
-                      && get(/databases/$(database)/documents/mealCycles/$(request.resource.data.cycleId)).data.status in ['planned', 'ordering_open'] // Status check updated
-                      // Optional: && request.time < get(/databases/$(database)/documents/mealCycles/$(request.resource.data.cycleId)).data.orderDeadline.toMillis()
-                      // TODO: Add rule to check uniqueness: !exists(...)
+                      && exists(/databases/$(database)/documents/mealCycles/$(request.resource.data.cycleId))
+                      && get(/databases/$(database)/documents/mealCycles/$(request.resource.data.cycleId)).data.status in ['planned', 'ordering_open']
+                      && request.time < get(/databases/$(database)/documents/mealCycles/$(request.resource.data.cycleId)).data.orderDeadline.toTimestamp(); // Ensure order before deadline
 
       // Allow updating own order *status* (by admin/cook) or details (by user *before* deadline)
       // Simplified for now: Allow owner to update anything (refine later!)
       // TODO: Refine update rules based on role, status, and deadline
-      allow update: if request.auth != null && request.resource.data.userId == request.auth.uid;
+      allow update: if request.auth != null && (
+                      // User can update their own order before deadline
+                      (request.resource.data.userId == request.auth.uid && 
+                       request.time < get(/databases/$(database)/documents/mealCycles/$(request.resource.data.cycleId)).data.orderDeadline.toTimestamp()) ||
+                      // Admin can update any order (e.g., status changes)
+                      isAdmin()
+                    );
 
       // Disallow delete for now (or restrict to user before deadline)
-      allow delete: if false;
+      allow delete: if request.auth != null && (
+                      // User can delete their own order before deadline
+                      (request.resource.data.userId == request.auth.uid && 
+                       request.time < get(/databases/$(database)/documents/mealCycles/$(request.resource.data.cycleId)).data.orderDeadline.toTimestamp()) ||
+                      // Admin can delete any order
+                      isAdmin()
+                    ); // Or just: if isAdmin(); if users cannot delete.
     }
 
     // Add rules for other collections (mealCycles, orders, etc.) here as needed.
