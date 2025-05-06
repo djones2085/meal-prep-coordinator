@@ -28,6 +28,23 @@ A web application for coordinating meal preparation among a group of people, man
     - [x] Firestore collection: `invites` (stores `invitedEmail`, `status` \["pending", "accepted", "expired"\], `createdAt`, `createdBy` (admin UID), `acceptedByUid`, `acceptedAt`).
     - [ ] Future: Automated email sending for invites.
     - [ ] Future: Non-admins can invite to households.
+    - [ ] Currently broken(issue with creating user from acceptance pageDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools
+AuthContext.jsx:26 Auth State Changed: Logged in as markdonaho@gmail.com UID: atqkp6pIqYeEeFbU0K175crcbA62
+AuthContext.jsx:32 User profile loaded: Object
+AuthContext.jsx:26 Auth State Changed: Logged in as donaho03@yahoo.com UID: 6uAq6jUEdPZ74llk04MgrJAZd483
+AcceptInvitePage.jsx:72 User created via invite in Auth: _UserImpl
+AuthContext.jsx:35 User profile document does not exist for UID: 6uAq6jUEdPZ74llk04MgrJAZd483
+(anonymous) @ AuthContext.jsx:35Understand this warning
+AcceptInvitePage.jsx:76 Verification email sent to invited user: donaho03@yahoo.com
+AcceptInvitePage.jsx:109 Sign up from invite error: ReferenceError: setDoc is not defined
+    at handleSignUp (AcceptInvitePage.jsx:80:7)
+handleSignUp @ AcceptInvitePage.jsx:109Understand this error
+
+                
+          
+          
+          
+         Chrome is moving towards a new experience that allows users to choose to browse without third-party cookies.)
 - [ ] Household management (Future)
 
 ### Recipe Management ✅
