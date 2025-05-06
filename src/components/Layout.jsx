@@ -52,9 +52,20 @@ function Layout() {
                                     component={RouterLink}
                                     to="/admin"
                                 >
-                                    Admin
+                                    Admin Home
                                 </Button>
                             )}
+                            {userProfile?.roles?.includes('admin') && (
+                                <Button
+                                    color="inherit"
+                                    component={RouterLink}
+                                    to="/admin/users"
+                                >
+                                    Users
+                                </Button>
+                            )}
+                            {/* Remove Invites link from here */}
+                            {/* Add other admin links like Cycles, Planning, Settings here if desired in top bar */}
                         </>
                     )}
 

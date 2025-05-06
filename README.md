@@ -20,8 +20,15 @@ A web application for coordinating meal preparation among a group of people, man
 - [x] Logout functionality
 - [x] Firestore user profile creation on signup
 - [x] Role-based access control (Admin vs Regular users) - *Frontend routes protected using roles from Firestore. Admin links in UI are conditional. Unauthorized access attempts are handled with notifications.*
-- [ ] User invites system
-- [ ] Household management
+- [x] Email confirmation - *Users must verify email after signup. Redirects to verification page with resend option.*
+- [x] User invites system - *Admins can generate invite links via an admin page. Invitees use a special link to sign up. Firestore `invites` collection tracks status. Cloud Function `createInvite` handles invite generation. Security rules in place.*
+    - [x] Admin can generate a unique invite link for an email.
+    - [x] Invitee uses the link to access a special sign-up page.
+    - [x] On sign-up, invite status is updated.
+    - [x] Firestore collection: `invites` (stores `invitedEmail`, `status` \["pending", "accepted", "expired"\], `createdAt`, `createdBy` (admin UID), `acceptedByUid`, `acceptedAt`).
+    - [ ] Future: Automated email sending for invites.
+    - [ ] Future: Non-admins can invite to households.
+- [ ] Household management (Future)
 
 ### Recipe Management ✅
 - [x] Data model defined

@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
-import { onAuthStateChanged } from 'firebase/auth';
+import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { auth, db } from '../firebaseConfig'; // Import your Firebase auth instance and db
 import { doc, getDoc } from 'firebase/firestore'; // Import Firestore functions
 
@@ -11,6 +11,11 @@ export function AuthProvider({ children }) {
   const [currentUser, setCurrentUser] = useState(null);
   const [userProfile, setUserProfile] = useState(null); // Add userProfile state
   const [loading, setLoading] = useState(true); // Add loading state
+
+  // Define logout function
+  const logout = () => {
+    return signOut(auth);
+  };
 
   useEffect(() => {
     // Subscribe to Firebase auth state changes
@@ -49,6 +54,7 @@ export function AuthProvider({ children }) {
   const value = {
     currentUser,
     userProfile, // Add userProfile to context value
+    logout, // Add logout function to context value
     // We can add more auth-related functions here later (e.g., logout)
   };
 

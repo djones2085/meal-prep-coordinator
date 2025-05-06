@@ -7,6 +7,8 @@ import './App.css'
 // --- Pages ---
 import LoginPage from './pages/LoginPage'
 import SignUpPage from './pages/SignUpPage'
+import EmailVerificationPage from './pages/EmailVerificationPage'
+import AcceptInvitePage from './pages/AcceptInvitePage'
 
 // --- Placeholder Pages ---
 // We'll update these soon
@@ -20,6 +22,7 @@ import MealCycleManagementPage from './pages/admin/MealCycleManagementPage'
 import AdminHomePage from './pages/admin/AdminHomePage'
 import UserManagementPage from './pages/admin/UserManagementPage'
 import AdminSettingsPage from './pages/admin/AdminSettingsPage'
+import AdminInvitesPage from './pages/admin/AdminInvitesPage'
 
 function NotFoundPage() {
     // Maybe use MUI Typography here later
@@ -40,6 +43,8 @@ function App() {
         {/* Public routes rendered directly */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignUpPage />} />
+        <Route path="/verify-email" element={<EmailVerificationPage />} />
+        <Route path="/accept-invite/:inviteId" element={<AcceptInvitePage />} />
 
         {/* Protected routes for regular users, rendered within Layout */}
         <Route element={<ProtectedRoute />}>
@@ -60,6 +65,7 @@ function App() {
                 <Route path="/admin/planning" element={<MealPlanningPage />} />
                 <Route path="/admin/cycles" element={<MealCycleManagementPage />} />
                 <Route path="/admin/users" element={<UserManagementPage />} />
+                <Route path="/admin/invites" element={<AdminInvitesPage />} />
                 <Route path="/admin/settings" element={<AdminSettingsPage />} />
             </Route>
         </Route>

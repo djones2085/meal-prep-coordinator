@@ -16,6 +16,7 @@ import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd'; // Example icon
 import LoopIcon from '@mui/icons-material/Loop'; // Example icon
 import PeopleAltIcon from '@mui/icons-material/PeopleAlt'; // Changed from SettingsApplicationsIcon for user management
 import TuneIcon from '@mui/icons-material/Tune'; // Icon for settings
+import EmailIcon from '@mui/icons-material/Email'; // Icon for Invites
 
 function AdminHomePage() {
     return (
@@ -55,6 +56,14 @@ function AdminHomePage() {
                                 <PeopleAltIcon />
                             </ListItemIcon>
                             <ListItemText primary="Manage Users" secondary="Assign roles, households, etc." />
+                        </ListItemButton>
+                    </ListItem>
+                    <ListItem disablePadding>
+                        <ListItemButton component={RouterLink} to="/admin/invites">
+                            <ListItemIcon>
+                                <EmailIcon />
+                            </ListItemIcon>
+                            <ListItemText primary="Manage Invites" secondary="Create and send new user invitations." />
                         </ListItemButton>
                     </ListItem>
                     <ListItem disablePadding>

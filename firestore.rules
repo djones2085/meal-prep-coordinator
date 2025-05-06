@@ -102,6 +102,41 @@ service cloud.firestore {
       allow read, write: if isAdmin(); // Only admins can read/write app config
     }
 
+    // Rules for user invitations
+    match /invites/{inviteId} {
+      // Create: Admin only. Cloud Function is primary enforcer, this is a backup.
+      // Ensures required fields are present and correctly set by the admin creating it.
+      allow create: if isAdmin() &&
+                      request.resource.data.createdBy == request.auth.uid &&
+                      request.resource.data.status == "pending" &&
+                      request.resource.data.keys().hasAll(['email', 'status', 'createdAt', 'createdBy']) &&
+                      request.resource.data.email is string &&
+                      !request.resource.data.keys().hasAny(['acceptedByUid', 'acceptedAt']);
+
+      // Read:
+      // - Admins can get any invite or list all invites.
+      // - Authenticated users can get a specific PENDING invite (for AcceptInvitePage).
+      allow get: if isAdmin() || 
+                   (request.auth != null && resource.data.status == "pending");
+      allow list: if isAdmin();
+
+      // Update:
+      // - The user accepting the invite can update its status to 'accepted' and set their UID.
+      //   This is done client-side from AcceptInvitePage after successful signup.
+      //   `resource.data` is existing state, `request.resource.data` is new state.
+      allow update: if request.auth != null &&
+                      resource.data.status == "pending" && // Must be a pending invite
+                      request.resource.data.status == "accepted" && // Changing to accepted
+                      request.resource.data.acceptedByUid == request.auth.uid && // UID matches current user
+                      request.resource.data.keys().hasAll(['email', 'status', 'createdAt', 'createdBy', 'acceptedByUid', 'acceptedAt']) &&
+                      request.resource.data.email == resource.data.email && // Email cannot change
+                      request.resource.data.createdBy == resource.data.createdBy; // Creator cannot change
+                      // Future: || isAdmin() for admin updates like revoking.
+
+      // Delete: Admins only
+      allow delete: if isAdmin();
+    }
+
     // Default Deny: Disallow read/write access to any other path not explicitly matched above.
     // This is important for security.
     match /{document=**} {

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/auth';
 // Import Firestore functions and db instance
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { auth, db } from '../firebaseConfig'; // Import db along with auth
@@ -11,12 +11,14 @@ function SignUpPage() {
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState(''); // Add state for display name
   const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState(''); // State for success message
   const [loading, setLoading] = useState(false); // Add loading state
   const navigate = useNavigate();
 
   const handleSignUp = async (event) => {
     event.preventDefault();
     setError(''); // Clear previous errors
+    setSuccessMessage(''); // Clear previous success message
     setLoading(true); // Set loading state
 
     // Basic validation (can be enhanced)
@@ -31,6 +33,11 @@ function SignUpPage() {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
       console.log('User created in Auth:', user);
+
+      // Send verification email
+      await sendEmailVerification(user);
+      console.log('Verification email sent to:', user.email);
+      setSuccessMessage('Account created! Please check your email to verify your account before logging in.');
 
       // 2. Create user document in Firestore
       const userDocRef = doc(db, 'users', user.uid); // Reference to the new document
@@ -50,7 +57,8 @@ function SignUpPage() {
 
       // 3. Redirect after successful sign-up and document creation
       setLoading(false);
-      navigate('/'); // Redirect to dashboard
+      // navigate('/'); // Redirect to dashboard - Let's hold off on redirecting immediately
+      // Instead, we show the success message and the user can then navigate to login.
 
     } catch (err) {
       console.error('Sign up error:', err);
@@ -123,6 +131,11 @@ function SignUpPage() {
           {error && (
             <Alert severity="error" sx={{ width: '100%', mt: 1 }}>
               {error}
+            </Alert>
+          )}
+          {successMessage && ( // Display success message
+            <Alert severity="success" sx={{ width: '100%', mt: 1 }}>
+              {successMessage}
             </Alert>
           )}
           <Button

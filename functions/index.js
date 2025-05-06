@@ -1,6 +1,6 @@
 const admin = require("firebase-admin");
 // Use v2 imports for specific function types
-const { onSchedule } = require("firebase-functions/v2/scheduler");
+const { onSchedule, onCall } = require("firebase-functions/v2/scheduler");
 const { HttpsError } = require("firebase-functions/v2/https"); // Keep HttpsError if needed elsewhere, maybe in future triggers
 const { logger } = require("firebase-functions"); // Use logger module
 const { onDocumentWritten } = require("firebase-functions/v2/firestore"); // Keep Firestore trigger import
@@ -379,4 +379,73 @@ exports.updateCycleTotalsOnOrderWrite = onDocumentWritten("orders/{orderId}", as
   }
 });
 // --- End Firestore Trigger ---
+
+// --- Callable Function to Create User Invite ---
+exports.createInvite = onCall(async (request) => {
+  const { data, auth } = request;
+
+  // 1. Authentication and Authorization Check
+  if (!auth) {
+    logger.error("createInvite: Authentication required.");
+    throw new HttpsError("unauthenticated", "The function must be called while authenticated.");
+  }
+
+  const adminUid = auth.uid;
+  try {
+    const adminUserDoc = await db.collection("users").doc(adminUid).get();
+    if (!adminUserDoc.exists || !adminUserDoc.data().roles || !adminUserDoc.data().roles.includes("admin")) {
+      logger.warn(`createInvite: User ${adminUid} is not authorized to create invites.`);
+      throw new HttpsError("permission-denied", "You do not have permission to create invites.");
+    }
+  } catch (error) {
+    logger.error(`createInvite: Error checking admin role for ${adminUid}:`, error);
+    throw new HttpsError("internal", "Error verifying admin permissions.");
+  }
+
+  // 2. Input Validation
+  const emailToInvite = data.email;
+  if (!emailToInvite || typeof emailToInvite !== 'string' || !/^[\S]+@[\S]+\.[\S]+$/.test(emailToInvite)) {
+    logger.warn("createInvite: Invalid email format provided.", { email: emailToInvite });
+    throw new HttpsError("invalid-argument", "Please provide a valid email address to invite.");
+  }
+
+  // 3. Check for Existing Pending Invite
+  try {
+    const invitesRef = db.collection("invites");
+    const existingInviteQuery = invitesRef
+      .where("email", "==", emailToInvite)
+      .where("status", "==", "pending");
+    const existingInviteSnapshot = await existingInviteQuery.get();
+
+    if (!existingInviteSnapshot.empty) {
+      logger.info(`createInvite: Active pending invite already exists for ${emailToInvite}.`);
+      throw new HttpsError("already-exists", "An active invitation for this email address already exists.");
+    }
+  } catch (error) {
+    // Re-throw HttpsError directly, otherwise wrap other errors
+    if (error instanceof HttpsError) {
+      throw error;
+    }
+    logger.error(`createInvite: Error checking for existing invites for ${emailToInvite}:`, error);
+    throw new HttpsError("internal", "Error checking for existing invites.");
+  }
+
+  // 4. Create Invite Document
+  try {
+    const newInviteRef = await db.collection("invites").add({
+      email: emailToInvite,
+      status: "pending",
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      createdBy: adminUid,
+      // householdId: null, // For future use
+      // expiresAt: admin.firestore.Timestamp.fromMillis(Date.now() + 7 * 24 * 60 * 60 * 1000) // Optional: 7-day expiry
+    });
+    logger.info(`createInvite: Invite created successfully for ${emailToInvite} by ${adminUid}. Invite ID: ${newInviteRef.id}`);
+    return { inviteId: newInviteRef.id };
+  } catch (error) {
+    logger.error(`createInvite: Error creating new invite document for ${emailToInvite}:`, error);
+    throw new HttpsError("internal", "Failed to create the invitation.");
+  }
+});
+// --- End User Invite Function ---
 
