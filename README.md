@@ -13,7 +13,7 @@ A web application for coordinating meal preparation among a group of people, man
 - [x] MUI integration
 - [x] Layout component
 
-### Authentication ✅
+### Authentication 🟨
 - [x] Email/Password sign-up/login
 - [x] Global auth state (React Context)
 - [x] Protected routes
@@ -28,9 +28,9 @@ A web application for coordinating meal preparation among a group of people, man
     - [x] Firestore collection: `invites` (stores `invitedEmail`, `status` \["pending", "accepted", "expired"\], `createdAt`, `createdBy` (admin UID), `acceptedByUid`, `acceptedAt`).
     - [ ] Future: Automated email sending for invites.
     - [ ] Future: Non-admins can invite to households.
-- [ ] Household management (Future)
+- [ ] Household management
 
-### Recipe Management ✅
+### Recipe Management 🟨
 - [x] Data model defined
 - [x] Firestore rules for read/create
 - [x] Bulk upload script
@@ -53,14 +53,12 @@ A web application for coordinating meal preparation among a group of people, man
 - [ ] User order modifications (e.g., "no cheese", "extra sauce"; pre-defined & free-text 'Other' option)
 - [ ] Track order type: Dine-in (glass container) vs. Carry-out (to-go container) based on user document
 - [ ] Users can modify their submitted orders before the deadline (from dashboard/order history)
-- [ ] View order history (Users)
+- [x] View order history (Users)
 - [x] Order aggregation
 - [ ] Store scaled recipe (ingredients, instructions) in mealCycle document after aggregation/scaling
 - [x] Status management
 - [ ] Assign roles (cook, shopper) for specific meal cycles (Future)
 - [ ] Voting system
-- [ ] Cook assignment
-- [ ] Shopper assignment
 - [ ] Distribution tracking
 - [ ] Feedback collection (General)
 - [ ] Feedback: Specific feedback channel/form for shoppers
@@ -84,7 +82,7 @@ A web application for coordinating meal preparation among a group of people, man
 - [x] Loading states
 - [x] Error handling
 - [ ] Enhanced meal cycle page: Display user names, order counts, and dine-in/carry-out status per user
-- [ ] User dashboard: Order history display
+- [x] User dashboard: Order history display
 - [ ] [Future]Advanced state management (Zustand/Redux)
 - [ ] [Future]PWA capabilities
 - [ ] [Future]Notifications (FCM)

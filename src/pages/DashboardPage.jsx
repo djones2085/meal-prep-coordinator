@@ -30,6 +30,7 @@ import {
     Checkbox,
     Snackbar
 } from '@mui/material';
+import OrderHistory from '../components/OrderHistory';
 
 // Assume commonUnits are defined or import them if needed from AddRecipePage
 const commonUnits = ['g', 'kg', 'ml', 'l', 'unit', 'tsp', 'tbsp', 'cup', 'oz', 'lb', 'pinch', 'slice', 'clove'];
@@ -506,6 +507,7 @@ function DashboardPage() {
                             </Typography>
                         </Card>
                     )}
+                    {currentUser && !loadingProfile && <OrderHistory />}
                 </>
             )}
         </PageContainer>

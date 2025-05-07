@@ -59,7 +59,7 @@ service cloud.firestore {
       // Allow reading order(s)
       // TODO: Allow admin/cook/shopper to read orders relevant to the cycle?
       allow read: if request.auth != null && 
-                    (request.resource.data.userId == request.auth.uid || isAdmin());
+                    (resource.data.userId == request.auth.uid || isAdmin());
 
       // Allow creating an order if:
       // 1. User is logged in.
@@ -78,8 +78,8 @@ service cloud.firestore {
       // TODO: Refine update rules based on role, status, and deadline
       allow update: if request.auth != null && (
                       // User can update their own order before deadline
-                      (request.resource.data.userId == request.auth.uid && 
-                       request.time < get(/databases/$(database)/documents/mealCycles/$(request.resource.data.cycleId)).data.orderDeadline.toTimestamp()) ||
+                      (resource.data.userId == request.auth.uid && 
+                       request.time < get(/databases/$(database)/documents/mealCycles/$(resource.data.cycleId)).data.orderDeadline.toTimestamp()) ||
                       // Admin can update any order (e.g., status changes)
                       isAdmin()
                     );
@@ -87,8 +87,8 @@ service cloud.firestore {
       // Disallow delete for now (or restrict to user before deadline)
       allow delete: if request.auth != null && (
                       // User can delete their own order before deadline
-                      (request.resource.data.userId == request.auth.uid && 
-                       request.time < get(/databases/$(database)/documents/mealCycles/$(request.resource.data.cycleId)).data.orderDeadline.toTimestamp()) ||
+                      (resource.data.userId == request.auth.uid && 
+                       request.time < get(/databases/$(database)/documents/mealCycles/$(resource.data.cycleId)).data.orderDeadline.toTimestamp()) ||
                       // Admin can delete any order
                       isAdmin()
                     ); // Or just: if isAdmin(); if users cannot delete.
