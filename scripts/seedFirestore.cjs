@@ -27,6 +27,9 @@ const recipesData = [
     baseYieldUnit: "servings", // Corrected: Removed quotes around key
     prepTime: "15 minutes",     // Corrected: Removed quotes around key
     cookTime: "10 minutes",     // Corrected: Removed quotes around key
+    // Add new customization fields
+    predefinedCustomizations: ["No Peas", "Extra Egg", "Spicy Option"],
+    allowFreeTextCustomization: true,
     ingredients: [
       { name: "Cooked Rice", quantity: 600, unit: "g", notes: "Day-old Jasmine preferred" },
       { name: "Eggs", quantity: 2, unit: "unit" },
@@ -82,6 +85,9 @@ const recipesData = [
     baseYieldUnit: "servings", // Corrected: Removed quotes around key
     prepTime: "20 minutes",     // Corrected: Removed quotes around key
     cookTime: "30 minutes",     // Corrected: Removed quotes around key
+    // Add new customization fields
+    predefinedCustomizations: ["Vegetarian (No Beef)", "Extra Cheese", "Add Mushrooms"],
+    allowFreeTextCustomization: true,
     ingredients: [
       { name: "Pasta (Penne or Rigatoni)", quantity: 500, unit: "g" },
       { name: "Ground Beef", quantity: 500, unit: "g" },

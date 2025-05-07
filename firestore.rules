@@ -32,19 +32,7 @@ service cloud.firestore {
        // Allow create if user is logged in. We can restrict by role later.
        allow create: if request.auth != null; // TODO: Restrict to admin
        // Allow update/delete based on roles later (e.g., admin or original creator)
-       allow update: if request.auth != null &&
-                       (
-                         isAdmin() ||
-                         // Non-admins can update if they are primarily modifying the 'notes' array.
-                         // More specific checks on note content (e.g. authorUid) should ideally be here
-                         // but are complex. This rule allows changes to 'notes' by any auth user.
-                         // Client-side logic currently restricts edit/delete UI to authors.
-                         (request.resource.data.keys().hasAny(['notes']) && 
-                          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['notes']))
-                         // If you want to allow edits to other fields by non-admins, add them to hasOnly.
-                         // e.g. request.resource.data.diff(resource.data).affectedKeys().hasOnly(['notes', 'someOtherField'])
-                       );
-       allow delete: if isAdmin(); // Only admins can delete entire recipes
+       allow update, delete: if isAdmin();
     }
 
     // Meal Cycles: Allow read by logged-in users, create/update by admins (needs role check)
@@ -83,7 +71,7 @@ service cloud.firestore {
                       && request.resource.data.userId == request.auth.uid
                       && exists(/databases/$(database)/documents/mealCycles/$(request.resource.data.cycleId))
                       && get(/databases/$(database)/documents/mealCycles/$(request.resource.data.cycleId)).data.status in ['planned', 'ordering_open']
-                      && request.time < get(/databases/$(database)/documents/mealCycles/$(request.resource.data.cycleId)).data.orderDeadline.toTimestamp(); // Ensure order before deadline
+                      && request.time < get(/databases/$(database)/documents/mealCycles/$(request.resource.data.cycleId)).data.orderDeadline; // Ensure order before deadline
 
       // Allow updating own order *status* (by admin/cook) or details (by user *before* deadline)
       // Simplified for now: Allow owner to update anything (refine later!)
@@ -91,7 +79,7 @@ service cloud.firestore {
       allow update: if request.auth != null && (
                       // User can update their own order before deadline
                       (resource.data.userId == request.auth.uid && 
-                       request.time < get(/databases/$(database)/documents/mealCycles/$(resource.data.cycleId)).data.orderDeadline.toTimestamp()) ||
+                       request.time < get(/databases/$(database)/documents/mealCycles/$(resource.data.cycleId)).data.orderDeadline) ||
                       // Admin can update any order (e.g., status changes)
                       isAdmin()
                     );
@@ -100,14 +88,12 @@ service cloud.firestore {
       allow delete: if request.auth != null && (
                       // User can delete their own order before deadline
                       (resource.data.userId == request.auth.uid && 
-                       request.time < get(/databases/$(database)/documents/mealCycles/$(resource.data.cycleId)).data.orderDeadline.toTimestamp()) ||
+                       request.time < get(/databases/$(database)/documents/mealCycles/$(resource.data.cycleId)).data.orderDeadline) ||
                       // Admin can delete any order
                       isAdmin()
                     ); // Or just: if isAdmin(); if users cannot delete.
     }
 
-    // Add rules for other collections (mealCycles, orders, etc.) here as needed.
-    // It's crucial to define rules for every collection you use.
 
     // Rules for application configuration (e.g., admin-settable defaults)
     match /app_config/{configId} {

@@ -51,7 +51,7 @@ A web application for coordinating meal preparation among a group of people, man
 - [x] Basic cycle creation (Admin)
 - [x] Admin configurable cycle defaults (deadline, cook date)
 - [x] Order submission (Users)
-- [ ] User order modifications (e.g., "no cheese", "extra sauce"; pre-defined & free-text 'Other' option)
+- [x] User order modifications (e.g., "no cheese", "extra sauce"; pre-defined & free-text 'Other' option)
 - [ ] Track order type: Dine-in (glass container) vs. Carry-out (to-go container) based on user document
 - [ ] Users can modify their submitted orders before the deadline (from dashboard/order history)
 - [x] View order history (Users)

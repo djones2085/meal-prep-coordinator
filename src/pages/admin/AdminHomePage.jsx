@@ -9,7 +9,10 @@ import {
     ListItemButton,
     ListItemText,
     ListItemIcon,
-    Box
+    Box,
+    Grid,
+    Link as MuiLink,
+    Button
 } from '@mui/material';
 import SettingsApplicationsIcon from '@mui/icons-material/SettingsApplications'; // Example icon
 import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd'; // Example icon
@@ -17,13 +20,41 @@ import LoopIcon from '@mui/icons-material/Loop'; // Example icon
 import PeopleAltIcon from '@mui/icons-material/PeopleAlt'; // Changed from SettingsApplicationsIcon for user management
 import TuneIcon from '@mui/icons-material/Tune'; // Icon for settings
 import EmailIcon from '@mui/icons-material/Email'; // Icon for Invites
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline'; // For Add Recipe button
+import RestaurantMenuIcon from '@mui/icons-material/RestaurantMenu'; // Using an appropriate icon for recipes
+
+const StatCard = ({ title, value, icon, linkTo }) => (
+    <Paper elevation={2} sx={{ p: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', height: '100%' }}>
+        <ListItemIcon>
+            {icon}
+        </ListItemIcon>
+        <Typography variant="h6" gutterBottom>{title}</Typography>
+        <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', mb: 2 }}>
+            {value}
+        </Typography>
+        <Button 
+            variant="contained" 
+            component={RouterLink} 
+            to={linkTo}
+            fullWidth
+        >
+            View Details
+        </Button>
+    </Paper>
+);
 
 function AdminHomePage() {
+    // Dummy data for now - replace with actual data fetching
+    const stats = {
+        // ... existing code ...
+    };
+
     return (
-        <Container maxWidth="md" sx={{ px: { xs: 2, sm: 3 }, mb: 4 }}>
-            <Typography variant="h4" component="h1" gutterBottom sx={{ my: { xs: 3, md: 4 } }}>
+        <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+            <Typography variant="h4" gutterBottom component="h1">
                 Admin Dashboard
             </Typography>
+            
             <Typography paragraph color="text.secondary">
                 Manage meal cycles, users, recipes, and application settings.
                  {/* TODO: Add role check reminder */}
@@ -87,6 +118,64 @@ function AdminHomePage() {
                      */}
                 </List>
             </Paper>
+
+            <Typography variant="h5" sx={{ mt: 5, mb: 2 }}>Quick Actions</Typography>
+            <Grid container spacing={3}>
+                {/* Card for Add New Recipe */}
+                <Grid item xs={12} sm={6} md={4}>
+                    <Paper elevation={2} sx={{ p: 3, display: 'flex', flexDirection: 'column', alignItems: 'center', height: '100%' }}>
+                        <RestaurantMenuIcon color="primary" sx={{ fontSize: 48, mb: 2 }} />
+                        <Typography variant="h6" component="h3" gutterBottom sx={{ textAlign: 'center' }}>
+                            Manage Recipes
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', mb: 3, flexGrow: 1 }}>
+                            Create new recipes or view and edit existing ones.
+                        </Typography>
+                        <Button 
+                            variant="contained" 
+                            component={RouterLink} 
+                            to="/add-recipe" // Route to AddRecipePage
+                            fullWidth
+                            sx={{ mb: 1 }} // Margin bottom for spacing if multiple buttons
+                        >
+                            Add New Recipe
+                        </Button>
+                        <Button 
+                            variant="outlined" 
+                            component={RouterLink} 
+                            to="/recipes" // Assuming /recipes is the route to the recipe list page
+                            fullWidth
+                        >
+                            View All Recipes
+                        </Button>
+                    </Paper>
+                </Grid>
+
+                {/* Placeholder for other Quick Action Cards */}
+                {/* Example for User Management (if you have a UserManagementPage) */}
+                {/* 
+                <Grid item xs={12} sm={6} md={4}>
+                    <Paper elevation={2} sx={{ p: 3, display: 'flex', flexDirection: 'column', alignItems: 'center', height: '100%' }}>
+                        <PeopleIcon color="primary" sx={{ fontSize: 48, mb: 2 }} />
+                        <Typography variant="h6" component="h3" gutterBottom sx={{ textAlign: 'center' }}>
+                            User Management
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center', mb: 3, flexGrow: 1 }}>
+                            View, edit roles, and manage user accounts.
+                        </Typography>
+                        <Button 
+                            variant="contained" 
+                            component={RouterLink} 
+                            to="/admin/users" // Update to your user management route
+                            fullWidth
+                        >
+                            Manage Users
+                        </Button>
+                    </Paper>
+                </Grid>
+                */}
+
+            </Grid>
         </Container>
     );
 }
