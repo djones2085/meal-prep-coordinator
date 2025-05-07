@@ -30,7 +30,7 @@ A web application for coordinating meal preparation among a group of people, man
     - [ ] [Future]: Non-admins can invite to households.
 - [ ] Household management
 
-### Recipe Management 🟨
+### Recipe Management ✅
 - [x] Data model defined
 - [x] Firestore rules for read/create
 - [x] Bulk upload script
