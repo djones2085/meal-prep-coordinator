@@ -53,7 +53,7 @@ A web application for coordinating meal preparation among a group of people, man
 - [x] Order submission (Users)
 - [x] User order modifications (e.g., "no cheese", "extra sauce"; pre-defined & free-text 'Other' option) - *Implemented by allowing recipes to define a list of `predefinedCustomizations` (checkboxes) and a flag `allowFreeTextCustomization` for a general text note on orders. These are saved with the order.*
 - [x] Track order type: Dine-in (glass container) vs. Carry-out (to-go container) based on user document - *User's `locationStatus` preference (e.g., 'dine_in', 'carry_out') is saved with each order. Cloud Functions aggregate counts for `dineInContainers` and `carryOutContainers` per meal cycle.*
-- [ ] Users can modify their submitted orders before the deadline (from dashboard/order history)
+- [x] Users can modify their submitted orders before the deadline (from dashboard/order history)
 - [x] View order history (Users)
 - [x] Order aggregation
 - [ ] Store scaled recipe (ingredients, instructions) in mealCycle document after aggregation/scaling

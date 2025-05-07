@@ -191,20 +191,44 @@ function MealCycleManagementPage() {
         console.log("Attempting to approve shopping list for cycle:", cycleId);
         const cycleRef = doc(db, 'mealCycles', cycleId);
         try {
-            // TODO: Get current user UID for 'shoppingListApprovedBy'
-            // For now, using a placeholder. This needs access to auth context.
-            const adminUserId = auth.currentUser ? auth.currentUser.uid : 'admin_placeholder'; 
+            const adminUserId = auth.currentUser ? auth.currentUser.uid : 'admin_placeholder'; // Ensure auth.currentUser is available
+            if (!auth.currentUser) {
+                console.error("Admin user not found for approving shopping list.");
+                setAlertInfo({ open: true, message: 'Error: You must be logged in as an admin to approve.', severity: 'error' });
+                return;
+            }
 
             const updateData = {
-                shoppingListStatus: 'approved',
-                shoppingListApprovedBy: adminUserId,
-                shoppingListApprovedAt: serverTimestamp(),
+                "shoppingList.status": "approved",
+                "shoppingList.approvedBy": adminUserId,
+                "shoppingList.approvedAt": serverTimestamp(),
+                "shoppingList.lastUpdatedAt": serverTimestamp(),
             };
+
             await updateDoc(cycleRef, updateData);
 
-            setCycles(prevCycles => prevCycles.map(c => 
-                c.id === cycleId ? { ...c, ...updateData } : c
-            ));
+            // Update local state to reflect changes immediately
+            setCycles(prevCycles => prevCycles.map(c => {
+                if (c.id === cycleId) {
+                    // Ensure c.shoppingList exists before trying to spread it
+                    const existingShoppingList = c.shoppingList || { items: [], status: '' }; 
+                    return {
+                        ...c,
+                        shoppingList: {
+                            ...existingShoppingList, // Spread existing items and other shopping list fields
+                            status: "approved",
+                            approvedBy: adminUserId,
+                            // For serverTimestamp fields, local update can be tricky.
+                            // We can set to new Date() or refetch, or just rely on next fetch.
+                            // For simplicity, we are updating what we know.
+                            // The actual timestamp will be from the server.
+                            approvedAt: new Date(), // Approximate for local state
+                            lastUpdatedAt: new Date(), // Approximate for local state
+                        }
+                    };
+                }
+                return c;
+            }));
             setAlertInfo({ open: true, message: 'Shopping list approved!', severity: 'success' });
         } catch (err) {
             console.error("Error approving shopping list:", err);
