@@ -26,8 +26,8 @@ A web application for coordinating meal preparation among a group of people, man
     - [x] Invitee uses the link to access a special sign-up page.
     - [x] On sign-up, invite status is updated.
     - [x] Firestore collection: `invites` (stores `invitedEmail`, `status` \["pending", "accepted", "expired"\], `createdAt`, `createdBy` (admin UID), `acceptedByUid`, `acceptedAt`).
-    - [ ] Future: Automated email sending for invites.
-    - [ ] Future: Non-admins can invite to households.
+    - [ ] [Future]: Automated email sending for invites.
+    - [ ] [Future]: Non-admins can invite to households.
 - [ ] Household management
 
 ### Recipe Management 🟨
@@ -40,7 +40,7 @@ A web application for coordinating meal preparation among a group of people, man
 - [ ] Recipe photo uploads/display
 - [ ] Agent: Recipe Processing (Parse unstructured text, standardize units/format, apply standards like protein goals, create structured recipe object)
 - [x] Recipe Notes: Field for general cooking tips, source, variations, chef-to-chef advice on the recipe itself
-    - [ ] Future: Enhance security rules to restrict read access to notes by role (e.g., 'cook') by moving notes to a subcollection and applying role-based server-side validation for all CRUD operations on notes.
+    - [ ] [Future]: Enhance security rules to restrict read access to notes by role (e.g., 'cook') by moving notes to a subcollection and applying role-based server-side validation for all CRUD operations on notes.
 - [x] Status management
 - [ ] Shopping list generation (Basic)
 - [ ] Agent: Shopping List Generation (Aggregate ingredients intelligently across orders, handle complex unit conversions/standardization, potentially optimize quantities)
@@ -59,8 +59,8 @@ A web application for coordinating meal preparation among a group of people, man
 - [ ] Store scaled recipe (ingredients, instructions) in mealCycle document after aggregation/scaling
 - [x] Status management
 - [ ] Assign roles (cook, shopper) for specific meal cycles (Future)
-- [ ] Voting system
-- [ ] Distribution tracking
+- [ ] [Future]Voting system
+- [ ] [Future]Distribution tracking
 - [ ] Feedback collection (General)
 - [ ] Feedback: Specific feedback channel/form for shoppers
 - [ ] Feedback: Eater ratings/comments for cooks (e.g., 5-star system)
@@ -74,7 +74,7 @@ A web application for coordinating meal preparation among a group of people, man
 - [ ] Agent: Shopping List Generation (Aggregate ingredients intelligently, handle complex unit conversions/standardization, potentially optimize quantities)
     - [ ] Ensure intelligent unit conversions (e.g., 30 tsp to 1.25 cups) for practicality.
 - [ ] Chef/Cook: Ingredient checklist before starting to cook
-- [ ] Chef/Cook: Access to historical cook notes for the current recipe
+- [x] Chef/Cook: Access to historical cook notes for the current recipe
 - [ ] Manage packaging (e.g., container types, labels)
 
 ### User Interface 🟨
@@ -98,7 +98,7 @@ A web application for coordinating meal preparation among a group of people, man
 - [x] Order aggregation
 - [x] Real-time updates
 - [ ] Cloud Function: Update recipe stats (lastPreparedDate, timesPrepared) on meal cycle completion
-- [ ] AI Services integration
+- [ ] [Future]AI Services integration
 - [ ] Suggested Frameworks: CrewAI, Google ADK for multi-agent workflows (Recipe Processing, Shopping List, Cook Sequencing)
 - [ ] Data modeling consideration: Evolve 'cook' representation to 'cook_session' for better tracking
 - [ ] Advanced security rules - *Initial role-based rules implemented (users, recipes, mealCycles, orders); admins have broader permissions, users restricted. MealCycles not deletable. Further review and refinement pending.*
@@ -106,9 +106,9 @@ A web application for coordinating meal preparation among a group of people, man
 
 ## Security Recommendations
 
-- **Recipe Notes Permissions**: The current Firestore security rule for updating recipes (`recipes/{recipeId}`) allows any authenticated user to modify the `notes` array if it's the only field being changed. The client-side UI in `RecipeDetailPage.jsx` handles author-only edit/delete logic. This is a "soft" rule for write operations. Read access to notes is not currently restricted by role at the server level. *Future enhancement: Consider moving notes to a subcollection to enable server-enforced role-based read restrictions (e.g., only 'cooks' can read notes) and more granular server-side validation for write operations (add, edit, delete by author or admin).*
-- **Review Admin-Only Actions**: Several TODOs exist in `firestore.rules` (e.g., recipe creation, meal cycle creation/update) that are currently open to any authenticated user but intended for admins. These should be reviewed and restricted to admin users as soon as the admin role is fully implemented and testable in rules.
-- **Comprehensive Rule Review**: The note under "Backend Services > Advanced security rules" in the Project Status section highlights that a further review and refinement of all Firestore rules is pending. This should be prioritized to ensure all data access is appropriately restricted based on user roles and context.
+- **Recipe Notes Permissions**: [Future]The current Firestore security rule for updating recipes (`recipes/{recipeId}`) allows any authenticated user to modify the `notes` array if it's the only field being changed. The client-side UI in `RecipeDetailPage.jsx` handles author-only edit/delete logic. This is a "soft" rule for write operations. Read access to notes is not currently restricted by role at the server level. *Future enhancement: Consider moving notes to a subcollection to enable server-enforced role-based read restrictions (e.g., only 'cooks' can read notes) and more granular server-side validation for write operations (add, edit, delete by author or admin).*
+- **Review Admin-Only Actions**: [Future]Several TODOs exist in `firestore.rules` (e.g., recipe creation, meal cycle creation/update) that are currently open to any authenticated user but intended for admins. These should be reviewed and restricted to admin users as soon as the admin role is fully implemented and testable in rules.
+- **Comprehensive Rule Review**: [Future]The note under "Backend Services > Advanced security rules" in the Project Status section highlights that a further review and refinement of all Firestore rules is pending. This should be prioritized to ensure all data access is appropriately restricted based on user roles and context.
 
 ## Development Setup
 
