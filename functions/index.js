@@ -306,14 +306,13 @@ async function _recalculateCycleTotalsAndIngredients(mealCycleId) {
 
     // Only update if there are actual orders, or to reset to zero if all orders removed.
     if (validOrderDocs.length > 0 || (ordersSnapshot.empty && cycleSnap.data().totalMealCounts > 0)) {
-        await cycleRef.update(updatePayload);
-        logger.log(`(_recalculateCycleTotalsAndIngredients) Successfully recalculated counts for meal cycle ${mealCycleId}.`);
+      await cycleRef.update(updatePayload);
+      logger.log(`(_recalculateCycleTotalsAndIngredients) Successfully recalculated counts for meal cycle ${mealCycleId}.`);
     } else if (ordersSnapshot.empty && cycleSnap.data().totalMealCounts === 0) {
-        logger.log(`(_recalculateCycleTotalsAndIngredients) No orders and counts already zero for cycle ${mealCycleId}. No update needed.`);
+      logger.log(`(_recalculateCycleTotalsAndIngredients) No orders and counts already zero for cycle ${mealCycleId}. No update needed.`);
     } else {
-        logger.log(`(_recalculateCycleTotalsAndIngredients) No valid orders found for cycle ${mealCycleId}, but not forcing an update to zero unless previously had orders.`);
+      logger.log(`(_recalculateCycleTotalsAndIngredients) No valid orders found for cycle ${mealCycleId}, but not forcing an update to zero unless previously had orders.`);
     }
-
   } catch (error) {
     logger.error(`(_recalculateCycleTotalsAndIngredients) Error during counts recalculation for meal cycle ${mealCycleId}:`, error);
   }
