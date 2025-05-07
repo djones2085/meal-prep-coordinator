@@ -62,7 +62,13 @@ async function _performAggregation(mealCycleId) {
       await cycleRef.update({
         totalMealCounts: 0,
         totalCountsByProtein: {},
-        totalIngredients: [],
+        shoppingList: {
+          status: "pending_approval",
+          items: [],
+          lastUpdatedAt: admin.firestore.FieldValue.serverTimestamp(),
+          approvedBy: null,
+          approvedAt: null,
+        },
         dineInContainers: 0,
         carryOutContainers: 0,
         aggregationTimestamp: admin.firestore.FieldValue.serverTimestamp(),
@@ -95,7 +101,13 @@ async function _performAggregation(mealCycleId) {
       await cycleRef.update({
         totalMealCounts: 0,
         totalCountsByProtein: {},
-        totalIngredients: [],
+        shoppingList: {
+          status: "pending_approval",
+          items: [],
+          lastUpdatedAt: admin.firestore.FieldValue.serverTimestamp(),
+          approvedBy: null,
+          approvedAt: null,
+        },
         dineInContainers: 0,
         carryOutContainers: 0,
         aggregationTimestamp: admin.firestore.FieldValue.serverTimestamp(),
@@ -162,17 +174,32 @@ async function _performAggregation(mealCycleId) {
       }
     }
 
-    const totalIngredientsArray = Object.values(aggregatedIngredients);
+    const shoppingListItems = Object.values(aggregatedIngredients).map((ing) => ({
+      name: ing.name,
+      unit: ing.unit,
+      aggregatedQuantity: ing.quantity,
+      onHandQuantity: 0, // Initialize to 0
+      toBePurchasedQuantity: ing.quantity, // Initially same as aggregated
+      // notes: "", // Optional: initialize if needed
+    }));
+
+    const shoppingListData = {
+      status: "pending_approval",
+      items: shoppingListItems,
+      lastUpdatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      approvedBy: null,
+      approvedAt: null,
+    };
 
     await cycleRef.update({
       totalMealCounts: totalOverallServings,
       totalCountsByProtein: totalCountsByProtein,
-      totalIngredients: totalIngredientsArray,
+      shoppingList: shoppingListData,
       dineInContainers: dineInContainers,
       carryOutContainers: carryOutContainers,
       aggregationTimestamp: admin.firestore.FieldValue.serverTimestamp(),
     });
-    logger.log(`(_performAggregation) Successfully aggregated orders for meal cycle ${mealCycleId}.`);
+    logger.log(`(_performAggregation) Successfully aggregated orders and created shopping list for meal cycle ${mealCycleId}.`);
   } catch (error) {
     logger.error(`(_performAggregation) Error during aggregation for cycle ${mealCycleId}:`, error);
     throw error; // Re-throw to be caught by caller
@@ -189,49 +216,30 @@ async function _performAggregation(mealCycleId) {
  * @return {Promise<void>} Resolves on successful recalculation, logs errors.
  */
 async function _recalculateCycleTotalsAndIngredients(mealCycleId) {
-  logger.log(`(_recalculateCycleTotalsAndIngredients) Recalculating totals & ingredients for cycle ${mealCycleId}`);
+  logger.log(`(_recalculateCycleTotalsAndIngredients) Recalculating cycle counts for cycle ${mealCycleId}. Shopping list will NOT be affected by this recalculation.`);
   const cycleRef = db.collection("mealCycles").doc(mealCycleId);
 
   try {
-    // 1. Get Cycle Data (to find the recipe ID)
+    // 1. Get Cycle Data
     const cycleSnap = await cycleRef.get();
     if (!cycleSnap.exists) {
       logger.error(`(_recalculateCycleTotalsAndIngredients) Meal Cycle ${mealCycleId} not found.`);
       return; // Exit if cycle doesn't exist
     }
-    const cycleData = cycleSnap.data();
+    // const cycleData = cycleSnap.data(); // Not strictly needed if not touching shopping list
 
-    // 2. Get Recipe Data
-    const recipeId = cycleData.chosenRecipe?.recipeId;
-    if (!recipeId) {
-      logger.error(`(_recalculateCycleTotalsAndIngredients) Meal Cycle ${mealCycleId} has no chosenRecipe.recipeId. Cannot recalculate ingredients.`);
-      // Optional: Recalculate only counts/containers if recipe missing?
-      // For now, we'll exit if we can't get the recipe.
-      return;
-    }
-    const recipeRef = db.collection("recipes").doc(recipeId);
-    const recipeSnap = await recipeRef.get();
-    if (!recipeSnap.exists) {
-      logger.error(`(_recalculateCycleTotalsAndIngredients) Recipe ${recipeId} for cycle ${mealCycleId} not found. Cannot recalculate ingredients.`);
-      // Optional: Recalculate only counts/containers if recipe missing?
-      return;
-    }
-    const recipeIngredients = recipeSnap.data().ingredients || [];
-
-
-    // 3. Get All Orders for the Cycle
+    // 2. Get All Orders for the Cycle (Recipe data is not needed if only recalculating counts)
     const ordersRef = db.collection("orders");
     const ordersQuery = ordersRef.where("cycleId", "==", mealCycleId);
     const ordersSnapshot = await ordersQuery.get();
 
-    // --- Recalculation Logic ---
+    // --- Recalculation Logic for Counts & Containers ---
     let totalOverallServings = 0;
     const totalCountsByProtein = {};
-    const aggregatedIngredients = {}; // Reset for recalculation
+    // No ingredient aggregation here
     let dineInContainers = 0;
     let carryOutContainers = 0;
 
-    // Fetch associated user data for locationStatus
     const userFetchPromises = [];
     const validOrderDocs = [];
     ordersSnapshot.docs.forEach((orderDoc) => {
@@ -240,12 +248,14 @@ async function _recalculateCycleTotalsAndIngredients(mealCycleId) {
         validOrderDocs.push(orderDoc);
         userFetchPromises.push(db.collection("users").doc(orderData.userId).get());
       } else {
-        logger.warn(`(_recalculateCycleTotalsAndIngredients) Skipping order ${orderDoc.id} due to missing/invalid data.`);
+        logger.warn(`(_recalculateCycleTotalsAndIngredients) Skipping order ${orderDoc.id} due to missing/invalid data for counts.`);
       }
     });
 
     const userSnaps = await Promise.all(userFetchPromises);
     const userMap = new Map(userSnaps.map((snap) => [snap.id, snap.exists ? snap.data() : null]));
+
+    // No existingOnHandMap needed as we are not touching shopping list items
 
     for (const orderDoc of validOrderDocs) {
       const orderData = orderDoc.data();
@@ -254,8 +264,7 @@ async function _recalculateCycleTotalsAndIngredients(mealCycleId) {
 
       totalOverallServings += orderTotalServings;
 
-      // Determine locationStatus: Prioritize orderData, then user profile, then default
-      let locationStatus = "carry_out"; // Default
+      let locationStatus = "carry_out";
       if (orderData.locationStatus) {
         locationStatus = orderData.locationStatus;
       } else {
@@ -263,7 +272,7 @@ async function _recalculateCycleTotalsAndIngredients(mealCycleId) {
         if (userData && userData.locationStatus) {
           locationStatus = userData.locationStatus;
         } else {
-          logger.warn(`(_recalculateCycleTotalsAndIngredients) User ${userId} for order ${orderDoc.id} not found or has no locationStatus. Order has no locationStatus. Defaulting to carry_out.`);
+          logger.warn(`(_recalculateCycleTotalsAndIngredients) User ${userId} for order ${orderDoc.id} not found or has no locationStatus (for counts). Order has no locationStatus. Defaulting to carry_out.`);
         }
       }
 
@@ -273,55 +282,39 @@ async function _recalculateCycleTotalsAndIngredients(mealCycleId) {
         carryOutContainers += orderTotalServings;
       }
 
-      // Aggregate protein counts AND ingredients
       if (orderData.items && Array.isArray(orderData.items)) {
         orderData.items.forEach((item) => {
           const proteinName = item.protein || "default";
           const quantity = item.quantity || 0;
-
           if (quantity <= 0) return;
-
-          // Aggregate protein counts
           totalCountsByProtein[proteinName] = (totalCountsByProtein[proteinName] || 0) + quantity;
-
-          // Aggregate ingredients based on recipe and order item quantity
-          recipeIngredients.forEach((ingredient) => {
-            if (!ingredient.name || !ingredient.unit || ingredient.quantity == null || ingredient.quantity <= 0) {
-              return; // Skip invalid recipe ingredients
-            }
-            const quantityNeeded = ingredient.quantity * quantity; // Multiply ingredient qty by order item qty
-            const key = `${ingredient.name.toLowerCase().trim()}_${ingredient.unit.toLowerCase().trim()}`;
-
-            if (aggregatedIngredients[key]) {
-              aggregatedIngredients[key].quantity += quantityNeeded;
-            } else {
-              aggregatedIngredients[key] = {
-                name: ingredient.name,
-                quantity: quantityNeeded,
-                unit: ingredient.unit,
-              };
-            }
-          });
+          // No ingredient processing here
         });
       }
     }
 
-    const totalIngredientsArray = Object.values(aggregatedIngredients);
+    // No newShoppingListItems to create
 
-    // --- Update Meal Cycle Document ---
-    logger.log(`(_recalculateCycleTotalsAndIngredients) Updating cycle ${mealCycleId} with: Servings=${totalOverallServings}, Proteins=${JSON.stringify(totalCountsByProtein)}, Ingredients Count=${totalIngredientsArray.length}, DineIn=${dineInContainers}, CarryOut=${carryOutContainers}`);
-    await cycleRef.update({
+    const updatePayload = {
       totalMealCounts: totalOverallServings,
       totalCountsByProtein: totalCountsByProtein,
-      totalIngredients: totalIngredientsArray, // Update ingredients
       dineInContainers: dineInContainers,
       carryOutContainers: carryOutContainers,
-      aggregationTimestamp: admin.firestore.FieldValue.serverTimestamp(),
-    });
-    logger.log(`(_recalculateCycleTotalsAndIngredients) Successfully recalculated totals and ingredients for meal cycle ${mealCycleId}.`);
+      // shoppingList and aggregationTimestamp are NOT updated here.
+      // lastUpdatedAt for shoppingList is also not touched here.
+    };
+
+    // Only update if there are actual orders, or to reset to zero if all orders removed.
+    if (validOrderDocs.length > 0 || (ordersSnapshot.empty && cycleSnap.data().totalMealCounts > 0)) {
+      await cycleRef.update(updatePayload);
+      logger.log(`(_recalculateCycleTotalsAndIngredients) Successfully recalculated counts for meal cycle ${mealCycleId}.`);
+    } else if (ordersSnapshot.empty && cycleSnap.data().totalMealCounts === 0) {
+      logger.log(`(_recalculateCycleTotalsAndIngredients) No orders and counts already zero for cycle ${mealCycleId}. No update needed.`);
+    } else {
+      logger.log(`(_recalculateCycleTotalsAndIngredients) No valid orders found for cycle ${mealCycleId}, but not forcing an update to zero unless previously had orders.`);
+    }
   } catch (error) {
-    logger.error(`(_recalculateCycleTotalsAndIngredients) Error during recalculation for cycle ${mealCycleId}:`, error);
-    // Don't re-throw here, just log, as this is a background trigger
+    logger.error(`(_recalculateCycleTotalsAndIngredients) Error during counts recalculation for meal cycle ${mealCycleId}:`, error);
   }
 }
 // --- End Recalculation Helper ---

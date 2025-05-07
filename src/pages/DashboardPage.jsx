@@ -256,67 +256,133 @@ function DashboardPage() {
     };
 
     const handleSelectedRecipeCustomizationChange = (event) => {
-        const { name, checked } = event.target;
+        const { value, checked } = event.target;
         setSelectedRecipeCustomizations(prev =>
-            checked ? [...prev, name] : prev.filter(c => c !== name)
+            checked ? [...prev, value] : prev.filter(c => c !== value)
         );
     };
 
     const handleModifyOrderClick = () => {
-        if (!userOrder) return;
-        // Quantities are already pre-filled by the useEffect
+        if (!userOrder || !activeCycle || !chosenRecipeDetails) {
+            setError("Cannot modify order: essential data missing.");
+            return;
+        }
+
+        // Check if order deadline has passed
+        if (activeCycle.orderDeadline && new Date() > activeCycle.orderDeadline) {
+            setError("The order deadline has passed. You can no longer modify your order.");
+            setOrderSuccess('');
+            return;
+        }
+
         setIsModifyingOrder(true);
-        setOrderSuccess(''); // Clear previous success message
+        setOrderSuccess(''); // Clear any previous success messages
+        setError('');
+        setOrderValidationError('');
+
+
+        // Repopulate form states from userOrder
+        const initialQuantities = {};
+        if (chosenRecipeDetails.proteinOptions && chosenRecipeDetails.proteinOptions.length > 0) {
+            chosenRecipeDetails.proteinOptions.forEach(opt => {
+                const existingItem = userOrder.items?.find(item => item.protein === opt.optionName);
+                initialQuantities[opt.optionName] = existingItem ? existingItem.quantity : 0;
+            });
+        } else {
+            const existingItem = userOrder.items?.find(item => item.protein === 'default'); // or however default protein is identified
+            initialQuantities["default"] = existingItem ? existingItem.quantity : (userOrder.totalServings || 0);
+        }
+        setOrderQuantities(initialQuantities);
+
+        setSelectedRecipeCustomizations(userOrder.selectedCustomizations || []);
+        setFreeTextCustomization(userOrder.freeTextCustomization || '');
     };
 
     const handleOrderSubmit = async () => {
-        // Basic validation: Ensure at least one item is ordered
-        const totalQuantity = Object.values(orderQuantities).reduce((sum, qty) => sum + qty, 0);
-        if (totalQuantity <= 0) {
-            setOrderValidationError("Please select at least one meal.");
-            return;
-        }
-        setOrderValidationError(''); // Clear validation error
-        setIsSubmittingOrder(true);
         setError('');
         setOrderSuccess('');
+        setOrderValidationError('');
+
+        if (!activeCycle || !chosenRecipeDetails || !userProfile) {
+            setOrderValidationError("Cannot submit order: essential data missing (cycle, recipe, or user profile).");
+            return;
+        }
+
+        // Check if order deadline has passed
+        if (activeCycle.orderDeadline && new Date() > activeCycle.orderDeadline) {
+            setOrderValidationError("The order deadline has passed. You can no longer place or modify orders for this cycle.");
+            return;
+        }
+
+        const totalServings = Object.values(orderQuantities).reduce((sum, q) => sum + q, 0);
+        if (totalServings <= 0) {
+            setOrderValidationError("You must order at least one serving.");
+            return;
+        }
+
+        setIsSubmittingOrder(true);
+
+        const orderData = {
+            userId: currentUser.uid,
+            userDisplayName: userProfile.displayName || currentUser.email, // Use displayName from profile
+            userEmail: currentUser.email,
+            locationStatus: userProfile.locationStatus || 'unknown', // from user profile
+            cycleId: activeCycle.id,
+            cycleName: activeCycle.name, // Assuming activeCycle has a name
+            recipeId: chosenRecipeDetails.id,
+            recipeName: chosenRecipeDetails.name,
+            items: chosenRecipeDetails.proteinOptions && chosenRecipeDetails.proteinOptions.length > 0
+                ? chosenRecipeDetails.proteinOptions
+                    .filter(opt => orderQuantities[opt.optionName] > 0)
+                    .map(opt => ({
+                        protein: opt.optionName,
+                        quantity: orderQuantities[opt.optionName]
+                    }))
+                : [{ protein: 'default', quantity: orderQuantities['default'] || totalServings }], // Handle default case
+            totalServings,
+            selectedCustomizations: selectedRecipeCustomizations,
+            freeTextCustomization: freeTextCustomization.trim(),
+            status: 'placed', // Initial status
+            // For new orders, createdAt. For updates, updatedAt will be set.
+        };
 
         try {
-            const orderData = {
-                cycleId: activeCycle.id,
-                userId: currentUser.uid,
-                userName: userProfile?.displayName || currentUser.email, // Use profile name or email
-                orderTimestamp: serverTimestamp(),
-                status: 'placed', // Initial status
-                items: Object.entries(orderQuantities)
-                            .filter(([_, qty]) => qty > 0) // Only include items with quantity > 0
-                            .map(([protein, quantity]) => ({ protein, quantity })),
-                selectedCustomizations: selectedRecipeCustomizations,
-                freeTextCustomization: freeTextCustomization.trim(),
-                locationStatus: userProfile?.locationStatus || 'carry_out', // Corrected: Use locationStatus from profile
-                totalServings: totalQuantity,
-                // Add recipe details for easy reference if needed
-                recipeName: chosenRecipeDetails?.name || 'N/A',
-                recipeId: chosenRecipeDetails?.id || 'N/A',
-            };
-
             if (isModifyingOrder && userOrder?.id) {
                 // Update existing order
                 const orderRef = doc(db, 'orders', userOrder.id);
-                // Overwrite timestamp only if specifically desired, otherwise keep original
-                // Here, we update everything including the timestamp to reflect modification time
-                await updateDoc(orderRef, orderData);
+                await updateDoc(orderRef, {
+                    ...orderData,
+                    updatedAt: serverTimestamp(),
+                });
                 setOrderSuccess("Order updated successfully!");
+                setIsModifyingOrder(false); // Exit modification mode
             } else {
                 // Add new order
-                const ordersRef = collection(db, "orders");
-                await addDoc(ordersRef, orderData);
+                await addDoc(collection(db, 'orders'), {
+                    ...orderData,
+                    createdAt: serverTimestamp(),
+                    updatedAt: serverTimestamp(),
+                });
                 setOrderSuccess("Order placed successfully!");
             }
-            setIsModifyingOrder(false); // Exit modification mode after successful submission
+            // Reset form fields (optional, consider UX)
+            // const initialQuantitiesReset = {};
+            // if (chosenRecipeDetails.proteinOptions && chosenRecipeDetails.proteinOptions.length > 0) {
+            //     chosenRecipeDetails.proteinOptions.forEach(opt => initialQuantitiesReset[opt.optionName] = 0);
+            // } else {
+            //     initialQuantitiesReset["default"] = 1; // Or 0 depending on desired default
+            // }
+            // setOrderQuantities(initialQuantitiesReset);
+            // setSelectedRecipeCustomizations([]);
+            // setFreeTextCustomization('');
+
         } catch (err) {
             console.error("Error submitting order:", err);
-            setError("Failed to submit your order. Please try again.");
+            setError(`Failed to submit order: ${err.message}`);
+            // If permissions error, guide user to check console or specific error message
+            if (err.code === 'permission-denied') {
+                setError("Failed to submit order: Permission denied. Please ensure you are logged in and have rights to order for this cycle.");
+            }
         } finally {
             setIsSubmittingOrder(false);
         }

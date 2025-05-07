@@ -42,7 +42,7 @@ A web application for coordinating meal preparation among a group of people, man
 - [x] Recipe Notes: Field for general cooking tips, source, variations, chef-to-chef advice on the recipe itself
     - [ ] [Future]: Enhance security rules to restrict read access to notes by role (e.g., 'cook') by moving notes to a subcollection and applying role-based server-side validation for all CRUD operations on notes.
 - [x] Status management
-- [ ] Shopping list generation (Basic)
+- [x] Shopping list generation (Basic) - *Enhanced to generate a structured `shoppingList` object in `mealCycle` doc via Cloud Function (`_performAggregation`). Includes item details for aggregated quantity, on-hand tracking, and to-be-purchased calculation. Status: `pending_approval` initially.*
 - [ ] Agent: Shopping List Generation (Aggregate ingredients intelligently across orders, handle complex unit conversions/standardization, potentially optimize quantities)
     - [ ] Ensure intelligent unit conversions (e.g., 30 tsp to 1.25 cups) for practicality.
 
@@ -53,7 +53,7 @@ A web application for coordinating meal preparation among a group of people, man
 - [x] Order submission (Users)
 - [x] User order modifications (e.g., "no cheese", "extra sauce"; pre-defined & free-text 'Other' option) - *Implemented by allowing recipes to define a list of `predefinedCustomizations` (checkboxes) and a flag `allowFreeTextCustomization` for a general text note on orders. These are saved with the order.*
 - [x] Track order type: Dine-in (glass container) vs. Carry-out (to-go container) based on user document - *User's `locationStatus` preference (e.g., 'dine_in', 'carry_out') is saved with each order. Cloud Functions aggregate counts for `dineInContainers` and `carryOutContainers` per meal cycle.*
-- [ ] Users can modify their submitted orders before the deadline (from dashboard/order history)
+- [x] Users can modify their submitted orders before the deadline (from dashboard/order history) - *Implemented in `DashboardPage.jsx` with deadline checks and Firestore rule support.*
 - [x] View order history (Users)
 - [x] Order aggregation
 - [ ] Store scaled recipe (ingredients, instructions) in mealCycle document after aggregation/scaling
@@ -67,8 +67,8 @@ A web application for coordinating meal preparation among a group of people, man
 - [ ] Agent: Cook Sequencing (Optimize cooking task order based on prep/cook times and target completion)
 
 ### Shopping & Cooking Workflow 🟨
-- [x] Basic shopping list data generation (ingredients and quantities in mealCycle doc)
-- [ ] Shopping list: Admin approval step
+- [x] Basic shopping list data generation (ingredients and quantities in mealCycle doc) - *Superseded by enhanced generation in Recipe Management. This item refers to the new structured list.*
+- [🟨] Shopping list: Admin approval step - *Backend function `handleApproveShoppingList` in `MealCycleManagementPage.jsx` updated. UI component `AdminShoppingList.jsx` planned.*
 - [ ] Shopping list: Editable by admin/shopper
 - [ ] Shopping list: Shopper can mark items as 'available on hand'
 - [ ] Agent: Shopping List Generation (Aggregate ingredients intelligently, handle complex unit conversions/standardization, potentially optimize quantities)
@@ -95,7 +95,7 @@ A web application for coordinating meal preparation among a group of people, man
 
 ### Backend Services 🟨
 - [x] Basic Cloud Functions
-- [x] Order aggregation
+- [x] Order aggregation - *Cloud Functions `_performAggregation` and `_recalculateCycleTotalsAndIngredients` refactored for new shopping list generation logic and to ensure recalculation only affects counts, not the finalized shopping list. **TODO Next Session: Thoroughly test this new Cloud Function logic.** *
 - [x] Real-time updates
 - [ ] Cloud Function: Update recipe stats (lastPreparedDate, timesPrepared) on meal cycle completion
 - [ ] [Future]AI Services integration
