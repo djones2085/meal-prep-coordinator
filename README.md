@@ -37,7 +37,7 @@ A web application for coordinating meal preparation among a group of people, man
 - [x] Manual Add Recipe form
 - [x] Recipe List (RecipesPage)
 - [x] Recipe Detail (RecipeDetailPage)
-- [ ] Recipe photo uploads/display
+- [ ] [Future]Recipe photo uploads/display
 - [ ] Agent: Recipe Processing (Parse unstructured text, standardize units/format, apply standards like protein goals, create structured recipe object)
 - [x] Recipe Notes: Field for general cooking tips, source, variations, chef-to-chef advice on the recipe itself
     - [ ] [Future]: Enhance security rules to restrict read access to notes by role (e.g., 'cook') by moving notes to a subcollection and applying role-based server-side validation for all CRUD operations on notes.
@@ -58,10 +58,10 @@ A web application for coordinating meal preparation among a group of people, man
 - [x] Order aggregation
 - [ ] Store scaled recipe (ingredients, instructions) in mealCycle document after aggregation/scaling
 - [x] Status management
-- [ ] Assign roles (cook, shopper) for specific meal cycles (Future)
+- [ ] [Future]fAssign roles (cook, shopper) for specific meal cycles
 - [ ] [Future]Voting system
 - [ ] [Future]Distribution tracking
-- [ ] Feedback collection (General)
+- [ ] Feedback collection (app specific feedback)
 - [ ] Feedback: Specific feedback channel/form for shoppers
 - [ ] Feedback: Eater ratings/comments for cooks (e.g., 5-star system)
 - [ ] Agent: Cook Sequencing (Optimize cooking task order based on prep/cook times and target completion)
@@ -75,7 +75,7 @@ A web application for coordinating meal preparation among a group of people, man
     - [ ] Ensure intelligent unit conversions (e.g., 30 tsp to 1.25 cups) for practicality.
 - [ ] Chef/Cook: Ingredient checklist before starting to cook
 - [x] Chef/Cook: Access to historical cook notes for the current recipe
-- [ ] Manage packaging (e.g., container types, labels)
+- [x] Manage packaging (e.g., container types, labels)
 
 ### User Interface 🟨
 - [x] Basic responsive layout
