@@ -70,12 +70,34 @@ function OrderHistory() {
                                 secondary={
                                     <>
                                         <Typography component="span" variant="body2" color="text.primary">
+                                            Recipe: {order.recipeName || 'N/A'}
+                                        </Typography>
+                                        <br />
+                                        <Typography component="span" variant="body2" color="text.secondary">
                                             Ordered on: {order.createdAt?.toDate ? order.createdAt.toDate().toLocaleDateString() : 'Date N/A'}
                                         </Typography>
                                         <br />
-                                        Total Servings: {order.totalServings || 'N/A'}
-                                        {/* TODO: Display more details like items, customizations, recipe name etc. */}
-                                        {/* This will likely require fetching associated mealCycle and recipe details */}
+                                        <Typography component="span" variant="body2" color="text.secondary">
+                                            Total Servings: {order.totalServings || 'N/A'}
+                                        </Typography>
+                                        {order.selectedCustomizations && order.selectedCustomizations.length > 0 && (
+                                            <>
+                                                <br />
+                                                <Typography component="span" variant="body2" color="text.secondary">
+                                                    Options: {order.selectedCustomizations.join(', ')}
+                                                </Typography>
+                                            </>
+                                        )}
+                                        {order.freeTextCustomization && (
+                                            <>
+                                                <br />
+                                                <Typography component="span" variant="body2" color="text.secondary">
+                                                    Note: {order.freeTextCustomization}
+                                                </Typography>
+                                            </>
+                                        )}
+                                        {/* TODO: Display protein/items details more clearly if needed */}
+                                        {/* This might involve iterating order.items if they are complex */}
                                     </>
                                 }
                             />
