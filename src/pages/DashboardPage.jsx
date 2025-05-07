@@ -30,6 +30,7 @@ import {
     Checkbox,
     Snackbar
 } from '@mui/material';
+import OrderHistory from '../components/OrderHistory';
 
 // Assume commonUnits are defined or import them if needed from AddRecipePage
 const commonUnits = ['g', 'kg', 'ml', 'l', 'unit', 'tsp', 'tbsp', 'cup', 'oz', 'lb', 'pinch', 'slice', 'clove'];
@@ -44,7 +45,9 @@ function DashboardPage() {
     const [userProfile, setUserProfile] = useState(null);
 
     const [orderQuantities, setOrderQuantities] = useState({});
-    const [orderCustomizations, setOrderCustomizations] = useState([]);
+    const [selectedRecipeCustomizations, setSelectedRecipeCustomizations] = useState([]);
+    const [freeTextCustomization, setFreeTextCustomization] = useState('');
+
     const [isModifyingOrder, setIsModifyingOrder] = useState(false);
 
     const [loadingCycle, setLoadingCycle] = useState(true);
@@ -207,9 +210,12 @@ function DashboardPage() {
                     initialQuantities["default"] = existingItem ? existingItem.quantity : (orderData.totalServings || 0);
                 }
                 setOrderQuantities(initialQuantities);
-                setOrderCustomizations(orderData.customizations || []);
+                setSelectedRecipeCustomizations(orderData.selectedCustomizations || []);
+                setFreeTextCustomization(orderData.freeTextCustomization || '');
             } else {
                 setUserOrder(null);
+                setSelectedRecipeCustomizations([]);
+                setFreeTextCustomization('');
                 if (chosenRecipeDetails) {
                     const initialQuantities = {};
                     if (chosenRecipeDetails.proteinOptions && chosenRecipeDetails.proteinOptions.length > 0) {
@@ -220,7 +226,6 @@ function DashboardPage() {
                         initialQuantities["default"] = 1;
                     }
                     setOrderQuantities(initialQuantities);
-                    setOrderCustomizations([]);
                 }
             }
             setLoadingOrderCheck(false);
@@ -230,7 +235,15 @@ function DashboardPage() {
             setLoadingOrderCheck(false);
         });
         return () => unsubscribe();
-    }, [activeCycle, currentUser, chosenRecipeDetails]);
+    }, [activeCycle, currentUser]);
+
+    // Effect to reset/initialize customizations when chosenRecipeDetails changes
+    useEffect(() => {
+        if (chosenRecipeDetails && !userOrder) {
+            setSelectedRecipeCustomizations([]);
+            setFreeTextCustomization('');
+        }
+    }, [chosenRecipeDetails, userOrder]);
 
     const handleQuantityChange = (proteinName, value) => {
         const quantity = parseInt(value, 10);
@@ -242,9 +255,9 @@ function DashboardPage() {
         setOrderValidationError('');
     };
 
-    const handleCustomizationChange = (event) => {
+    const handleSelectedRecipeCustomizationChange = (event) => {
         const { name, checked } = event.target;
-        setOrderCustomizations(prev =>
+        setSelectedRecipeCustomizations(prev =>
             checked ? [...prev, name] : prev.filter(c => c !== name)
         );
     };
@@ -278,8 +291,9 @@ function DashboardPage() {
                 items: Object.entries(orderQuantities)
                             .filter(([_, qty]) => qty > 0) // Only include items with quantity > 0
                             .map(([protein, quantity]) => ({ protein, quantity })),
-                customizations: orderCustomizations,
-                locationStatus: userProfile?.defaultLocation || 'carry_out', // Default from profile or fallback
+                selectedCustomizations: selectedRecipeCustomizations,
+                freeTextCustomization: freeTextCustomization.trim(),
+                locationStatus: userProfile?.locationStatus || 'carry_out', // Corrected: Use locationStatus from profile
                 totalServings: totalQuantity,
                 // Add recipe details for easy reference if needed
                 recipeName: chosenRecipeDetails?.name || 'N/A',
@@ -345,9 +359,14 @@ function DashboardPage() {
                                     {item.protein}: {item.quantity}
                                 </Typography>
                             ))}
-                            {userOrder.customizations && userOrder.customizations.length > 0 && (
+                            {userOrder.selectedCustomizations && userOrder.selectedCustomizations.length > 0 && (
                                 <Typography variant="body2" sx={{ mt: 1, color: 'success.dark' }}>
-                                    Customizations: {userOrder.customizations.join(', ')}
+                                    Options: {userOrder.selectedCustomizations.join(', ')}
+                                </Typography>
+                            )}
+                            {userOrder.freeTextCustomization && (
+                                <Typography variant="body2" sx={{ mt: 1, color: 'success.dark' }}>
+                                    Note: {userOrder.freeTextCustomization}
                                 </Typography>
                             )}
                             <Button
@@ -397,26 +416,41 @@ function DashboardPage() {
                                 )}
                             </Grid>
 
-                            {chosenRecipeDetails.customizationOptions && chosenRecipeDetails.customizationOptions.length > 0 && (
+                            {/* Predefined Customizations from Recipe */}
+                            {chosenRecipeDetails?.predefinedCustomizations && chosenRecipeDetails.predefinedCustomizations.length > 0 && (
                                 <FormControl component="fieldset" sx={{ mt: 2, mb: 2 }}>
-                                    <FormLabel component="legend">Customizations</FormLabel>
+                                    <FormLabel component="legend">Recipe Options</FormLabel>
                                     <FormGroup row>
-                                        {chosenRecipeDetails.customizationOptions.map(cust => (
+                                        {chosenRecipeDetails.predefinedCustomizations.map(custOpt => (
                                             <FormControlLabel
-                                                key={cust}
+                                                key={custOpt}
                                                 control={
                                                     <Checkbox
-                                                        checked={orderCustomizations.includes(cust)}
-                                                        onChange={handleCustomizationChange}
-                                                        name={cust}
+                                                        checked={selectedRecipeCustomizations.includes(custOpt)}
+                                                        onChange={handleSelectedRecipeCustomizationChange}
+                                                        name={custOpt}
                                                         size="small"
                                                     />
                                                 }
-                                                label={cust}
+                                                label={custOpt}
                                             />
                                         ))}
                                     </FormGroup>
                                 </FormControl>
+                            )}
+
+                            {/* Free Text Customization from Recipe Setting */}
+                            {chosenRecipeDetails?.allowFreeTextCustomization && (
+                                <TextField
+                                    label="Additional Notes / Customizations (Optional)"
+                                    fullWidth
+                                    multiline
+                                    rows={2}
+                                    value={freeTextCustomization}
+                                    onChange={(e) => setFreeTextCustomization(e.target.value)}
+                                    sx={{ mt: 2, mb: 2 }}
+                                    helperText="e.g., 'extra sauce please', 'no peanuts due to allergy'"
+                                />
                             )}
 
                             {orderValidationError && (
@@ -506,6 +540,7 @@ function DashboardPage() {
                             </Typography>
                         </Card>
                     )}
+                    {currentUser && !loadingProfile && <OrderHistory />}
                 </>
             )}
         </PageContainer>

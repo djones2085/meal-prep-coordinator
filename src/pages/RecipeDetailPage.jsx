@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link as RouterLink } from 'react-router-dom'; // Added RouterLink for potential future links
-import { doc, getDoc } from 'firebase/firestore'; // Import doc and getDoc
+import { doc, getDoc, updateDoc, arrayUnion, arrayRemove, Timestamp, collection } from 'firebase/firestore'; // Added updateDoc, arrayUnion, arrayRemove, Timestamp, collection
 import { db } from '../firebaseConfig'; // Import db instance
+import { useAuth } from '../contexts/AuthContext'; // Added useAuth
 import {
     Container,
     Typography,
@@ -38,10 +39,18 @@ function roundNicely(num) {
 
 function RecipeDetailPage() {
     const { recipeId } = useParams(); // Get recipeId from URL parameter
+    const { currentUser } = useAuth(); // Get current user
     const [recipe, setRecipe] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [displayYield, setDisplayYield] = useState(0); // State for adjustable yield
+
+    // State for recipe notes
+    const [userProfile, setUserProfile] = useState(null); // For authorName
+    const [loadingProfile, setLoadingProfile] = useState(false);
+    const [newNoteText, setNewNoteText] = useState('');
+    const [editingNote, setEditingNote] = useState(null); // { id: string, text: string }
+    const [notesError, setNotesError] = useState('');
 
     useEffect(() => {
         const fetchRecipe = async () => {
@@ -74,6 +83,34 @@ function RecipeDetailPage() {
 
         fetchRecipe();
     }, [recipeId]); // Re-run effect if recipeId changes
+
+    // Fetch User Profile for authorName
+    useEffect(() => {
+        if (!currentUser) {
+            setUserProfile(null);
+            return;
+        }
+        setLoadingProfile(true);
+        const userDocRef = doc(db, 'users', currentUser.uid);
+        const fetchUserProfile = async () => {
+            try {
+                const docSnap = await getDoc(userDocRef);
+                if (docSnap.exists()) {
+                    setUserProfile({ id: docSnap.id, ...docSnap.data() });
+                } else {
+                    console.warn("User profile not found for notes author name.");
+                    setUserProfile({ displayName: currentUser.email }); // Fallback
+                }
+            } catch (err) {
+                console.error("Error fetching user profile for notes:", err);
+                // Use email as fallback if profile fetch fails
+                setUserProfile({ displayName: currentUser.email });
+            } finally {
+                setLoadingProfile(false);
+            }
+        };
+        fetchUserProfile();
+    }, [currentUser]);
 
     // Calculate scaling factor, prevent division by zero
     const scalingFactor = (recipe?.baseYield > 0 && displayYield > 0) ? displayYield / recipe.baseYield : 1;
@@ -180,6 +217,107 @@ function RecipeDetailPage() {
     const handleYieldChange = (event) => {
          const newYield = Math.max(1, parseInt(event.target.value, 10) || 0); // Ensure at least 1
          setDisplayYield(newYield);
+    };
+
+    // --- Notes Handlers ---
+    const handleAddNote = async () => {
+        if (!currentUser || !userProfile || !newNoteText.trim()) {
+            setNotesError("You must be logged in and provide text to add a note.");
+            return;
+        }
+        setNotesError('');
+        const recipeDocRef = doc(db, 'recipes', recipeId);
+        const noteId = doc(collection(db, '_')).id; // Generate a unique ID
+
+        const noteToAdd = {
+            id: noteId,
+            text: newNoteText.trim(),
+            authorName: userProfile.displayName || currentUser.email, // Fallback to email
+            authorUid: currentUser.uid,
+            createdAt: Timestamp.now(),
+            updatedAt: Timestamp.now(),
+        };
+
+        try {
+            await updateDoc(recipeDocRef, {
+                notes: arrayUnion(noteToAdd)
+            });
+            setNewNoteText('');
+            // Optimistically update local state or re-fetch recipe for simplicity here
+            setRecipe(prev => prev ? ({ ...prev, notes: [...(prev.notes || []), noteToAdd] }) : null);
+        } catch (err) {
+            console.error("Error adding note:", err);
+            setNotesError("Failed to add note. Please try again.");
+        }
+    };
+
+    const handleEditNoteStart = (note) => {
+        setEditingNote({ id: note.id, text: note.text });
+        setNotesError('');
+    };
+
+    const handleSaveEditedNote = async () => {
+        if (!currentUser || !editingNote || !editingNote.text.trim()) {
+            setNotesError("Cannot save an empty note.");
+            return;
+        }
+        setNotesError('');
+        const recipeDocRef = doc(db, 'recipes', recipeId);
+
+        try {
+            // Fetch the current recipe to get the notes array
+            const currentRecipeSnap = await getDoc(recipeDocRef);
+            if (!currentRecipeSnap.exists()) {
+                setNotesError("Recipe not found, cannot update note.");
+                return;
+            }
+            const currentRecipeData = currentRecipeSnap.data();
+            const notes = currentRecipeData.notes || [];
+
+            const updatedNotes = notes.map(note =>
+                note.id === editingNote.id
+                    ? { ...note, text: editingNote.text.trim(), updatedAt: Timestamp.now() }
+                    : note
+            );
+
+            await updateDoc(recipeDocRef, {
+                notes: updatedNotes
+            });
+            setRecipe(prev => prev ? ({ ...prev, notes: updatedNotes }) : null);
+            setEditingNote(null);
+        } catch (err) {
+            console.error("Error saving note:", err);
+            setNotesError("Failed to save note. Please try again.");
+        }
+    };
+
+    const handleDeleteNote = async (noteIdToDelete) => {
+        if (!currentUser) return;
+        setNotesError('');
+        const recipeDocRef = doc(db, 'recipes', recipeId);
+
+        try {
+            const currentRecipeSnap = await getDoc(recipeDocRef);
+            if (!currentRecipeSnap.exists()) {
+                setNotesError("Recipe not found, cannot delete note.");
+                return;
+            }
+            const currentRecipeData = currentRecipeSnap.data();
+            const noteToDelete = (currentRecipeData.notes || []).find(n => n.id === noteIdToDelete && n.authorUid === currentUser.uid);
+
+            if (!noteToDelete) {
+                setNotesError("Note not found or you don't have permission to delete it.");
+                return;
+            }
+
+            await updateDoc(recipeDocRef, {
+                notes: arrayRemove(noteToDelete) // Firestore needs the exact object to remove
+            });
+            setRecipe(prev => prev ? ({ ...prev, notes: (prev.notes || []).filter(n => n.id !== noteIdToDelete) }) : null);
+        } catch (err) {
+            console.error("Error deleting note:", err);
+            setNotesError("Failed to delete note. Please try again.");
+        }
     };
 
     return (
@@ -349,6 +487,87 @@ function RecipeDetailPage() {
                          Recipe ID: {recipe.id} | Base Yield: {recipe.baseYield} {recipe.baseYieldUnit} | Times Prepared: {recipe.timesPrepared ?? 0}
                          {/* Add Cook Notes / Feedback later */}
                     </Typography>
+
+                    {/* --- Recipe Notes Section --- */}
+                    <Divider sx={{ my: 3 }} />
+                    <Typography variant="h5" component="h2" gutterBottom sx={{ mt: 3 }}>
+                        Recipe Notes
+                    </Typography>
+
+                    {notesError && <Alert severity="error" sx={{ mb: 2 }}>{notesError}</Alert>}
+
+                    {currentUser && !loadingProfile && (
+                        <Box component="form" onSubmit={(e) => { e.preventDefault(); handleAddNote(); }} sx={{ mb: 3 }}>
+                            <TextField
+                                fullWidth
+                                multiline
+                                rows={3}
+                                variant="outlined"
+                                label="Add a new note..."
+                                value={newNoteText}
+                                onChange={(e) => setNewNoteText(e.target.value)}
+                                sx={{ mb: 1 }}
+                            />
+                            <Button 
+                                type="submit" 
+                                variant="contained" 
+                                disabled={!newNoteText.trim() || loadingProfile}
+                            >
+                                Add Note
+                            </Button>
+                        </Box>
+                    )}
+                    {!currentUser && <Typography variant="body2" color="text.secondary" sx={{mb: 2}}>Please log in to add notes.</Typography>}
+
+                    {(recipe.notes && recipe.notes.length > 0) ? (
+                        <List>
+                            {recipe.notes.slice().sort((a, b) => b.createdAt.toDate() - a.createdAt.toDate()).map((note) => (
+                                <ListItem key={note.id} alignItems="flex-start" sx={{ flexDirection: 'column', borderBottom: '1px solid #eee', py:2 }}>
+                                    {editingNote && editingNote.id === note.id ? (
+                                        <Box sx={{ width: '100%' }}>
+                                            <TextField
+                                                fullWidth
+                                                multiline
+                                                rows={3}
+                                                value={editingNote.text}
+                                                onChange={(e) => setEditingNote({...editingNote, text: e.target.value})}
+                                                sx={{ mb: 1 }}
+                                            />
+                                            <Button onClick={handleSaveEditedNote} variant="contained" size="small" sx={{mr:1}}>Save</Button>
+                                            <Button onClick={() => setEditingNote(null)} variant="outlined" size="small">Cancel</Button>
+                                        </Box>
+                                    ) : (
+                                        <>
+                                            <ListItemText
+                                                primary={<Typography variant="body1">{note.text}</Typography>}
+                                                secondaryTypographyProps={{component: 'div'}}
+                                                secondary={
+                                                    <Box sx={{mt: 0.5}}>
+                                                        <Typography variant="caption" color="text.secondary">
+                                                            By: {note.authorName} on {note.createdAt?.toDate().toLocaleDateString()}
+                                                            {note.updatedAt && note.createdAt.seconds !== note.updatedAt.seconds && 
+                                                                ` (edited ${note.updatedAt?.toDate().toLocaleDateString()})`
+                                                            }
+                                                        </Typography>
+                                                    </Box>
+                                                }
+                                            />
+                                            {currentUser && currentUser.uid === note.authorUid && (
+                                                <Box sx={{ mt: 1 }}>
+                                                    <Button onClick={() => handleEditNoteStart(note)} size="small" sx={{mr:1}}>Edit</Button>
+                                                    <Button onClick={() => handleDeleteNote(note.id)} size="small" color="error">Delete</Button>
+                                                </Box>
+                                            )}
+                                        </>
+                                    )}
+                                </ListItem>
+                            ))}
+                        </List>
+                    ) : (
+                        <Typography variant="body2" color="text.secondary">
+                            No notes for this recipe yet.
+                        </Typography>
+                    )}
                 </Box>
             )}
         </Container>

@@ -18,7 +18,11 @@ import {
     Select,
     InputLabel,
     FormControl,
-    FormHelperText
+    FormHelperText,
+    FormControlLabel,
+    Checkbox,
+    Chip,
+    Stack
 } from '@mui/material';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
@@ -38,6 +42,11 @@ function AddRecipePage() {
     const [ingredients, setIngredients] = useState([{ name: '', quantity: '', unit: '', notes: '' }]);
     const [instructions, setInstructions] = useState(['']);
     const [tags, setTags] = useState(''); // Simple comma-separated tags for now
+
+    // New state for customizations
+    const [predefinedCustomizations, setPredefinedCustomizations] = useState([]);
+    const [currentCustomizationText, setCurrentCustomizationText] = useState('');
+    const [allowFreeTextCustomization, setAllowFreeTextCustomization] = useState(true);
 
     const [rawRecipeText, setRawRecipeText] = useState(''); // For AI Formatter placeholder
 
@@ -75,6 +84,18 @@ function AddRecipePage() {
     const removeInstruction = (index) => {
         const newInstructions = instructions.filter((_, i) => i !== index);
         setInstructions(newInstructions);
+    };
+
+    // --- Customization Handlers ---
+    const handleAddPredefinedCustomization = () => {
+        if (currentCustomizationText.trim() && !predefinedCustomizations.includes(currentCustomizationText.trim())) {
+            setPredefinedCustomizations([...predefinedCustomizations, currentCustomizationText.trim()]);
+            setCurrentCustomizationText('');
+        }
+    };
+
+    const handleRemovePredefinedCustomization = (customizationToRemove) => {
+        setPredefinedCustomizations(predefinedCustomizations.filter(cust => cust !== customizationToRemove));
     };
 
     // --- AI Placeholder Handler ---
@@ -132,6 +153,9 @@ function AddRecipePage() {
                             })),
             instructions: instructions.filter(inst => inst.trim()), // Filter empty instructions
             proteinOptions: [], // Add logic for this later if needed
+            // Add new customization fields
+            predefinedCustomizations: predefinedCustomizations,
+            allowFreeTextCustomization: allowFreeTextCustomization,
             cookNotes: [],
             tags: tags.split(',').map(tag => tag.trim()).filter(tag => tag), // Split, trim, filter empty
             status: 'new', // Default status for new recipes
@@ -356,6 +380,55 @@ function AddRecipePage() {
                         />
                     </Grid>
 
+                    {/* Predefined Customizations Section */}
+                    <Typography variant="h6" sx={{ mt: 3, mb: 1 }}>Predefined Customizations</Typography>
+                    <Grid container spacing={2} alignItems="center">
+                        <Grid item xs={12} sm={8}>
+                            <TextField
+                                label="New Customization Option"
+                                fullWidth
+                                value={currentCustomizationText}
+                                onChange={(e) => setCurrentCustomizationText(e.target.value)}
+                                disabled={loading}
+                                helperText="e.g., Extra Spicy, No Onions, Side of Sauce"
+                            />
+                        </Grid>
+                        <Grid item xs={12} sm={4}>
+                            <Button
+                                variant="outlined"
+                                onClick={handleAddPredefinedCustomization}
+                                disabled={loading || !currentCustomizationText.trim()}
+                                startIcon={<AddCircleOutlineIcon />}
+                                fullWidth
+                            >
+                                Add Option
+                            </Button>
+                        </Grid>
+                    </Grid>
+                    <Stack direction="row" spacing={1} sx={{ mt: 1, flexWrap: 'wrap' }}>
+                        {predefinedCustomizations.map((cust, index) => (
+                            <Chip
+                                key={index}
+                                label={cust}
+                                onDelete={() => handleRemovePredefinedCustomization(cust)}
+                                disabled={loading}
+                                sx={{ mb: 1 }}
+                            />
+                        ))}
+                    </Stack>
+
+                    {/* Allow Free Text Customization Checkbox */}
+                    <FormControlLabel
+                        control={
+                            <Checkbox
+                                checked={allowFreeTextCustomization}
+                                onChange={(e) => setAllowFreeTextCustomization(e.target.checked)}
+                                disabled={loading}
+                            />
+                        }
+                        label="Allow users to add free-text customization notes to their order for this recipe"
+                        sx={{ mt: 2 }}
+                    />
 
                     {/* Submit Button & Feedback */}
                     <Grid item xs={12}>

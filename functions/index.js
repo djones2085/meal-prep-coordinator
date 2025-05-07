@@ -113,12 +113,17 @@ async function _performAggregation(mealCycleId) {
 
       totalOverallServings += orderTotalServings;
 
-      let locationStatus = "carry_out";
-      const userData = userMap.get(userId);
-      if (userData) {
-        locationStatus = userData.locationStatus || "carry_out";
+      // Determine locationStatus: Prioritize orderData, then user profile, then default
+      let locationStatus = "carry_out"; // Default
+      if (orderData.locationStatus) {
+        locationStatus = orderData.locationStatus;
       } else {
-        logger.warn(`(_performAggregation) User ${userId} for order ${orderDoc.id} not found. Defaulting locationStatus.`);
+        const userData = userMap.get(userId);
+        if (userData && userData.locationStatus) {
+          locationStatus = userData.locationStatus;
+        } else {
+          logger.warn(`(_performAggregation) User ${userId} for order ${orderDoc.id} not found or has no locationStatus. Order has no locationStatus. Defaulting to carry_out.`);
+        }
       }
 
       if (locationStatus === "dine_in") {
@@ -249,11 +254,17 @@ async function _recalculateCycleTotalsAndIngredients(mealCycleId) {
 
       totalOverallServings += orderTotalServings;
 
-      // Determine container type
-      let locationStatus = "carry_out";
-      const userData = userMap.get(userId);
-      if (userData) {
-        locationStatus = userData.locationStatus || "carry_out";
+      // Determine locationStatus: Prioritize orderData, then user profile, then default
+      let locationStatus = "carry_out"; // Default
+      if (orderData.locationStatus) {
+        locationStatus = orderData.locationStatus;
+      } else {
+        const userData = userMap.get(userId);
+        if (userData && userData.locationStatus) {
+          locationStatus = userData.locationStatus;
+        } else {
+          logger.warn(`(_recalculateCycleTotalsAndIngredients) User ${userId} for order ${orderDoc.id} not found or has no locationStatus. Order has no locationStatus. Defaulting to carry_out.`);
+        }
       }
 
       if (locationStatus === "dine_in") {
