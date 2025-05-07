@@ -32,7 +32,19 @@ service cloud.firestore {
        // Allow create if user is logged in. We can restrict by role later.
        allow create: if request.auth != null; // TODO: Restrict to admin
        // Allow update/delete based on roles later (e.g., admin or original creator)
-       allow update, delete: if isAdmin();
+       allow update: if request.auth != null &&
+                       (
+                         isAdmin() ||
+                         // Non-admins can update if they are primarily modifying the 'notes' array.
+                         // More specific checks on note content (e.g. authorUid) should ideally be here
+                         // but are complex. This rule allows changes to 'notes' by any auth user.
+                         // Client-side logic currently restricts edit/delete UI to authors.
+                         (request.resource.data.keys().hasAny(['notes']) && 
+                          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['notes']))
+                         // If you want to allow edits to other fields by non-admins, add them to hasOnly.
+                         // e.g. request.resource.data.diff(resource.data).affectedKeys().hasOnly(['notes', 'someOtherField'])
+                       );
+       allow delete: if isAdmin(); // Only admins can delete entire recipes
     }
 
     // Meal Cycles: Allow read by logged-in users, create/update by admins (needs role check)
