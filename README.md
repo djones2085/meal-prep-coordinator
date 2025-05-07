@@ -28,7 +28,7 @@ A web application for coordinating meal preparation among a group of people, man
     - [x] Firestore collection: `invites` (stores `invitedEmail`, `status` \["pending", "accepted", "expired"\], `createdAt`, `createdBy` (admin UID), `acceptedByUid`, `acceptedAt`).
     - [ ] Future: Automated email sending for invites.
     - [ ] Future: Non-admins can invite to households.
-    - [ ] Currently broken(issue with creating user from acceptance pageDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools
+    - [Fix first ] Currently broken(issue with creating user from acceptance pageDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools
 AuthContext.jsx:26 Auth State Changed: Logged in as markdonaho@gmail.com UID: atqkp6pIqYeEeFbU0K175crcbA62
 AuthContext.jsx:32 User profile loaded: Object
 AuthContext.jsx:26 Auth State Changed: Logged in as donaho03@yahoo.com UID: 6uAq6jUEdPZ74llk04MgrJAZd483
