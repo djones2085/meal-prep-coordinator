@@ -15,6 +15,7 @@ const DataTable = ({
     maxHeight,
     stickyHeader = true,
     size = 'medium',
+    children,
     ...props
 }) => {
     return (
@@ -45,22 +46,26 @@ const DataTable = ({
                     </TableRow>
                 </TableHead>
                 <TableBody>
-                    {data.map((row, index) => (
-                        <TableRow 
-                            hover 
-                            key={row.id || index}
-                            sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                        >
-                            {columns.map((column) => (
-                                <TableCell
-                                    key={column.id}
-                                    align={column.align || 'left'}
-                                >
-                                    {column.render ? column.render(row) : row[column.id]}
-                                </TableCell>
-                            ))}
-                        </TableRow>
-                    ))}
+                    {children ? (
+                        children
+                    ) : (
+                        Array.isArray(data) && data.map((row, index) => (
+                            <TableRow 
+                                hover 
+                                key={row.id || index}
+                                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                            >
+                                {columns.map((column) => (
+                                    <TableCell
+                                        key={column.id}
+                                        align={column.align || 'left'}
+                                    >
+                                        {column.render ? column.render(row) : row[column.id]}
+                                    </TableCell>
+                                ))}
+                            </TableRow>
+                        ))
+                    )}
                 </TableBody>
             </Table>
         </TableContainer>

@@ -138,52 +138,69 @@ function MealCycleManagementPage() {
     };
 
     // --- Shopping List Update Handlers ---
-    const handleUpdateIngredientItem = async (cycleId, ingredientId, updates) => {
-        console.log("Attempting to update ingredient:", { cycleId, ingredientId, updates });
+    // The old handleUpdateIngredientItem is no longer directly compatible with the new shoppingList structure.
+    // It might be removed or adapted if generic item property editing is needed later.
+    // For now, we focus on the specific 'onHandQuantity' update.
+
+    const handleUpdateShoppingListItemOnHandQuantity = async (cycleId, itemName, itemUnit, newOnHandQuantity) => {
+        console.log("Attempting to update onHandQuantity:", { cycleId, itemName, itemUnit, newOnHandQuantity });
         const cycleRef = doc(db, 'mealCycles', cycleId);
         try {
-            const cycleSnap = await getDoc(cycleRef); // Fetch current cycle data
+            const cycleSnap = await getDoc(cycleRef);
             if (!cycleSnap.exists()) {
-                throw new Error("Cycle not found");
+                throw new Error("Cycle not found for updating shopping list item.");
             }
             const cycleData = cycleSnap.data();
-            const ingredients = cycleData.totalIngredients || [];
-            
-            // Create a fallback ID if real IDs aren't present yet
-            // This matches the AdminShoppingList component's fallback for consistency
-            const findIngredientIndexById = (idToFind) => {
-                return ingredients.findIndex(ing => 
-                    (ing.id === idToFind) || 
-                    (!ing.id && `${ing.name.replace(/\s+/g, '-').toLowerCase()}-${ingredients.indexOf(ing)}` === idToFind)
-                );
-            };
+            if (!cycleData.shoppingList || !Array.isArray(cycleData.shoppingList.items)) {
+                throw new Error("Shopping list or items not found in cycle data.");
+            }
 
-            const ingredientIndex = findIngredientIndexById(ingredientId);
+            let itemUpdated = false;
+            const updatedItems = cycleData.shoppingList.items.map(item => {
+                // Assuming name + unit is a unique identifier for now
+                if (item.name === itemName && item.unit === itemUnit) {
+                    itemUpdated = true;
+                    const aggregatedQuantity = item.aggregatedQuantity || 0;
+                    const validOnHand = Math.max(0, newOnHandQuantity); // Ensure non-negative
+                    return {
+                        ...item,
+                        onHandQuantity: validOnHand,
+                        toBePurchasedQuantity: Math.max(0, aggregatedQuantity - validOnHand),
+                    };
+                }
+                return item;
+            });
 
-            if (ingredientIndex === -1) {
-                console.error("Ingredient not found for update:", ingredientId);
-                setAlertInfo({ open: true, message: 'Error: Ingredient not found for update.', severity: 'error' });
+            if (!itemUpdated) {
+                console.warn("Item not found for update in shopping list:", {itemName, itemUnit});
+                setAlertInfo({ open: true, message: 'Error: Item not found in shopping list.', severity: 'warning' });
                 return;
             }
 
-            const updatedIngredients = [...ingredients];
-            updatedIngredients[ingredientIndex] = {
-                ...updatedIngredients[ingredientIndex],
-                ...updates,
-                 // Ensure ID is preserved if it was a fallback
-                id: updatedIngredients[ingredientIndex].id || ingredientId 
-            };
+            await updateDoc(cycleRef, {
+                "shoppingList.items": updatedItems,
+                "shoppingList.lastUpdatedAt": serverTimestamp(),
+            });
 
-            await updateDoc(cycleRef, { totalIngredients: updatedIngredients });
-            
-            // Update local state to reflect changes immediately
-            setCycles(prevCycles => prevCycles.map(c => 
-                c.id === cycleId ? { ...c, totalIngredients: updatedIngredients } : c
-            ));
-            setAlertInfo({ open: true, message: 'Shopping list item updated.', severity: 'success' });
-        } catch (err) {
-            console.error("Error updating ingredient item:", err);
-            setAlertInfo({ open: true, message: `Failed to update shopping list: ${err.message}`, severity: 'error' });
+            // Update local state
+            setCycles(prevCycles => prevCycles.map(c => {
+                if (c.id === cycleId) {
+                    return {
+                        ...c,
+                        shoppingList: {
+                            ...c.shoppingList,
+                            items: updatedItems,
+                            lastUpdatedAt: new Date(), // Approximate for local state
+                        }
+                    };
+                }
+                return c;
+            }));
+            setAlertInfo({ open: true, message: `'${itemName}' on-hand quantity updated.`, severity: 'success' });
+
+        } catch (err) { 
+            console.error("Error updating shopping list item on-hand quantity:", err);
+            setAlertInfo({ open: true, message: `Failed to update on-hand quantity: ${err.message}`, severity: 'error' });
         }
     };
 
@@ -243,13 +260,13 @@ function MealCycleManagementPage() {
         setCycleOrders([]); // Clear previous orders
         try {
             const ordersRef = collection(db, "orders");
-            const q = query(ordersRef, where("cycleId", "==", cycleId), orderBy("orderTimestamp", "desc"));
+            const q = query(ordersRef, where("cycleId", "==", cycleId), orderBy("createdAt", "desc"));
             const querySnapshot = await getDocs(q);
             const ordersList = querySnapshot.docs.map(doc => ({
                 id: doc.id,
                 ...doc.data(),
-                // Convert timestamp if needed for display
-                orderTimestamp: doc.data().orderTimestamp?.toDate ? doc.data().orderTimestamp.toDate().toLocaleString() : 'N/A'
+                // Ensure createdAt is formatted for display if it's a Timestamp
+                orderTimestamp: doc.data().createdAt?.toDate ? doc.data().createdAt.toDate().toLocaleString() : (doc.data().orderTimestamp?.toDate ? doc.data().orderTimestamp.toDate().toLocaleString() : 'N/A')
             }));
             setCycleOrders(ordersList);
         } catch (err) {
@@ -273,7 +290,8 @@ function MealCycleManagementPage() {
 
     const statusOptions = cycleStatuses.map(status => ({ value: status, label: formatStatus(status) }));
 
-    const columns = [
+    // Define columns for the main data row (excluding the problematic 'details' column)
+    const mainColumns = [
         {
             id: 'expand', label: '', minWidth: 50, align: 'center',
             render: (row) => (
@@ -312,89 +330,84 @@ function MealCycleManagementPage() {
                     onChange={(e) => handleStatusChange(row.id, e.target.value)}
                     options={statusOptions}
                     size="small"
-                    margin="none" // Remove default margins
-                    sx={{ minWidth: 150 }} // Ensure dropdown width
-                    // Remove label for inline use
+                    margin="none"
+                    sx={{ minWidth: 150 }}
                     labelId={`status-select-label-${row.id}`}
                     id={`status-select-${row.id}`}
                 />
             )
         },
-        {
-            id: 'details', label: 'Details', minWidth: 170, align: 'center',
-            render: (row) => (
-                <>
-                    <TableRow sx={{ '& > *': { borderBottom: 'unset' } }}>
-                        <TableCell colSpan={columns.length}> {/* Adjust colSpan as needed */}
-                            <Collapse in={expandedCycleId === row.id} timeout="auto" unmountOnExit>
-                                <Box sx={{ margin: 1, padding: 2, backgroundColor: 'rgba(0, 0, 0, 0.02)', borderRadius: 1 }}>
-                                    <Typography variant="h6" gutterBottom component="div">
-                                        Cycle Details: {row.chosenRecipe?.recipeName || 'N/A'}
-                                    </Typography>
-                                    
-                                    {/* Orders Table */}
-                                    <Typography variant="subtitle1" gutterBottom component="div" sx={{mt: 2}}>
-                                        Orders ({cycleOrders.length})
-                                    </Typography>
-                                    {loadingOrders && <LoadingSpinner />}
-                                    {ordersError && <Alert severity="error">{ordersError}</Alert>}
-                                    {!loadingOrders && !ordersError && cycleOrders.length > 0 && (
-                                        <Paper elevation={1} sx={{mb:2}}>
-                                            <Table size="small" aria-label="orders">
-                                                <TableHead>
-                                                    <TableRow>
-                                                        <TableCell>User</TableCell>
-                                                        <TableCell>Servings</TableCell>
-                                                        <TableCell>Protein Choices</TableCell>
-                                                        <TableCell>Container</TableCell>
-                                                        <TableCell>Ordered At</TableCell>
-                                                    </TableRow>
-                                                </TableHead>
-                                                <TableBody>
-                                                    {cycleOrders.map((order) => (
-                                                        <TableRow key={order.id}>
-                                                            <TableCell component="th" scope="row">
-                                                                {order.userName || order.userId}
-                                                            </TableCell>
-                                                            <TableCell>{order.totalServings}</TableCell>
-                                                            <TableCell>
-                                                                {order.items?.map(item => `${item.protein}: ${item.quantity}`).join(', ') || 'N/A'}
-                                                            </TableCell>
-                                                            <TableCell>{formatStatus(order.locationStatus || 'carry_out')}</TableCell>
-                                                            <TableCell>{order.orderTimestamp}</TableCell>
-                                                        </TableRow>
-                                                    ))}
-                                                </TableBody>
-                                            </Table>
-                                        </Paper>
-                                    )}
-                                    {!loadingOrders && !ordersError && cycleOrders.length === 0 && (
-                                        <Typography variant="body2" sx={{my:1, fontStyle: 'italic'}}>No orders found for this cycle.</Typography>
-                                    )}
-
-                                    {/* Shopping List Section */}
-                                    <Divider sx={{my:2}} />
-                                    {row.totalIngredients && (
-                                        <AdminShoppingList 
-                                            ingredients={row.totalIngredients}
-                                            cycleId={row.id}
-                                            onUpdateIngredient={handleUpdateIngredientItem}
-                                            onApproveList={handleApproveShoppingList}
-                                            shoppingListStatus={row.shoppingListStatus || 'pending_approval'} // Default if not set
-                                        />
-                                    )}
-                                    {(!row.totalIngredients || row.totalIngredients.length === 0) && (
-                                         <Typography variant="body2" sx={{my:1, fontStyle: 'italic'}}>No shopping list generated for this cycle yet (aggregation might be pending).</Typography>
-                                    )}
-
-                                </Box>
-                            </Collapse>
-                        </TableCell>
-                    </TableRow>
-                </>
-            )
-        }
+        // The 'details' column that caused the error is removed.
+        // Expansion content will be rendered in a separate TableRow.
     ];
+
+    const renderExpandedCycleContent = (cycle) => {
+        // This function renders the content for the expanded section
+        return (
+            <Box sx={{ margin: 1, padding: 2, backgroundColor: 'rgba(0, 0, 0, 0.02)', borderRadius: 1 }}>
+                <Typography variant="h6" gutterBottom component="div">
+                    Cycle Details: {cycle.chosenRecipe?.recipeName || 'N/A'}
+                </Typography>
+                
+                {/* Orders Table */}
+                <Typography variant="subtitle1" gutterBottom component="div" sx={{mt: 2}}>
+                    Orders ({expandedCycleId === cycle.id ? cycleOrders.length : 0})
+                </Typography>
+                {loadingOrders && expandedCycleId === cycle.id && <LoadingSpinner />}
+                {ordersError && expandedCycleId === cycle.id && <Alert severity="error">{ordersError}</Alert>}
+                {!loadingOrders && !ordersError && expandedCycleId === cycle.id && cycleOrders.length > 0 && (
+                    <Paper elevation={1} sx={{mb:2}}>
+                        <Table size="small" aria-label="orders">
+                            <TableHead>
+                                <TableRow>
+                                    <TableCell>User</TableCell>
+                                    <TableCell>Servings</TableCell>
+                                    <TableCell>Protein Choices</TableCell>
+                                    <TableCell>Container</TableCell>
+                                    <TableCell>Ordered At</TableCell>
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {cycleOrders.map((order) => (
+                                    <TableRow key={order.id}>
+                                        <TableCell component="th" scope="row">
+                                            {order.userDisplayName || order.userId}
+                                        </TableCell>
+                                        <TableCell>{order.totalServings}</TableCell>
+                                        <TableCell>
+                                            {order.items?.map(item => `${item.protein}: ${item.quantity}`).join(', ') || 'N/A'}
+                                        </TableCell>
+                                        <TableCell>{formatStatus(order.locationStatus || 'carry_out')}</TableCell>
+                                        <TableCell>{order.orderTimestamp}</TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </Paper>
+                )}
+                {!loadingOrders && !ordersError && expandedCycleId === cycle.id && cycleOrders.length === 0 && (
+                    <Typography variant="body2" sx={{my:1, fontStyle: 'italic'}}>No orders found for this cycle.</Typography>
+                )}
+
+                {/* Shopping List Section */}
+                <Divider sx={{my:2}} />
+                {cycle.shoppingList && cycle.shoppingList.items && (  // Check for new shoppingList structure
+                    <AdminShoppingList 
+                        cycleId={cycle.id}
+                        shoppingList={cycle.shoppingList} // Pass the whole shoppingList object
+                        onApproveList={handleApproveShoppingList}
+                        onUpdateItemOnHand={handleUpdateShoppingListItemOnHandQuantity} // Pass the new handler
+                    />
+                )}
+                {(!cycle.shoppingList || !cycle.shoppingList.items || cycle.shoppingList.items.length === 0) && (
+                     <Typography variant="body2" sx={{my:1, fontStyle: 'italic'}}>
+                         Shopping list not generated or is empty for this cycle.
+                         {cycle.status === 'ordering_closed' && !cycle.aggregationTimestamp && ' Aggregation may be pending.'}
+                     </Typography>
+                )}
+            </Box>
+        );
+    };
 
     return (
         <PageContainer>
@@ -428,10 +441,35 @@ function MealCycleManagementPage() {
                 <LoadingSpinner centered size={60} />
             ) : (
                 <DataTable
-                    columns={columns}
-                    data={cycles}
+                    columns={mainColumns} // Use the columns for the header
+                    // data prop is removed; we'll render TableBody children directly
                     maxHeight="75vh"
-                />
+                >
+                    {cycles.map((cycle) => (
+                        <React.Fragment key={cycle.id}>
+                            <TableRow hover>
+                                {mainColumns.map((column) => (
+                                    <TableCell
+                                        key={column.id}
+                                        align={column.align}
+                                        style={{ minWidth: column.minWidth }}
+                                    >
+                                        {column.render ? column.render(cycle) : cycle[column.id]}
+                                    </TableCell>
+                                ))}
+                            </TableRow>
+                            {expandedCycleId === cycle.id && (
+                                <TableRow>
+                                    <TableCell colSpan={mainColumns.length} sx={{ padding: 0, borderBottom: 'unset' }}>
+                                        <Collapse in={expandedCycleId === cycle.id} timeout="auto" unmountOnExit>
+                                            {renderExpandedCycleContent(cycle)}
+                                        </Collapse>
+                                    </TableCell>
+                                </TableRow>
+                            )}
+                        </React.Fragment>
+                    ))}
+                </DataTable>
             )}
             
         </PageContainer>

@@ -4,181 +4,137 @@ import {
     List,
     ListItem,
     ListItemText,
-    Checkbox,
     TextField,
-    IconButton,
     Typography,
     Button,
     Paper,
-    Divider
+    Divider,
+    Grid,
+    InputAdornment,
+    IconButton
 } from '@mui/material';
-import EditIcon from '@mui/icons-material/Edit';
-import SaveIcon from '@mui/icons-material/Save';
-import CancelIcon from '@mui/icons-material/Cancel';
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+// Removed EditIcon, SaveIcon, CancelIcon, Checkbox as direct item editing/marking is changing
 
 // Helper function (can be moved to a utils file if used elsewhere)
 const roundNicely = (num, decimalPlaces = 2) => {
+    if (typeof num !== 'number' || isNaN(num)) return num; // Return original if not a valid number
     const factor = 10 ** decimalPlaces;
     return Math.round(num * factor) / factor;
 };
 
-function AdminShoppingListItem({ ingredient, cycleId, onUpdateIngredient }) {
-    const [isEditing, setIsEditing] = useState(false);
-    const [editForm, setEditForm] = useState({
-        quantity: ingredient.originalQuantity !== undefined ? ingredient.originalQuantity : ingredient.quantity,
-        unit: ingredient.unit,
-        notes: ingredient.shopperNotes || '',
-    });
+function AdminShoppingListItemDetails({ item, onHandQuantityChange, disabled }) {
+    const [currentOnHand, setCurrentOnHand] = useState(item.onHandQuantity || 0);
 
-    const handleToggleOnHand = () => {
-        onUpdateIngredient(ingredient.id, { markedOnHand: !ingredient.markedOnHand });
+    // Effect to update currentOnHand if item.onHandQuantity changes from props (e.g. after Firestore update)
+    React.useEffect(() => {
+        setCurrentOnHand(item.onHandQuantity || 0);
+    }, [item.onHandQuantity]);
+
+    const handleLocalOnHandChange = (event) => {
+        setCurrentOnHand(event.target.value);
     };
 
-    const handleEdit = () => {
-        setIsEditing(true);
-        // Reset form to current ingredient values in case of previous unsaved changes
-        setEditForm({
-            quantity: ingredient.originalQuantity !== undefined ? ingredient.originalQuantity : ingredient.quantity,
-            unit: ingredient.unit, // Assuming unit might be editable in a more advanced version
-            notes: ingredient.shopperNotes || '',
-        });
+    const handleBlur = () => {
+        const numericValue = parseFloat(currentOnHand);
+        const validOnHand = !isNaN(numericValue) && numericValue >= 0 ? numericValue : 0;
+        // Call the parent handler only if the value has actually changed from the item's perspective
+        if (validOnHand !== (item.onHandQuantity || 0)) {
+            onHandQuantityChange(item.name, item.unit, validOnHand);
+        }
+        // Optionally, always set currentOnHand to the validated/committed value
+        // setCurrentOnHand(validOnHand); 
     };
 
-    const handleCancelEdit = () => {
-        setIsEditing(false);
+    const handleMarkAsAcquired = () => {
+        // Call parent handler to set onHandQuantity to the full aggregatedQuantity
+        onHandQuantityChange(item.name, item.unit, item.aggregatedQuantity || 0);
     };
 
-    const handleSaveEdit = () => {
-        const updates = {
-            quantity: parseFloat(editForm.quantity) || 0,
-            // unit: editForm.unit, // If unit becomes editable
-            shopperNotes: editForm.notes,
-        };
-        // If quantity changed, perhaps update 'quantity' and keep 'originalQuantity'
-        // For now, let's assume 'quantity' is what's being adjusted by the shopper/admin
-        onUpdateIngredient(ingredient.id, updates);
-        setIsEditing(false);
-    };
-
-    const handleChange = (e) => {
-        setEditForm({ ...editForm, [e.target.name]: e.target.value });
-    };
-
-    const displayQuantity = ingredient.quantity; // This might be different from original if edited
+    const toBePurchased = roundNicely(Math.max(0, (item.aggregatedQuantity || 0) - (item.onHandQuantity || 0)));
+    const isFullyOnHand = toBePurchased <= 0;
 
     return (
         <ListItem
-            secondaryAction={
-                !isEditing && (
-                    <IconButton edge="end" aria-label="edit" onClick={handleEdit} size="small">
-                        <EditIcon fontSize="small" />
-                    </IconButton>
-                )
-            }
             disablePadding
-            sx={{ '&:not(:last-child)': { mb: 1 }, alignItems: 'flex-start' }}
+            sx={{ '&:not(:last-child)': { mb: 1.5 }, alignItems: 'center', display: 'flex', flexWrap: 'wrap' }}
         >
-            <Checkbox
-                edge="start"
-                checked={ingredient.markedOnHand || false}
-                onChange={handleToggleOnHand}
-                tabIndex={-1}
-                disableRipple
-                inputProps={{ 'aria-labelledby': `checkbox-list-label-${ingredient.id}` }}
-                size="small"
-                sx={{ mr: 1, mt:0 }}
-            />
-            {isEditing ? (
-                <Box component="form" onSubmit={(e) => { e.preventDefault(); handleSaveEdit(); }} sx={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 1, p:1, border: '1px solid lightgray', borderRadius:1 }}>
-                    <Typography variant="subtitle1" sx={{textDecoration: ingredient.markedOnHand ? 'line-through' : 'none'}}>
-                        {ingredient.name}
-                    </Typography>
-                    <TextField
-                        label="Quantity"
-                        name="quantity"
-                        type="number"
-                        value={editForm.quantity}
-                        onChange={handleChange}
-                        size="small"
-                        sx={{width: '100px'}}
-                        inputProps={{ step: "any" }}
-                    />
-                    <TextField
-                        label="Unit"
-                        name="unit"
-                        value={editForm.unit}
-                        onChange={handleChange}
-                        size="small"
-                        disabled // Unit editing not fully implemented, keep disabled
-                        sx={{width: '100px'}}
-                    />
-                    <TextField
-                        label="Shopper Notes"
-                        name="notes"
-                        value={editForm.notes}
-                        onChange={handleChange}
-                        multiline
-                        rows={2}
-                        size="small"
-                        fullWidth
-                    />
-                    <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, mt: 1 }}>
-                        <Button onClick={handleCancelEdit} size="small" variant="outlined" startIcon={<CancelIcon />}>Cancel</Button>
-                        <Button type="submit" variant="contained" size="small" startIcon={<SaveIcon />}>Save</Button>
-                    </Box>
-                </Box>
-            ) : (
-                <ListItemText
-                    id={`item-text-${ingredient.id}`}
-                    primary={
-                        <Typography variant="body1" sx={{ textDecoration: ingredient.markedOnHand ? 'line-through' : 'none' }}>
-                            {ingredient.name}
-                        </Typography>
-                    }
-                    secondary={
-                        <>
-                            <Typography component="span" variant="body2" color="text.primary">
-                                Quantity: {roundNicely(displayQuantity)} {ingredient.unit}
+            <Grid container spacing={2} alignItems="center">
+                <Grid item xs={12} sm={4}>
+                    <ListItemText
+                        primary={
+                            <Typography variant="body1" sx={{ textDecoration: isFullyOnHand ? 'line-through' : 'none' }}>
+                                {item.name}
                             </Typography>
-                            {ingredient.originalQuantity !== undefined && roundNicely(ingredient.originalQuantity) !== roundNicely(displayQuantity) && (
-                                <Typography component="span" variant="caption" color="text.secondary" sx={{ ml: 1 }}>
-                                    (Original: {roundNicely(ingredient.originalQuantity)} {ingredient.unit})
-                                </Typography>
-                            )}
-                            {ingredient.shopperNotes && (
-                                <Typography component="span" variant="caption" sx={{ display: 'block', fontStyle: 'italic', mt: 0.5 }}>
-                                    Notes: {ingredient.shopperNotes}
-                                </Typography>
-                            )}
-                        </>
-                    }
-                />
-            )}
+                        }
+                        secondary={`Unit: ${item.unit}`}
+                    />
+                </Grid>
+                <Grid item xs={6} sm={2.5}>
+                    <Typography variant="body2" color="text.secondary">
+                        Needed: {roundNicely(item.aggregatedQuantity)}
+                    </Typography>
+                </Grid>
+                <Grid item xs={6} sm={3}>
+                    <TextField
+                        label="On Hand"
+                        type="number"
+                        size="small"
+                        value={currentOnHand} // Controlled by local state for immediate input feedback
+                        onChange={handleLocalOnHandChange}
+                        onBlur={handleBlur} // Update parent/Firestore on blur
+                        inputProps={{ min: 0, step: "any" }}
+                        InputProps={{
+                            endAdornment: <InputAdornment position="end">{item.unit}</InputAdornment>,
+                        }}
+                        sx={{ minWidth: '100px' }}
+                        // Disabled based on parent component's logic (e.g. if list not approved)
+                        disabled={disabled}
+                    />
+                </Grid>
+                <Grid item xs={12} sm={2.5} sx={{ display: 'flex', alignItems: 'center' }}>
+                    <Typography variant="body2" color={isFullyOnHand ? "success.main" : "error.main"} fontWeight="bold" sx={{ mr: 1 }}>
+                        To Buy: {toBePurchased}
+                    </Typography>
+                    <IconButton 
+                        aria-label="Mark as acquired" 
+                        onClick={handleMarkAsAcquired} 
+                        disabled={disabled || toBePurchased <= 0} // Also disable if already fully on hand
+                        size="small"
+                        color="primary"
+                    >
+                        <CheckCircleOutlineIcon fontSize="small" />
+                    </IconButton>
+                </Grid>
+            </Grid>
         </ListItem>
     );
 }
 
 function AdminShoppingList({
-    ingredients = [],
     cycleId,
-    onUpdateIngredient,
+    shoppingList, // Expecting { status: string, items: [], ... }
     onApproveList,
-    shoppingListStatus
+    onUpdateItemOnHand // New prop: (cycleId, itemName, itemUnit, newOnHandQuantity) => void
 }) {
-    if (!ingredients || ingredients.length === 0) {
+    if (!shoppingList || !shoppingList.items || shoppingList.items.length === 0) {
         return <Typography sx={{ p: 2, fontStyle: 'italic' }}>Shopping list is empty or not yet generated.</Typography>;
     }
 
-    // Ensure ingredients have a unique ID for keys and updates
-    // This is a placeholder: Cloud Function should ideally provide stable IDs
-    const processedIngredients = ingredients.map((ing, index) => ({
-        ...ing,
-        id: ing.id || `${ing.name.replace(/\s+/g, '-').toLowerCase()}-${index}` // Fallback ID
-    }));
+    const items = shoppingList.items;
+    const status = shoppingList.status;
 
-    const canApprove = shoppingListStatus === 'pending_approval';
-    const isApproved = shoppingListStatus === 'approved' || shoppingListStatus === 'in_progress' || shoppingListStatus === 'completed';
+    const canApprove = status === 'pending_approval';
+    const isApprovedOrLater = ['approved', 'shopping_in_progress', 'completed'].includes(status);
+    // Determine if onHand fields should be editable
+    const allowOnHandEditing = status === 'approved' || status === 'shopping_in_progress';
 
+    const handleItemOnHandChange = (itemName, itemUnit, newOnHandQuantity) => {
+        // This will call the handler passed from MealCycleManagementPage
+        if (onUpdateItemOnHand) {
+            onUpdateItemOnHand(cycleId, itemName, itemUnit, newOnHandQuantity);
+        }
+    };
 
     return (
         <Paper elevation={2} sx={{ p: 2, mt: 2 }}>
@@ -189,18 +145,22 @@ function AdminShoppingList({
                         Approve Shopping List
                     </Button>
                 )}
-                {isApproved && (
-                     <Typography variant="caption" color="success.main">List Approved</Typography>
+                {isApprovedOrLater && (
+                     <Typography variant="caption" color="success.main" sx={{fontWeight: "bold"}}>
+                        Status: {status.replace('_', ' ').toUpperCase()}
+                    </Typography>
                 )}
             </Box>
             <Divider sx={{mb:2}}/>
             <List dense>
-                {processedIngredients.map((ingredient) => (
-                    <AdminShoppingListItem
-                        key={ingredient.id}
-                        ingredient={ingredient}
-                        cycleId={cycleId}
-                        onUpdateIngredient={onUpdateIngredient}
+                {items.map((item, index) => (
+                    // Using name and unit for key assuming they are unique within the list for now
+                    // Ideally, items from Firestore would have stable IDs.
+                    <AdminShoppingListItemDetails
+                        key={`${item.name}-${item.unit}-${index}`}
+                        item={item}
+                        onHandQuantityChange={handleItemOnHandChange} 
+                        disabled={!allowOnHandEditing}
                     />
                 ))}
             </List>

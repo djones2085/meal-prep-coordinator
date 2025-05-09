@@ -328,7 +328,7 @@ function DashboardPage() {
             userEmail: currentUser.email,
             locationStatus: userProfile.locationStatus || 'unknown', // from user profile
             cycleId: activeCycle.id,
-            cycleName: activeCycle.name, // Assuming activeCycle has a name
+            cycleName: activeCycle.chosenRecipe?.recipeName, // Use recipeName from chosenRecipe
             recipeId: chosenRecipeDetails.id,
             recipeName: chosenRecipeDetails.name,
             items: chosenRecipeDetails.proteinOptions && chosenRecipeDetails.proteinOptions.length > 0

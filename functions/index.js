@@ -319,6 +319,44 @@ async function _recalculateCycleTotalsAndIngredients(mealCycleId) {
 }
 // --- End Recalculation Helper ---
 
+// --- Firestore Trigger for Manual Aggregation on Status Change ---
+exports.triggerAggregationOnStatusClose = onDocumentWritten("mealCycles/{cycleId}", async (event) => {
+  const change = event.data;
+  if (!change) {
+    logger.log("(triggerAggregationOnStatusClose) Event data is undefined, exiting.");
+    return null;
+  }
+
+  // Ensure it's an update event
+  if (!change.before.exists || !change.after.exists) {
+    logger.log(`(triggerAggregationOnStatusClose) Cycle ${event.params.cycleId} was created or deleted, not an update. Skipping.`);
+    return null;
+  }
+
+  const beforeData = change.before.data();
+  const afterData = change.after.data();
+
+  // Check if status changed TO 'ordering_closed' FROM something else
+  // And ensure aggregation hasn't already run (belt-and-suspenders, _performAggregation also checks this)
+  if (beforeData.status !== "ordering_closed" &&
+      afterData.status === "ordering_closed" &&
+      !afterData.aggregationTimestamp) {
+    logger.log(`(triggerAggregationOnStatusClose) Cycle ${event.params.cycleId} status changed to 'ordering_closed' and not yet aggregated. Triggering _performAggregation.`);
+    try {
+      await _performAggregation(event.params.cycleId);
+      logger.log(`(triggerAggregationOnStatusClose) Successfully triggered _performAggregation for ${event.params.cycleId}.`);
+    } catch (error) {
+      logger.error(`(triggerAggregationOnStatusClose) Error calling _performAggregation for ${event.params.cycleId}:`, error);
+      // Optional: Consider updating the cycle with an 'aggregation_failed' status
+      // For now, just logging the error.
+    }
+  } else {
+    logger.log(`(triggerAggregationOnStatusClose) Cycle ${event.params.cycleId} did not meet conditions for aggregation trigger. Status before: ${beforeData.status}, after: ${afterData.status}, timestamp: ${afterData.aggregationTimestamp}`);
+  }
+  return null;
+});
+// --- End Firestore Trigger for Manual Aggregation ---
+
 /**
  * Scheduled function (v2) to run every Thursday at 12:00 PM (America/Chicago timezone).
  * Finds meal cycles ready for aggregation and performs the order aggregation.

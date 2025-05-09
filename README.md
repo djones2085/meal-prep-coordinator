@@ -43,8 +43,7 @@ A web application for coordinating meal preparation among a group of people, man
     - [ ] [Future]: Enhance security rules to restrict read access to notes by role (e.g., 'cook') by moving notes to a subcollection and applying role-based server-side validation for all CRUD operations on notes.
 - [x] Status management
 - [x] Shopping list generation (Basic) - *Enhanced to generate a structured `shoppingList` object in `mealCycle` doc via Cloud Function (`_performAggregation`). Includes item details for aggregated quantity, on-hand tracking, and to-be-purchased calculation. Status: `pending_approval` initially.*
-- [ ] Agent: Shopping List Generation (Aggregate ingredients intelligently across orders, handle complex unit conversions/standardization, potentially optimize quantities)
-    - [ ] Ensure intelligent unit conversions (e.g., 30 tsp to 1.25 cups) for practicality.
+- [ ] Ensure intelligent unit conversions (e.g., 30 tsp to 1.25 cups) for practicality.
 
 
 ### Meal Cycle Workflow 🟨
@@ -68,11 +67,9 @@ A web application for coordinating meal preparation among a group of people, man
 
 ### Shopping & Cooking Workflow 🟨
 - [x] Basic shopping list data generation (ingredients and quantities in mealCycle doc) - *Superseded by enhanced generation in Recipe Management. This item refers to the new structured list.*
-- [🟨] Shopping list: Admin approval step - *Backend function `handleApproveShoppingList` in `MealCycleManagementPage.jsx` updated. UI component `AdminShoppingList.jsx` planned.*
-- [ ] Shopping list: Editable by admin/shopper
-- [ ] Shopping list: Shopper can mark items as 'available on hand'
-- [ ] Agent: Shopping List Generation (Aggregate ingredients intelligently, handle complex unit conversions/standardization, potentially optimize quantities)
-    - [ ] Ensure intelligent unit conversions (e.g., 30 tsp to 1.25 cups) for practicality.
+- [x] Shopping list: Admin approval step - *Backend function `handleApproveShoppingList` in `MealCycleManagementPage.jsx` used by `AdminShoppingList.jsx` component.*
+- [x] Shopping list: Editable by admin/shopper - *'On hand' quantities can be edited after list approval.*
+- [x] Shopping list: Shopper can mark items as 'available on hand' - *Implemented via direct 'on hand' quantity editing and a 'Mark as Acquired' button for ease of use.*
 - [ ] Chef/Cook: Ingredient checklist before starting to cook
 - [x] Chef/Cook: Access to historical cook notes for the current recipe
 - [x] Manage packaging (e.g., container types, labels)
@@ -88,14 +85,14 @@ A web application for coordinating meal preparation among a group of people, man
 - [ ] [Future]PWA capabilities
 - [ ] [Future]Notifications (FCM)
 - [ ] [Future]UI/UX polish
-    - [ ] Address top bar layout issues on small screens
+    - [x] Address top bar layout issues on small screens
 - [ ] UI Technology Consideration: Abstract UI and explore Tailwind CSS as an alternative/addition to MUI
 - [ ] [Future]Pagination for user list in admin user management. To handle a lot of users. 
 - [ ] Automated testing
 
 ### Backend Services 🟨
 - [x] Basic Cloud Functions
-- [x] Order aggregation - *Cloud Functions `_performAggregation` and `_recalculateCycleTotalsAndIngredients` refactored for new shopping list generation logic and to ensure recalculation only affects counts, not the finalized shopping list. **TODO Next Session: Thoroughly test this new Cloud Function logic.** *
+- [x] Order aggregation - *Cloud Functions `_performAggregation` and `_recalculateCycleTotalsAndIngredients` handle aggregation. `_performAggregation` is triggered automatically when a cycle's status changes to `ordering_closed` (if not already aggregated) and also by a scheduled job. `_recalculateCycleTotalsAndIngredients` updates counts when orders are written.*
 - [x] Real-time updates
 - [ ] Cloud Function: Update recipe stats (lastPreparedDate, timesPrepared) on meal cycle completion
 - [ ] [Future]AI Services integration
@@ -103,6 +100,13 @@ A web application for coordinating meal preparation among a group of people, man
 - [ ] Data modeling consideration: Evolve 'cook' representation to 'cook_session' for better tracking
 - [ ] Advanced security rules - *Initial role-based rules implemented (users, recipes, mealCycles, orders); admins have broader permissions, users restricted. MealCycles not deletable. Further review and refinement pending.*
 - [ ] Robust unit conversion logic (potentially as a shared utility or microservice)
+
+## Future AI / Agent-Based Features ⬜
+- [ ] Agent: Recipe Processing (Parse unstructured text, standardize units/format, apply standards like protein goals, create structured recipe object)
+- [ ] Agent: Shopping List Generation (Aggregate ingredients intelligently across orders, handle complex unit conversions/standardization, potentially optimize quantities for purchasing, e.g. if items come in standard sizes. Ensure intelligent unit conversions like 30 tsp to 1.25 cups for practicality.)
+   - [ ] Ensure intelligent unit conversions (e.g., 30 tsp to 1.25 cups) for practicality.
+
+- [ ] Agent: Cook Sequencing (Optimize cooking task order based on prep/cook times and target completion, potentially considering resource availability like oven space or number of burners.)
 
 ## Security Recommendations
 
