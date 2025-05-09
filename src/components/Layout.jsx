@@ -43,12 +43,16 @@ function Layout() {
     const navItems = [
         // Basic links available when logged in
         ...(currentUser ? [
-            { text: 'Dashboard', to: '/dashboard', adminOnly: false },
-            { text: 'Recipes', to: '/recipes', adminOnly: false },
+            { text: 'Dashboard', to: '/dashboard', roles: ['user', 'admin', 'cook', 'shopper'] }, // Example: all logged in users
+            { text: 'Recipes', to: '/recipes', roles: ['user', 'admin', 'cook', 'shopper'] },
+        ] : []),
+        // Shopper-specific links
+        ...(currentUser && userProfile?.roles?.some(role => ['shopper', 'admin'].includes(role)) ? [
+            { text: 'Shopping List', to: '/shopping-list', roles: ['shopper', 'admin'] },
         ] : []),
         // Admin-specific links
         ...(currentUser && userProfile?.roles?.includes('admin') ? [
-            { text: 'Admin Home', to: '/admin', adminOnly: true },
+            { text: 'Admin Home', to: '/admin', roles: ['admin'] }, 
         ] : []),
     ];
 
@@ -67,13 +71,21 @@ function Layout() {
                 )}
                 {currentUser && userProfile && <Divider />} 
 
-                {navItems.map((item) => (
-                    <ListItem key={item.text} disablePadding>
-                        <ListItemButton component={RouterLink} to={item.to}>
-                            <ListItemText primary={item.text} />
-                        </ListItemButton>
-                    </ListItem>
-                ))}
+                {navItems.map((item) => {
+                    // Check if user has any of the required roles for the item
+                    // If item.roles is not defined, or userProfile.roles is not defined, it defaults to showing (or use a more specific default)
+                    const hasRequiredRole = item.roles && userProfile?.roles ? item.roles.some(role => userProfile.roles.includes(role)) : true;
+                    
+                    if (!hasRequiredRole) return null; // Don't render if user doesn't have the role
+
+                    return (
+                        <ListItem key={item.text} disablePadding>
+                            <ListItemButton component={RouterLink} to={item.to}>
+                                <ListItemText primary={item.text} />
+                            </ListItemButton>
+                        </ListItem>
+                    );
+                })}
 
                 {/* Auth links in Drawer */} 
                 {currentUser ? (
@@ -102,21 +114,29 @@ function Layout() {
 
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-            <AppBar position="static">
+            <AppBar 
+                position="static" 
+                sx={{ 
+                    background: 'transparent', 
+                    boxShadow: 'none', 
+                    // Optional: Add a border or other styles if needed for visibility
+                    // borderBottom: '1px solid rgba(0, 0, 0, 0.12)'
+                }}
+            >
                 <Toolbar>
                     <IconButton
                         color="inherit"
                         aria-label="open drawer"
                         edge="start"
                         onClick={handleDrawerToggle}
-                        sx={{ mr: 2 }} // Display on all screens
+                        sx={{ mr: 2, color: 'black' }}
                     >
                         <MenuIcon />
                     </IconButton>
 
                     {/* App Title/Brand - Centered or to one side if hamburger is edge=start */}
                     <Typography variant="h6" component="div" sx={{ flexGrow: 1, textAlign: 'center' }}>
-                        <Link component={RouterLink} to={currentUser ? "/dashboard" : "/"} sx={{ textDecoration: 'none', color: 'inherit' }}>
+                        <Link component={RouterLink} to={currentUser ? "/dashboard" : "/"} sx={{ textDecoration: 'none', color: 'black' }}>
                             Meal Prep Coordinator
                         </Link>
                     </Typography>

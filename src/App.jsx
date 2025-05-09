@@ -17,6 +17,7 @@ import RecipesPage from './pages/RecipesPage'
 import RecipeDetailPage from './pages/RecipeDetailPage'
 import MealCyclePage from './pages/MealCyclePage'
 import AddRecipePage from './pages/AddRecipePage'
+import ShopperShoppingListPage from './pages/ShopperShoppingListPage'
 import MealPlanningPage from './pages/admin/MealPlanningPage'
 import MealCycleManagementPage from './pages/admin/MealCycleManagementPage'
 import AdminHomePage from './pages/admin/AdminHomePage'
@@ -55,6 +56,13 @@ function App() {
                 <Route path="/add-recipe" element={<AddRecipePage />} />
                 <Route path="/meal-cycle" element={<MealCyclePage />} />
                 <Route index element={<DashboardPage />} />
+            </Route>
+        </Route>
+
+        {/* Protected routes for shopper users, rendered within Layout */}
+        <Route element={<ProtectedRoute requiredRoles={['shopper', 'admin']} />}>
+            <Route element={<Layout />}>
+                <Route path="/shopping-list" element={<ShopperShoppingListPage />} />
             </Route>
         </Route>
 

@@ -66,13 +66,9 @@ function OrderHistory() {
                     {orders.map((order) => (
                         <ListItem key={order.id} divider>
                             <ListItemText
-                                primary={`Order ID: ${order.id} - Cycle: ${order.cycleId} (Status: ${order.status || 'N/A'})`} // Assuming cycleId and status exist
+                                primary={order.recipeName || 'N/A'}
                                 secondary={
                                     <>
-                                        <Typography component="span" variant="body2" color="text.primary">
-                                            Recipe: {order.recipeName || 'N/A'}
-                                        </Typography>
-                                        <br />
                                         <Typography component="span" variant="body2" color="text.secondary">
                                             Ordered on: {order.createdAt?.toDate ? order.createdAt.toDate().toLocaleDateString() : 'Date N/A'}
                                         </Typography>

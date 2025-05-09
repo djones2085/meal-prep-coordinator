@@ -70,6 +70,7 @@ A web application for coordinating meal preparation among a group of people, man
 - [x] Shopping list: Admin approval step - *Backend function `handleApproveShoppingList` in `MealCycleManagementPage.jsx` used by `AdminShoppingList.jsx` component.*
 - [x] Shopping list: Editable by admin/shopper - *'On hand' quantities can be edited after list approval.*
 - [x] Shopping list: Shopper can mark items as 'available on hand' - *Implemented via direct 'on hand' quantity editing and a 'Mark as Acquired' button for ease of use.*
+- [x] Shopping list: Dedicated page for Shoppers to view and update item status (on hand, acquired).
 - [ ] Chef/Cook: Ingredient checklist before starting to cook
 - [x] Chef/Cook: Access to historical cook notes for the current recipe
 - [x] Manage packaging (e.g., container types, labels)
@@ -80,7 +81,9 @@ A web application for coordinating meal preparation among a group of people, man
 - [x] Loading states
 - [x] Error handling
 - [ ] Enhanced meal cycle page: Display user names, order counts, and dine-in/carry-out status per user
-- [x] User dashboard: Order history display
+- [x] User dashboard: Order history display - *Updated to show Recipe Name as primary, removed Order/Cycle ID and status.*
+- [x] Navbar: Transparent style with updated icon/title colors.
+- [x] Branding: Set application title and browser tab favicon.
 - [ ] [Future]Advanced state management (Zustand/Redux)
 - [ ] [Future]PWA capabilities
 - [ ] [Future]Notifications (FCM)
@@ -98,7 +101,7 @@ A web application for coordinating meal preparation among a group of people, man
 - [ ] [Future]AI Services integration
 - [ ] Suggested Frameworks: CrewAI, Google ADK for multi-agent workflows (Recipe Processing, Shopping List, Cook Sequencing)
 - [ ] Data modeling consideration: Evolve 'cook' representation to 'cook_session' for better tracking
-- [ ] Advanced security rules - *Initial role-based rules implemented (users, recipes, mealCycles, orders); admins have broader permissions, users restricted. MealCycles not deletable. Further review and refinement pending.*
+- [x] Advanced security rules - *Initial role-based rules implemented (users, recipes, mealCycles, orders); admins have broader permissions, users restricted. MealCycles not deletable. Updated mealCycle rules to allow shoppers to update shoppingList.items with lastUpdatedAt timestamp. Further review and refinement pending.*
 - [ ] Robust unit conversion logic (potentially as a shared utility or microservice)
 
 ## Future AI / Agent-Based Features ⬜
