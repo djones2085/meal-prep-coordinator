@@ -11,7 +11,8 @@ import {
     List,
     CircularProgress,
     Alert as MuiAlert,
-    Divider
+    Divider,
+    Button
 } from '@mui/material';
 import { PageContainer, LoadingSpinner } from '../components/mui'; // Assuming common components
 
@@ -22,6 +23,7 @@ function ShopperShoppingListPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [updateError, setUpdateError] = useState('');
+    const [isCompleting, setIsCompleting] = useState(false); // For Mark as Completed button state
 
     const fetchActiveShoppingList = useCallback(async () => {
         if (!currentUser) {
@@ -105,6 +107,42 @@ function ShopperShoppingListPage() {
         }
     };
 
+    const handleMarkShoppingListCompleted = async () => {
+        if (!mealCycle || !mealCycle.id || !currentUser) {
+            setUpdateError("Cannot mark as completed: Critical information is missing.");
+            return;
+        }
+
+        // Optional: Add a confirmation dialog here if desired
+        // if (!window.confirm("Are you sure you want to mark this shopping list as completed?")) {
+        //     return;
+        // }
+
+        setIsCompleting(true);
+        setUpdateError('');
+
+        try {
+            const cycleRef = doc(db, 'mealCycles', mealCycle.id);
+            await updateDoc(cycleRef, {
+                'shoppingList.status': 'shopping_completed',
+                'shoppingList.completedAt': serverTimestamp(),
+                'shoppingList.completedBy': currentUser.uid
+            });
+
+            // Refresh the list. This will either show the next active list
+            // or the "no active lists" message if this was the last one.
+            await fetchActiveShoppingList();
+            // No explicit success message here, as the list disappearing is the primary feedback.
+            // fetchActiveShoppingList will set an info message if no lists are left.
+
+        } catch (err) {
+            console.error("Error marking shopping list as completed:", err);
+            setUpdateError(`Failed to mark shopping list as completed: ${err.message}`);
+        } finally {
+            setIsCompleting(false);
+        }
+    };
+
     if (loading) {
         return <LoadingSpinner />;
     }
@@ -126,11 +164,33 @@ function ShopperShoppingListPage() {
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
                     <Typography variant="h6">Current Shopping List</Typography>
                     <Typography variant="caption" color="text.secondary" sx={{fontWeight: "bold"}}>
-                        Cycle: {mealCycle.name || mealCycle.id} | Status: {shoppingList.status.replace('_', ' ').toUpperCase()}
+                        {mealCycle && mealCycle.targetCookDate && (
+                            `Cook Date: ${mealCycle.targetCookDate.toDate().toLocaleDateString([], { year: 'numeric', month: 'long', day: 'numeric' })} | `
+                        )}
+                        {mealCycle && mealCycle.chosenRecipe && mealCycle.chosenRecipe.recipeName && (
+                            `Recipe: ${mealCycle.chosenRecipe.recipeName} | `
+                        )}
+                        {shoppingList && shoppingList.status && (
+                            `Status: ${shoppingList.status.replace('_', ' ').toUpperCase()}`
+                        )}
                     </Typography>
                 </Box>
                 <Divider sx={{mb:2}}/>
                 {updateError && <MuiAlert severity="error" sx={{mb:2}}>{updateError}</MuiAlert>}
+
+                {mealCycle && shoppingList && (shoppingList.status === 'approved' || shoppingList.status === 'shopping_in_progress') && (
+                    <Box sx={{ mt: 1, mb: 2, display: 'flex', justifyContent: 'center' }}>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={handleMarkShoppingListCompleted}
+                            disabled={loading || isCompleting} // Disable if page is loading or this action is processing
+                        >
+                            {isCompleting ? <CircularProgress size={24} color="inherit" /> : "Mark Shopping as Completed"}
+                        </Button>
+                    </Box>
+                )}
+
                 <List dense>
                     {shoppingList.items.map((item, index) => (
                         <ShopperShoppingListItemDetails

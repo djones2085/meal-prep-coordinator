@@ -346,9 +346,8 @@ function DashboardPage() {
             userId: currentUser.uid,
             userDisplayName: userProfile.displayName || currentUser.email, // Use displayName from profile
             userEmail: currentUser.email,
-            locationStatus: userProfile.locationStatus || 'unknown', // from user profile
+            userLocationStatus: userProfile?.locationStatus || 'unknown', // Default if not set
             cycleId: activeCycle.id,
-            cycleName: activeCycle.chosenRecipe?.recipeName, // Use recipeName from chosenRecipe
             recipeId: chosenRecipeDetails.id,
             recipeName: chosenRecipeDetails.name,
             items: chosenRecipeDetails.proteinOptions && chosenRecipeDetails.proteinOptions.length > 0

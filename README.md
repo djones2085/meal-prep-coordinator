@@ -1,13 +1,22 @@
 # Meal Prep Coordinator
 
+Always check project files for existing pages and functionality. Stay DRY!
+
 A web application for coordinating meal preparation among a group of people, managing recipes, orders, and meal cycles.
 ## Next Focus
 
-- **Shopping List Enhancements:**
-    - Display historical shopping lists for "completed" meal cycles (presentation similar to Order History on the dashboard).
-    - Provide a clear message if no shopping list is available for the current/next planned cycle.
-- **Measurement Conversion for Shopping Lists:**
+- **Measurement Conversion for Shopping Lists:** (In Progress)
     - Implement robust measurement conversion for ingredients, especially to handle large quantities (e.g., for 20-30 servings), scaling units appropriately (e.g., grams to kilograms, ml to liters, small units to larger common units).
+    - **Sub-tasks for Measurement Conversion:**
+        - **1. Define Conversion Ratios:** Establish a comprehensive set of conversion factors (e.g., tsp to tbsp, tbsp to cup, g to kg, ml to L, oz to lb, common metric/imperial volume and weight units).
+        - **2. Create Utility Function/Module:** Develop a reusable JavaScript/TypeScript module (e.g., `src/utils/measurementConverter.js`) that includes:
+            - A function `convertMeasurement(quantity, fromUnit, toUnit)`.
+            - A function `simplifyMeasurement(quantity, unit)` to convert to the most practical larger common unit (e.g., 96 tsp to 2 cups).
+        - **3. Standardize Unit Strings:** Define and use a consistent set of unit strings (e.g., 'g', 'kg', 'tsp', 'tbsp', 'cup', 'ml', 'l', 'oz', 'lb', 'unit').
+        - **4. Handle Non-Convertible Units:** Gracefully manage units that don't convert (e.g., 'clove', 'pinch', 'unit') or conversions that are not possible (e.g., weight to volume without density).
+        - **5. Integration with Shopping List Generation:** Incorporate the conversion utility into the backend (Cloud Function, e.g., `_performAggregation`) when the shopping list is generated. Aggregated quantities should be stored with practical units.
+        - **6. Frontend Display Adjustments:** Update frontend components (e.g., `ShopperShoppingListPage.jsx`, `AdminShoppingList.jsx`) to correctly display these potentially converted units and quantities.
+        - **7. Testing:** Thoroughly test with various units, quantities, and edge cases.
 
 ### Core Setup ✅
 - ✅ React (Vite) frontend
@@ -100,9 +109,6 @@ A web application for coordinating meal preparation among a group of people, man
 - 🔘 [Future]PWA capabilities
 - 🔘 [Future]Notifications (FCM)
 - 🟡 [In Progress]UI/UX polish
-    - ✅ Address top bar layout issues on small screens
-- 🔘 UI Technology Consideration: Abstract UI and explore Tailwind CSS as an alternative/addition to MUI
-- 🔘 [Future]Pagination for user list in admin user management. To handle a lot of users. 
 - 🔘 Automated testing
 
 ### Backend Services 🟡
@@ -114,7 +120,6 @@ A web application for coordinating meal preparation among a group of people, man
 - 🔘 Suggested Frameworks: CrewAI, Google ADK for multi-agent workflows (Recipe Processing, Shopping List, Cook Sequencing)
 - 🔘 Data modeling consideration: Evolve 'cook' representation to 'cook_session' for better tracking
 - ✅ Advanced security rules - *Initial role-based rules implemented (users, recipes, mealCycles, orders); admins have broader permissions, users restricted. MealCycles not deletable. Updated mealCycle rules to allow shoppers to update shoppingList.items with lastUpdatedAt timestamp. Further review and refinement pending.*
-- 🔘 Robust unit conversion logic (potentially as a shared utility or microservice)
 
 ## Future AI / Agent-Based Features 🔘
 - 🔘 Agent: Recipe Processing (Parse unstructured text, standardize units/format, apply standards like protein goals, create structured recipe object)
@@ -125,9 +130,6 @@ A web application for coordinating meal preparation among a group of people, man
 
 ## Security Recommendations
 
-- **Recipe Notes Permissions**: [Future]The current Firestore security rule for updating recipes (`recipes/{recipeId}`) allows any authenticated user to modify the `notes` array if it's the only field being changed. The client-side UI in `RecipeDetailPage.jsx` handles author-only edit/delete logic. This is a "soft" rule for write operations. Read access to notes is not currently restricted by role at the server level. *Future enhancement: Consider moving notes to a subcollection to enable server-enforced role-based read restrictions (e.g., only 'cooks' can read notes) and more granular server-side validation for write operations (add, edit, delete by author or admin).*
-- **Review Admin-Only Actions**: [Future]Several TODOs exist in `firestore.rules` (e.g., recipe creation, meal cycle creation/update) that are currently open to any authenticated user but intended for admins. These should be reviewed and restricted to admin users as soon as the admin role is fully implemented and testable in rules.
-- **Comprehensive Rule Review**: [Future]The note under "Backend Services > Advanced security rules" in the Project Status section highlights that a further review and refinement of all Firestore rules is pending. This should be prioritized to ensure all data access is appropriately restricted based on user roles and context.
 
 ## Development Setup
 
@@ -145,29 +147,6 @@ A web application for coordinating meal preparation among a group of people, man
    npm run dev
    ```
 5. **TODO:** Create a robust set of `.cursorrules` to guide AI assistance.
-
-## Contributing
-
-1. Create a new branch for your feature
-2. Make your changes
-3. Submit a pull request
-4. Ensure all tests pass
-5. Update documentation as needed
-
-## Project Structure
-
-```
-src/
-├── components/     # Reusable UI components
-├── contexts/       # React contexts (Auth, etc.)
-├── pages/         # Page components
-│   └── admin/     # Admin-specific pages
-├── assets/        # Static assets
-└── firebaseConfig.js  # Firebase configuration
-
-functions/         # Firebase Cloud Functions
-└── index.js       # Main functions file
-```
 
 ## Status Legend
 - ✅ Complete

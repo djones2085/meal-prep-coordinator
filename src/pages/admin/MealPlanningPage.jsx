@@ -266,25 +266,48 @@ function MealPlanningPage() {
             return;
          }
 
-        // Dates are already Date objects from MUI Pickers
-        const cycleData = {
-            status: 'ordering_open', // Updated initial status: ready for orders
-            chosenRecipe: { // Store the chosen recipe details
-                 recipeId: selectedRecipe.id,
-                 recipeName: selectedRecipe.name,
-            },
-            orderDeadline: Timestamp.fromDate(orderDeadline),
-            targetCookDate: Timestamp.fromDate(targetCookDate),
-            creationDate: serverTimestamp(),
-            // Other fields like assignments, totals will be set later
-        };
+        // Check for existing cycle with the same recipe and cook date (optional but good practice)
+        // This might require an async check here if you want to be strict
+
+        setLoading(true); // Ensure loading is true before async operation
 
         try {
-            const cyclesRef = collection(db, 'mealCycles');
-            const docRef = await addDoc(cyclesRef, cycleData);
-            console.log("Meal Cycle created with ID: ", docRef.id);
-            setSuccess(`New Meal Cycle created (Status: Ordering Open) with recipe: ${selectedRecipe.name}. ID: ${docRef.id}`); // Updated success message
-            // Optionally clear form
+            // Default cycle name, can be adjusted
+            const cycleName = `${selectedRecipe.name} - Cook Date: ${targetCookDate.toLocaleDateString()}`;
+
+            const newCycleData = {
+                name: cycleName,
+                chosenRecipe: {
+                    recipeId: selectedRecipe.id,
+                    recipeName: selectedRecipe.name,
+                    // Consider storing a copy of key recipe details if they might change
+                    // and you need historical accuracy, e.g., servings, ingredients for the version used.
+                },
+                orderDeadline: Timestamp.fromDate(orderDeadline),
+                targetCookDate: Timestamp.fromDate(targetCookDate),
+                status: 'ordering_open', // Default status reverted to ordering_open
+                creationDate: serverTimestamp(),
+                // Aggregation fields (can be initialized here or by backend)
+                totalMealCounts: 0,
+                totalCountsByProtein: {},
+                ordersCount: 0,
+                dineInContainers: 0,
+                carryOutContainers: 0,
+                // Initialize shoppingList
+                shoppingList: {
+                    status: 'not_generated', // Initial status
+                    items: [],
+                    notes: '',
+                    lastUpdatedAt: null, // Will be set when list is generated/updated
+                    approvedBy: null,
+                    approvedAt: null,
+                    // Any other default fields your shoppingList might need
+                }
+            };
+
+            const docRef = await addDoc(collection(db, 'mealCycles'), newCycleData);
+            setSuccess(`New meal cycle "${cycleName}" created successfully!`);
+            // Reset form fields after successful submission
             setSelectedRecipeId('');
             resetDatePickers(); // Use the new reset function
             setLoading(false);
