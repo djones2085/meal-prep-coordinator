@@ -7,6 +7,8 @@ import './App.css'
 // --- Pages ---
 import LoginPage from './pages/LoginPage'
 import SignUpPage from './pages/SignUpPage'
+import ForgotPasswordPage from './pages/ForgotPasswordPage'
+import ChangePasswordPage from './pages/ChangePasswordPage'
 import EmailVerificationPage from './pages/EmailVerificationPage'
 import AcceptInvitePage from './pages/AcceptInvitePage'
 
@@ -44,6 +46,7 @@ function App() {
         {/* Public routes rendered directly */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignUpPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/verify-email" element={<EmailVerificationPage />} />
         <Route path="/accept-invite/:inviteId" element={<AcceptInvitePage />} />
 
@@ -55,6 +58,7 @@ function App() {
                 <Route path="/recipes/:recipeId" element={<RecipeDetailPage />} />
                 <Route path="/add-recipe" element={<AddRecipePage />} />
                 <Route path="/meal-cycle" element={<MealCyclePage />} />
+                <Route path="/change-password" element={<ChangePasswordPage />} />
                 <Route index element={<DashboardPage />} />
             </Route>
         </Route>

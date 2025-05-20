@@ -23,13 +23,16 @@ import {
     TableHead,
     TableRow,
     Paper,
-    Divider
+    Divider,
+    useMediaQuery,
+    useTheme
 } from '@mui/material';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 
 // Import the new component
 import AdminShoppingList from '../../components/admin/AdminShoppingList';
+import MealCycleCard from '../../components/admin/MealCycleCard';
 
 // Define possible statuses (Removed voting-related and planning statuses)
 const cycleStatuses = [
@@ -66,6 +69,10 @@ function MealCycleManagementPage() {
     const [cycleOrders, setCycleOrders] = useState([]);
     const [loadingOrders, setLoadingOrders] = useState(false);
     const [ordersError, setOrdersError] = useState('');
+
+    // --- Media Query for Responsive Layout ---
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
     // --- Data Fetching ---
     const fetchCycles = useCallback(async (showLoading = true) => {
@@ -290,56 +297,124 @@ function MealCycleManagementPage() {
 
     const statusOptions = cycleStatuses.map(status => ({ value: status, label: formatStatus(status) }));
 
-    // Define columns for the main data row (excluding the problematic 'details' column)
-    const mainColumns = [
+    // More columns can be added as needed, or some can be conditional based on screen size
+    // For simplicity, we keep a fixed set here.
+    const columns = [
         {
-            id: 'expand', label: '', minWidth: 50, align: 'center',
-            render: (row) => (
+            id: 'expand',
+            label: '',
+            render: (cycle) => (
                 <IconButton
                     aria-label="expand row"
                     size="small"
-                    onClick={() => handleExpandClick(row.id)}
+                    onClick={() => handleExpandClick(cycle.id)}
                 >
-                    {expandedCycleId === row.id ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+                    {expandedCycleId === cycle.id ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
                 </IconButton>
-            )
+            ),
+            disableSort: true,
+            disableFilter: true,
+            sx: { width: '5%', padding: '0 8px' } // Minimal width for icon
         },
-        { 
-            id: 'status', label: 'Status', minWidth: 140, 
-            render: (row) => <StatusChip status={row.status} size="small" />
-        },
-        { id: 'recipe', label: 'Recipe', minWidth: 170, render: (row) => row.chosenRecipe?.recipeName || '-' },
-        { id: 'servings', label: 'Servings', minWidth: 80, align: 'right', render: (row) => row.totalMealCounts ?? '-' },
-        { 
-            id: 'protein', label: 'Protein Counts', minWidth: 170, 
-            render: (row) => (
-                <Typography variant="body2" noWrap title={formatProteinCounts(row.totalCountsByProtein)} sx={{ maxWidth: 150 }}>
-                    {formatProteinCounts(row.totalCountsByProtein)}
-                </Typography>
-            )
-        },
-        { id: 'orderDeadline', label: 'Deadline', minWidth: 170 },
-        { id: 'cookDate', label: 'Cook Date', minWidth: 100, render: (row) => row.targetCookDate },
         {
-            id: 'actions', label: 'Actions', minWidth: 170, align: 'center',
-            render: (row) => (
-                updatingStatus[row.id] ? 
-                <LoadingSpinner size={24} /> :
+            id: 'cycleName',
+            label: 'Cycle Name / ID',
+            render: (cycle) => (
+                <Typography variant="subtitle2" component="div" noWrap>
+                    {cycle.cycleName || 'N/A'}
+                </Typography>
+            ),
+            valueGetter: (cycle) => cycle.cycleName || cycle.id, // For sorting/filtering
+            sx: { minWidth: 180 }
+        },
+        {
+            id: 'status',
+            label: 'Status',
+            render: (cycle) => (
                 <Select
-                    value={row.status || ''}
-                    onChange={(e) => handleStatusChange(row.id, e.target.value)}
-                    options={statusOptions}
+                    value={cycle.status || ''}
+                    onChange={(e) => handleStatusChange(cycle.id, e.target.value)}
+                    onClick={(e) => e.stopPropagation()} // Prevent row click when changing status
                     size="small"
-                    margin="none"
+                    disabled={updatingStatus[cycle.id]}
                     sx={{ minWidth: 150 }}
-                    labelId={`status-select-label-${row.id}`}
-                    id={`status-select-${row.id}`}
-                />
+                >
+                    {cycleStatuses.map(s => (
+                        <MenuItem key={s} value={s}>{formatStatus(s)}</MenuItem>
+                    ))}
+                </Select>
+            ),
+            valueGetter: (cycle) => cycle.status, // For sorting/filtering
+            customFilterRender: (value, onChange) => ( // Example custom filter UI
+                <Select
+                    value={value || ''}
+                    onChange={onChange}
+                    displayEmpty
+                    size="small"
+                    fullWidth
+                >
+                    <MenuItem value=""><em>All Statuses</em></MenuItem>
+                    {cycleStatuses.map(s => (
+                        <MenuItem key={s} value={s}>{formatStatus(s)}</MenuItem>
+                    ))}
+                </Select>
             )
         },
-        // The 'details' column that caused the error is removed.
-        // Expansion content will be rendered in a separate TableRow.
+        {
+            id: 'targetCookDate',
+            label: 'Cook Date',
+            render: (cycle) => cycle.targetCookDate,
+            valueGetter: (cycle) => cycle.targetCookDate, // For sorting/filtering
+            sx: { minWidth: 120 }
+        },
+        {
+            id: 'orderDeadline',
+            label: 'Order Deadline',
+            render: (cycle) => cycle.orderDeadline,
+            valueGetter: (cycle) => cycle.orderDeadline, // For sorting/filtering
+            sx: { minWidth: 170 }
+        },
+        {
+            id: 'totalMealCounts',
+            label: 'Total Meals',
+            render: (cycle) => cycle.totalMealCounts !== undefined ? cycle.totalMealCounts : '-',
+            valueGetter: (cycle) => cycle.totalMealCounts,
+            sx: { minWidth: 100, textAlign: 'center' }
+        },
+        {
+            id: 'totalCountsByProtein',
+            label: 'Proteins',
+            render: (cycle) => formatProteinCounts(cycle.totalCountsByProtein),
+            valueGetter: (cycle) => formatProteinCounts(cycle.totalCountsByProtein), // May need more complex getter for sorting
+            sx: { minWidth: 200 }
+        },
+        // Add other columns like dineInContainers, carryOutContainers if needed
+        // {
+        //     id: 'actions',
+        //     label: 'Actions',
+        //     render: (cycle) => (
+        //         <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
+        //             <Button
+        //                 variant="outlined"
+        //                 size="small"
+        //                 onClick={(e) => {
+        //                     e.stopPropagation(); // Prevent row click
+        //                     handleGenerateShoppingList(cycle.id);
+        //                 }}
+        //                 disabled={!!generatingShoppingList[cycle.id]}
+        //             >
+        //                 {cycle.shoppingList && cycle.shoppingList.items && cycle.shoppingList.items.length > 0 ? 'Re-generate List' : 'Generate List'}
+        //             </Button>
+        //             {/* Other actions can go here */}
+        //         </Box>
+        //     ),
+        //     disableSort: true,
+        //     disableFilter: true,
+        // }
     ];
+
+    // Render Row Actions and Expanded Row are specific to DataTable,
+    // For Card view, similar functionality will be embedded or triggered by the card itself.
 
     const renderExpandedCycleContent = (cycle) => {
         // This function renders the content for the expanded section
@@ -409,71 +484,68 @@ function MealCycleManagementPage() {
         );
     };
 
-    return (
-        <PageContainer>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                <Typography variant="h4" component="h1" gutterBottom>
-                    Meal Cycle Management
-                </Typography>
-                <Button
-                    onClick={() => fetchCycles()} // Refresh without full page load if desired
-                    disabled={loading}
-                    variant="outlined"
-                >
-                    Refresh Cycles
-                </Button>
-            </Box>
+    if (loading) {
+        return <LoadingSpinner />;
+    }
 
+    return (
+        <PageContainer title="Manage Meal Cycles">
+            {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
             {alertInfo.open && (
-                <Alert
-                    severity={alertInfo.severity}
-                    onClose={handleCloseAlert}
-                    sx={{ mb: 2 }}
-                >
+                <Alert severity={alertInfo.severity} onClose={handleCloseAlert} sx={{ mb: 2 }}>
                     {alertInfo.message}
                 </Alert>
             )}
-            {error && !alertInfo.open && (
-                 <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>
-            )}
 
-            {loading ? (
-                <LoadingSpinner centered size={60} />
-            ) : (
-                <DataTable
-                    columns={mainColumns} // Use the columns for the header
-                    // data prop is removed; we'll render TableBody children directly
-                    maxHeight="75vh"
-                >
-                    {cycles.map((cycle) => (
-                        <React.Fragment key={cycle.id}>
-                            <TableRow hover>
-                                {mainColumns.map((column) => (
-                                    <TableCell
-                                        key={column.id}
-                                        align={column.align}
-                                        style={{ minWidth: column.minWidth }}
-                                    >
-                                        {column.render ? column.render(cycle) : cycle[column.id]}
-                                    </TableCell>
-                                ))}
-                            </TableRow>
-                            {expandedCycleId === cycle.id && (
-                                <TableRow>
-                                    <TableCell colSpan={mainColumns.length} sx={{ padding: 0, borderBottom: 'unset' }}>
-                                        <Collapse in={expandedCycleId === cycle.id} timeout="auto" unmountOnExit>
-                                            {renderExpandedCycleContent(cycle)}
-                                        </Collapse>
-                                    </TableCell>
-                                </TableRow>
-                            )}
-                        </React.Fragment>
+            {isMobile ? (
+                <Box>
+                    {cycles.map(cycle => (
+                        <MealCycleCard
+                            key={cycle.id}
+                            cycle={cycle}
+                            onStatusChange={handleStatusChange}
+                            updatingStatus={updatingStatus}
+                            onViewOrders={() => handleExpandClick(cycle.id)} // Triggers expansion and order loading
+                            expandedCycleId={expandedCycleId}
+                            onExpandClick={() => handleExpandClick(cycle.id)} // For the card's own expand icon
+                            renderExpandedCycleContent={renderExpandedCycleContent}
+                        />
                     ))}
-                </DataTable>
+                </Box>
+            ) : (
+                <Paper sx={{ mt: 2 }}>
+                    <DataTable
+                        columns={columns}
+                    >
+                        {cycles.map((cycle) => (
+                            <React.Fragment key={cycle.id}>
+                                <TableRow hover onClick={() => handleExpandClick(cycle.id)} sx={{ cursor: 'pointer' }}>
+                                    {columns.map((column) => (
+                                        <TableCell
+                                            key={column.id}
+                                            align={column.sx?.textAlign || 'left'}
+                                            sx={column.sx}
+                                        >
+                                            {column.render ? column.render(cycle) : cycle[column.id]}
+                                        </TableCell>
+                                    ))}
+                                </TableRow>
+                                {expandedCycleId === cycle.id && (
+                                    <TableRow>
+                                        <TableCell colSpan={columns.length} sx={{ padding: 0, borderBottom: 'unset' }}>
+                                            <Collapse in={expandedCycleId === cycle.id} timeout="auto" unmountOnExit>
+                                                {renderExpandedCycleContent(cycle)}
+                                            </Collapse>
+                                        </TableCell>
+                                    </TableRow>
+                                )}
+                            </React.Fragment>
+                        ))}
+                    </DataTable>
+                </Paper>
             )}
-            
         </PageContainer>
     );
 }
 
-export default MealCycleManagementPage; 
+export default MealCycleManagementPage;

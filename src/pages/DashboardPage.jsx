@@ -28,9 +28,19 @@ import {
     FormGroup,
     FormControlLabel,
     Checkbox,
-    Snackbar
+    Snackbar,
+    ListItemButton,
+    ListItemIcon
 } from '@mui/material';
 import OrderHistory from '../components/OrderHistory';
+
+// Import Admin Page Icons (example, adjust as needed)
+import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd';
+import LoopIcon from '@mui/icons-material/Loop';
+import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
+import EmailIcon from '@mui/icons-material/Email';
+import TuneIcon from '@mui/icons-material/Tune';
+import RestaurantMenuIcon from '@mui/icons-material/RestaurantMenu';
 
 // Assume commonUnits are defined or import them if needed from AddRecipePage
 const commonUnits = ['g', 'kg', 'ml', 'l', 'unit', 'tsp', 'tbsp', 'cup', 'oz', 'lb', 'pinch', 'slice', 'clove'];
@@ -246,12 +256,20 @@ function DashboardPage() {
     }, [chosenRecipeDetails, userOrder]);
 
     const handleQuantityChange = (proteinName, value) => {
-        const quantity = parseInt(value, 10);
-        const validQuantity = !isNaN(quantity) && quantity >= 0 ? quantity : 0;
-        setOrderQuantities(prev => ({
-            ...prev,
-            [proteinName]: validQuantity
-        }));
+        if (value === '') {
+            setOrderQuantities(prev => ({
+                ...prev,
+                [proteinName]: '' // Allow empty string
+            }));
+        } else {
+            const quantity = parseInt(value, 10);
+            // If parsing results in NaN or a negative number, treat as 0. Otherwise, use the parsed quantity.
+            const newQuantity = !isNaN(quantity) && quantity >= 0 ? quantity : 0;
+            setOrderQuantities(prev => ({
+                ...prev,
+                [proteinName]: newQuantity
+            }));
+        }
         setOrderValidationError('');
     };
 
@@ -314,7 +332,9 @@ function DashboardPage() {
             return;
         }
 
-        const totalServings = Object.values(orderQuantities).reduce((sum, q) => sum + q, 0);
+        const totalServings = Object.values(orderQuantities)
+            .map(q => (q === '' ? 0 : q)) // Convert empty strings to 0
+            .reduce((sum, q) => sum + q, 0);
         if (totalServings <= 0) {
             setOrderValidationError("You must order at least one serving.");
             return;
@@ -333,12 +353,12 @@ function DashboardPage() {
             recipeName: chosenRecipeDetails.name,
             items: chosenRecipeDetails.proteinOptions && chosenRecipeDetails.proteinOptions.length > 0
                 ? chosenRecipeDetails.proteinOptions
-                    .filter(opt => orderQuantities[opt.optionName] > 0)
+                    .filter(opt => (orderQuantities[opt.optionName] === '' ? 0 : orderQuantities[opt.optionName]) > 0)
                     .map(opt => ({
                         protein: opt.optionName,
-                        quantity: orderQuantities[opt.optionName]
+                        quantity: orderQuantities[opt.optionName] === '' ? 0 : orderQuantities[opt.optionName]
                     }))
-                : [{ protein: 'default', quantity: orderQuantities['default'] || totalServings }], // Handle default case
+                : [{ protein: 'default', quantity: (orderQuantities['default'] === '' ? 0 : (orderQuantities['default'] || 0)) || totalServings }], // Handle default case, ensure 0 for empty string
             totalServings,
             selectedCustomizations: selectedRecipeCustomizations,
             freeTextCustomization: freeTextCustomization.trim(),
@@ -459,7 +479,7 @@ function DashboardPage() {
                                              <TextField
                                                  label={option.optionName}
                                                  type="number"
-                                                 value={orderQuantities[option.optionName] || 0}
+                                                 value={orderQuantities[option.optionName] === '' ? '' : (orderQuantities[option.optionName] || 0)}
                                                  onChange={(e) => handleQuantityChange(option.optionName, e.target.value)}
                                                  inputProps={{ min: 0 }}
                                                  size="small"
@@ -472,7 +492,7 @@ function DashboardPage() {
                                          <TextField
                                              label="Quantity"
                                              type="number"
-                                             value={orderQuantities["default"] || 1}
+                                             value={orderQuantities["default"] === '' ? '' : (orderQuantities["default"] === undefined && !chosenRecipeDetails?.proteinOptions?.length ? 1 : (orderQuantities["default"] || 0) )}
                                              onChange={(e) => handleQuantityChange("default", e.target.value)}
                                              inputProps={{ min: 0 }}
                                              size="small"
@@ -564,12 +584,49 @@ function DashboardPage() {
                  Welcome, {userProfile?.displayName || currentUser?.email}!
              </Typography>
             <Typography variant="body1">
-                Check the current meal cycle below or manage your recipes.
+                Enter your order amount below.
             </Typography>
-            {userProfile?.isAdmin && (
-                <Typography variant="body2" sx={{ mt: 1 }}>
-                    Admin Links: <Link component={RouterLink} to="/admin/cycles">Manage Cycles</Link> | <Link component={RouterLink} to="/admin/planning">Plan Next Cycle</Link>
-                </Typography>
+            {userProfile?.roles?.includes('admin') && (
+                <>
+                    <Divider sx={{ my: 2 }} />
+                    <Typography variant="h6" gutterBottom sx={{ mt: 2, textAlign: 'center', width: '100%' }}>
+                        Admin Panel
+                    </Typography>
+                    <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+                        <List dense sx={{ width: 'fit-content' }}>
+                            <ListItem disablePadding>
+                                <ListItemButton component={RouterLink} to="/admin/planning">
+                                    <ListItemIcon sx={{minWidth: 'auto', mr: 1.5}}><PlaylistAddIcon fontSize="small" /></ListItemIcon>
+                                    <ListItemText primary="Plan New Meal Cycle" />
+                                </ListItemButton>
+                            </ListItem>
+                            <ListItem disablePadding>
+                                <ListItemButton component={RouterLink} to="/admin/cycles">
+                                    <ListItemIcon sx={{minWidth: 'auto', mr: 1.5}}><LoopIcon fontSize="small" /></ListItemIcon>
+                                    <ListItemText primary="Manage Meal Cycles" />
+                                </ListItemButton>
+                            </ListItem>
+                            <ListItem disablePadding>
+                                <ListItemButton component={RouterLink} to="/admin/users">
+                                    <ListItemIcon sx={{minWidth: 'auto', mr: 1.5}}><PeopleAltIcon fontSize="small" /></ListItemIcon>
+                                    <ListItemText primary="Manage Users" />
+                                </ListItemButton>
+                            </ListItem>
+                            <ListItem disablePadding>
+                                <ListItemButton component={RouterLink} to="/admin/invites">
+                                    <ListItemIcon sx={{minWidth: 'auto', mr: 1.5}}><EmailIcon fontSize="small" /></ListItemIcon>
+                                    <ListItemText primary="Manage Invites" />
+                                </ListItemButton>
+                            </ListItem>
+                            <ListItem disablePadding>
+                                <ListItemButton component={RouterLink} to="/admin/settings">
+                                    <ListItemIcon sx={{minWidth: 'auto', mr: 1.5}}><TuneIcon fontSize="small" /></ListItemIcon>
+                                    <ListItemText primary="Application Settings" />
+                                </ListItemButton>
+                            </ListItem>
+                        </List>
+                    </Box>
+                </>
             )}
         </Card>
     );

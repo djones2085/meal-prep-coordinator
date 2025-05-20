@@ -89,11 +89,18 @@ function Layout() {
 
                 {/* Auth links in Drawer */} 
                 {currentUser ? (
-                    <ListItem disablePadding>
-                        <ListItemButton onClick={handleLogout}>
-                            <ListItemText primary="Logout" />
-                        </ListItemButton>
-                    </ListItem>
+                    <>
+                        <ListItem disablePadding>
+                            <ListItemButton component={RouterLink} to="/change-password">
+                                <ListItemText primary="Change Password" />
+                            </ListItemButton>
+                        </ListItem>
+                        <ListItem disablePadding>
+                            <ListItemButton onClick={handleLogout}>
+                                <ListItemText primary="Logout" />
+                            </ListItemButton>
+                        </ListItem>
+                    </>
                 ) : (
                     <>
                         <ListItem disablePadding>

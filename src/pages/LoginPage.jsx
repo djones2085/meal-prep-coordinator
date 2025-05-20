@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebaseConfig';
-import { Box, Typography, Link } from '@mui/material';
+import { Box, Typography, Link, Grid } from '@mui/material';
 import { TextField, Button, Alert, PageContainer } from '../components/mui';
 
 function LoginPage() {
@@ -82,12 +82,18 @@ function LoginPage() {
                     >
                         Login
                     </Button>
-                    <Typography variant="body2" align="center">
-                        Don't have an account?{' '}
-                        <Link component={RouterLink} to="/signup" variant="body2">
-                            Sign Up
-                        </Link>
-                    </Typography>
+                    <Grid container justifyContent="space-between">
+                        <Grid item>
+                            <Link component={RouterLink} to="/forgot-password" variant="body2">
+                                Forgot password?
+                            </Link>
+                        </Grid>
+                        <Grid item>
+                            <Link component={RouterLink} to="/signup" variant="body2">
+                                {"Don't have an account? Sign Up"}
+                            </Link>
+                        </Grid>
+                    </Grid>
                 </Box>
             </Box>
         </PageContainer>

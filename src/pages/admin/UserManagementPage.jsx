@@ -20,10 +20,13 @@ import {
     DialogActions,
     DialogContent,
     DialogContentText,
-    DialogTitle
+    DialogTitle,
+    useTheme,
+    useMediaQuery
 } from '@mui/material';
 import { collection, getDocs, doc, updateDoc } from 'firebase/firestore';
 import { db } from '../../firebaseConfig'; // Adjusted path to firebaseConfig
+import UserCard from '../../components/admin/UserCard'; // Added
 
 function UserManagementPage() {
     const [users, setUsers] = useState([]);
@@ -40,7 +43,10 @@ function UserManagementPage() {
     const [pendingRoleChange, setPendingRoleChange] = useState({ userId: null, newRoles: [] });
 
     // Placeholder for available roles. This might come from a config or be hardcoded.
-    const availableRoles = ['user', 'admin', 'cook', 'shopper'];
+    const availableRoles = ['user', 'admin', 'cook', 'shopper', 'eater']; // Added 'eater' role
+
+    const theme = useTheme(); // Added
+    const isMobile = useMediaQuery(theme.breakpoints.down('md')); // Added, using 'md' breakpoint
 
     useEffect(() => {
         const fetchUsers = async () => {
@@ -136,47 +142,61 @@ function UserManagementPage() {
                 )}
 
                 {!loading && !error && (
-                    <TableContainer component={Paper} sx={{ mt: 2 }}>
-                        <Table sx={{ minWidth: 650 }} aria-label="user management table">
-                            <TableHead>
-                                <TableRow>
-                                    <TableCell>User ID</TableCell>
-                                    <TableCell>Email</TableCell>
-                                    <TableCell>Display Name</TableCell>
-                                    <TableCell>Roles</TableCell>
-                                    <TableCell align="right">Actions</TableCell>
-                                </TableRow>
-                            </TableHead>
-                            <TableBody>
-                                {users.map((user) => (
-                                    <TableRow key={user.id}>
-                                        <TableCell component="th" scope="row">
-                                            {user.id}
-                                        </TableCell>
-                                        <TableCell>{user.email || 'N/A'}</TableCell>
-                                        <TableCell>{user.displayName || 'N/A'}</TableCell>
-                                        <TableCell>{user.roles ? user.roles.join(', ') : 'N/A'}</TableCell>
-                                        <TableCell align="right">
-                                            <Select
-                                                size="small"
-                                                multiple
-                                                value={user.roles || []}
-                                                onChange={(e) => initiateRoleChange(user.id, e.target.value)}
-                                                renderValue={(selected) => selected.join(', ')}
-                                                sx={{ minWidth: 150, mr: 1 }}
-                                            >
-                                                {availableRoles.map((role) => (
-                                                    <MenuItem key={role} value={role}>
-                                                        {role}
-                                                    </MenuItem>
-                                                ))}
-                                            </Select>
-                                        </TableCell>
+                    isMobile ? (
+                        <Box sx={{ mt: 2 }}>
+                            {users.map((user) => (
+                                <UserCard 
+                                    key={user.id} 
+                                    user={user} 
+                                    availableRoles={availableRoles} 
+                                    onInitiateRoleChange={initiateRoleChange} 
+                                    isUpdating={loading} // Or a more specific per-user updating state if available
+                                />
+                            ))}
+                        </Box>
+                    ) : (
+                        <TableContainer component={Paper} sx={{ mt: 2 }}>
+                            <Table sx={{ minWidth: 650 }} aria-label="user management table">
+                                <TableHead>
+                                    <TableRow>
+                                        <TableCell>User ID</TableCell>
+                                        <TableCell>Email</TableCell>
+                                        <TableCell>Display Name</TableCell>
+                                        <TableCell>Roles</TableCell>
+                                        <TableCell align="right">Actions</TableCell>
                                     </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </TableContainer>
+                                </TableHead>
+                                <TableBody>
+                                    {users.map((user) => (
+                                        <TableRow key={user.id}>
+                                            <TableCell component="th" scope="row">
+                                                {user.id}
+                                            </TableCell>
+                                            <TableCell>{user.email || 'N/A'}</TableCell>
+                                            <TableCell>{user.displayName || 'N/A'}</TableCell>
+                                            <TableCell>{user.roles ? user.roles.join(', ') : 'N/A'}</TableCell>
+                                            <TableCell align="right">
+                                                <Select
+                                                    size="small"
+                                                    multiple
+                                                    value={user.roles || []}
+                                                    onChange={(e) => initiateRoleChange(user.id, e.target.value)}
+                                                    renderValue={(selected) => selected.join(', ')}
+                                                    sx={{ minWidth: 150, mr: 1 }}
+                                                >
+                                                    {availableRoles.map((role) => (
+                                                        <MenuItem key={role} value={role}>
+                                                            {role}
+                                                        </MenuItem>
+                                                    ))}
+                                                </Select>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </TableContainer>
+                    )
                 )}
             </Paper>
             <Snackbar 

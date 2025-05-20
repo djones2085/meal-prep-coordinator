@@ -5,10 +5,12 @@ import { createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { auth, db } from '../firebaseConfig'; // Import db along with auth
 import { Container, Typography, TextField, Button, Box, Alert } from '@mui/material'; // Assuming MUI is used
+import { getPasswordStrengthErrors, passwordRequirementsMessage } from '../utils/passwordUtils'; // Import password utils
 
 function SignUpPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState(''); // Add confirm password state
   const [displayName, setDisplayName] = useState(''); // Add state for display name
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState(''); // State for success message
@@ -24,6 +26,19 @@ function SignUpPage() {
     // Basic validation (can be enhanced)
     if (!displayName.trim()) {
         setError('Please enter a display name.');
+        setLoading(false);
+        return;
+    }
+
+    if (password !== confirmPassword) {
+        setError('Passwords do not match.');
+        setLoading(false);
+        return;
+    }
+
+    const passwordErrors = getPasswordStrengthErrors(password);
+    if (passwordErrors.length > 0) {
+        setError(passwordErrors.join(' ')); // Display all strength errors
         setLoading(false);
         return;
     }
@@ -66,7 +81,9 @@ function SignUpPage() {
       if (err.code === 'auth/email-already-in-use') {
         setError('This email address is already in use.');
       } else if (err.code === 'auth/weak-password') {
-        setError('Password should be at least 6 characters.');
+        // This might still be triggered by Firebase for its own rules, 
+        // but our custom check should catch most issues first.
+        setError('Password is too weak. ' + passwordRequirementsMessage());
       } else {
         setError('Failed to create account. Please try again.');
       }
@@ -126,6 +143,20 @@ function SignUpPage() {
             autoComplete="new-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            disabled={loading}
+            helperText={passwordRequirementsMessage()} // Show requirements as helper text
+          />
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            name="confirmPassword"
+            label="Confirm Password"
+            type="password"
+            id="confirmPassword"
+            autoComplete="new-password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
             disabled={loading}
           />
           {error && (
