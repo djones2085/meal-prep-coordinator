@@ -4,7 +4,7 @@ const { onSchedule } = require("firebase-functions/v2/scheduler");
 const { HttpsError, onCall } = require("firebase-functions/v2/https"); // Correctly import onCall from here
 const { logger } = require("firebase-functions"); // Use logger module
 const { onDocumentWritten } = require("firebase-functions/v2/firestore"); // Keep Firestore trigger import
-const { simplifyMeasurement } = require("../src/utils/measurementConverter.cjs");
+const { simplifyMeasurement } = require("./utils/measurementConverter.cjs");
 
 // Initialize Firebase Admin SDK only once
 if (admin.apps.length === 0) {
