@@ -8,15 +8,15 @@ A web application for coordinating meal preparation among a group of people, man
 - **Measurement Conversion for Shopping Lists:** (In Progress)
     - Implement robust measurement conversion for ingredients, especially to handle large quantities (e.g., for 20-30 servings), scaling units appropriately (e.g., grams to kilograms, ml to liters, small units to larger common units).
     - **Sub-tasks for Measurement Conversion:**
-        - **1. Define Conversion Ratios:** Establish a comprehensive set of conversion factors (e.g., tsp to tbsp, tbsp to cup, g to kg, ml to L, oz to lb, common metric/imperial volume and weight units).
-        - **2. Create Utility Function/Module:** Develop a reusable JavaScript/TypeScript module (e.g., `src/utils/measurementConverter.js`) that includes:
+        - ✅ **1. Define Conversion Ratios:** Establish a comprehensive set of conversion factors (e.g., tsp to tbsp, tbsp to cup, g to kg, ml to L, oz to lb, common metric/imperial volume and weight units).
+        - ✅ **2. Create Utility Function/Module:** Develop a reusable JavaScript/TypeScript module (e.g., `src/utils/measurementConverter.js`) that includes:
             - A function `convertMeasurement(quantity, fromUnit, toUnit)`.
             - A function `simplifyMeasurement(quantity, unit)` to convert to the most practical larger common unit (e.g., 96 tsp to 2 cups).
-        - **3. Standardize Unit Strings:** Define and use a consistent set of unit strings (e.g., 'g', 'kg', 'tsp', 'tbsp', 'cup', 'ml', 'l', 'oz', 'lb', 'unit').
-        - **4. Handle Non-Convertible Units:** Gracefully manage units that don't convert (e.g., 'clove', 'pinch', 'unit') or conversions that are not possible (e.g., weight to volume without density).
-        - **5. Integration with Shopping List Generation:** Incorporate the conversion utility into the backend (Cloud Function, e.g., `_performAggregation`) when the shopping list is generated. Aggregated quantities should be stored with practical units.
-        - **6. Frontend Display Adjustments:** Update frontend components (e.g., `ShopperShoppingListPage.jsx`, `AdminShoppingList.jsx`) to correctly display these potentially converted units and quantities.
-        - **7. Testing:** Thoroughly test with various units, quantities, and edge cases.
+        - ✅ **3. Standardize Unit Strings:** Define and use a consistent set of unit strings (e.g., 'g', 'kg', 'tsp', 'tbsp', 'cup', 'ml', 'l', 'oz', 'lb', 'unit').
+        - ✅ **4. Handle Non-Convertible Units:** Gracefully manage units that don't convert (e.g., 'clove', 'pinch', 'unit') or conversions that are not possible (e.g., weight to volume without density).
+        -  **5. Integration with Shopping List Generation:** Incorporate the conversion utility into the backend (Cloud Function, e.g., `_performAggregation`) when the shopping list is generated. Aggregated quantities should be stored with practical units.
+        -  **6. Frontend Display Adjustments:** Update frontend components (e.g., `ShopperShoppingListPage.jsx`, `AdminShoppingList.jsx`) to correctly display these potentially converted units and quantities.
+        - ✅ **7. Testing:** Thoroughly test with various units, quantities, and edge cases.
 
 ### Core Setup ✅
 - ✅ React (Vite) frontend
@@ -54,8 +54,10 @@ A web application for coordinating meal preparation among a group of people, man
 - ✅ Data model defined
 - ✅ Firestore rules for read/create
 - ✅ Bulk upload script
-- ✅ Manual Add Recipe form
+- 🟡 Manual Add Recipe form
+   -Currently sucks pretty bad(maybe just skip and solve with AI???)
 - ✅ Recipe List (RecipesPage)
+- 🔘 Edit Existing Recipe
 - ✅ Recipe Detail (RecipeDetailPage)
 - 🔘 [Future]Recipe photo uploads/display
 - 🔘 Agent: Recipe Processing (Parse unstructured text, standardize units/format, apply standards like protein goals, create structured recipe object)
@@ -146,8 +148,6 @@ A web application for coordinating meal preparation among a group of people, man
    ```bash
    npm run dev
    ```
-5. **TODO:** Create a robust set of `.cursorrules` to guide AI assistance.
-
 ## Status Legend
 - ✅ Complete
 - 🟡 In Progress (Started but not complete)
