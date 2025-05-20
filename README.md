@@ -5,18 +5,10 @@ Always check project files for existing pages and functionality. Stay DRY!
 A web application for coordinating meal preparation among a group of people, managing recipes, orders, and meal cycles.
 ## Next Focus
 
-- **Measurement Conversion for Shopping Lists:** (In Progress)
-    - Implement robust measurement conversion for ingredients, especially to handle large quantities (e.g., for 20-30 servings), scaling units appropriately (e.g., grams to kilograms, ml to liters, small units to larger common units).
-    - **Sub-tasks for Measurement Conversion:**
-        - ✅ **1. Define Conversion Ratios:** Establish a comprehensive set of conversion factors (e.g., tsp to tbsp, tbsp to cup, g to kg, ml to L, oz to lb, common metric/imperial volume and weight units).
-        - ✅ **2. Create Utility Function/Module:** Develop a reusable JavaScript/TypeScript module (e.g., `src/utils/measurementConverter.js`) that includes:
-            - A function `convertMeasurement(quantity, fromUnit, toUnit)`.
-            - A function `simplifyMeasurement(quantity, unit)` to convert to the most practical larger common unit (e.g., 96 tsp to 2 cups).
-        - ✅ **3. Standardize Unit Strings:** Define and use a consistent set of unit strings (e.g., 'g', 'kg', 'tsp', 'tbsp', 'cup', 'ml', 'l', 'oz', 'lb', 'unit').
-        - ✅ **4. Handle Non-Convertible Units:** Gracefully manage units that don't convert (e.g., 'clove', 'pinch', 'unit') or conversions that are not possible (e.g., weight to volume without density).
-        -  **5. Integration with Shopping List Generation:** Incorporate the conversion utility into the backend (Cloud Function, e.g., `_performAggregation`) when the shopping list is generated. Aggregated quantities should be stored with practical units.
-        -  **6. Frontend Display Adjustments:** Update frontend components (e.g., `ShopperShoppingListPage.jsx`, `AdminShoppingList.jsx`) to correctly display these potentially converted units and quantities.
-        - ✅ **7. Testing:** Thoroughly test with various units, quantities, and edge cases.
+- **Recipe Input/Management Enhancements:**
+    - 🟡 Address issues with the `Manual Add Recipe form` (consider UX improvements or explore AI-based recipe parsing for easier input).
+    - 🔘 Implement `Edit Existing Recipe` functionality.
+    - 🔘 [Future] Consider `Recipe photo uploads/display`.
 
 ### Core Setup ✅
 - ✅ React (Vite) frontend
@@ -65,7 +57,7 @@ A web application for coordinating meal preparation among a group of people, man
     - 🔘 [Future]: Enhance security rules to restrict read access to notes by role (e.g., 'cook') by moving notes to a subcollection and applying role-based server-side validation for all CRUD operations on notes.
 - ✅ Status management
 - ✅ Shopping list generation (Basic) - *Enhanced to generate a structured `shoppingList` object in `mealCycle` doc via Cloud Function (`_performAggregation`). Includes item details for aggregated quantity, on-hand tracking, and to-be-purchased calculation. Status: `pending_approval` initially.*
-- 🔘 Ensure intelligent unit conversions (e.g., 30 tsp to 1.25 cups) for practicality.
+- ✅ Ensure intelligent unit conversions (e.g., 30 tsp to 1.25 cups) for practicality.
 
 
 ### Meal Cycle Workflow 🟡
@@ -89,6 +81,13 @@ A web application for coordinating meal preparation among a group of people, man
 
 ### Shopping & Cooking Workflow 🟡
 - ✅ Basic shopping list data generation (ingredients and quantities in mealCycle doc) - *Superseded by enhanced generation in Recipe Management. This item refers to the new structured list.*
+- ✅ **Measurement Conversion for Shopping Lists:** Implemented robust measurement conversion for ingredients during shopping list generation. This includes:
+    - Defined comprehensive conversion ratios and standardized unit strings.
+    - Created a utility module (`src/utils/measurementConverter.cjs`) with functions `convertMeasurement` and `simplifyMeasurement`.
+    - Handled non-convertible units gracefully.
+    - Integrated the utility into the backend Cloud Function (`_performAggregation`) to store aggregated quantities with practical units (e.g., 96 tsp becomes 2 cups), while retaining original values for reference.
+    - Updated frontend components (`ShopperShoppingListPage.jsx`, `AdminShoppingList.jsx`) to display simplified units/quantities correctly, with an option to view original values.
+    - Thoroughly tested the conversion utility.
 - ✅ Shopping list: Admin approval step - *Backend function `handleApproveShoppingList` in `MealCycleManagementPage.jsx` used by `AdminShoppingList.jsx` component.*
 - ✅ Shopping list: Editable by admin/shopper - *'On hand' quantities can be edited after list approval.*
 - ✅ Shopping list: Shopper can mark items as 'available on hand' - *Implemented via direct 'on hand' quantity editing and a 'Mark as Acquired' button for ease of use.*
@@ -126,7 +125,7 @@ A web application for coordinating meal preparation among a group of people, man
 ## Future AI / Agent-Based Features 🔘
 - 🔘 Agent: Recipe Processing (Parse unstructured text, standardize units/format, apply standards like protein goals, create structured recipe object)
 - 🔘 Agent: Shopping List Generation (Aggregate ingredients intelligently across orders, handle complex unit conversions/standardization, potentially optimize quantities for purchasing, e.g. if items come in standard sizes. Ensure intelligent unit conversions like 30 tsp to 1.25 cups for practicality.)
-   - 🔘 Ensure intelligent unit conversions (e.g., 30 tsp to 1.25 cups) for practicality.
+   - ✅ Ensure intelligent unit conversions (e.g., 30 tsp to 1.25 cups) for practicality.
 
 - 🔘 Agent: Cook Sequencing (Optimize cooking task order based on prep/cook times and target completion, potentially considering resource availability like oven space or number of burners.)
 

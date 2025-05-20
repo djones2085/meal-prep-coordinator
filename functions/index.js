@@ -4,6 +4,7 @@ const { onSchedule } = require("firebase-functions/v2/scheduler");
 const { HttpsError, onCall } = require("firebase-functions/v2/https"); // Correctly import onCall from here
 const { logger } = require("firebase-functions"); // Use logger module
 const { onDocumentWritten } = require("firebase-functions/v2/firestore"); // Keep Firestore trigger import
+const { simplifyMeasurement } = require("../src/utils/measurementConverter.cjs");
 
 // Initialize Firebase Admin SDK only once
 if (admin.apps.length === 0) {
@@ -174,14 +175,19 @@ async function _performAggregation(mealCycleId) {
       }
     }
 
-    const shoppingListItems = Object.values(aggregatedIngredients).map((ing) => ({
-      name: ing.name,
-      unit: ing.unit,
-      aggregatedQuantity: ing.quantity,
-      onHandQuantity: 0, // Initialize to 0
-      toBePurchasedQuantity: ing.quantity, // Initially same as aggregated
-      // notes: "", // Optional: initialize if needed
-    }));
+    const shoppingListItems = Object.values(aggregatedIngredients).map((ing) => {
+      const simplified = simplifyMeasurement(ing.quantity, ing.unit);
+      return {
+        name: ing.name,
+        unit: simplified.unit,
+        aggregatedQuantity: simplified.quantity,
+        onHandQuantity: 0, // Initialize to 0
+        toBePurchasedQuantity: simplified.quantity, // Initially same as aggregated
+        originalQuantity: ing.quantity, // Optional: store original for reference
+        originalUnit: ing.unit, // Optional: store original for reference
+        // notes: "", // Optional: initialize if needed
+      };
+    });
 
     const shoppingListData = {
       status: "pending_approval",

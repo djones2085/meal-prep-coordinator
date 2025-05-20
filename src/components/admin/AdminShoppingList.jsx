@@ -72,7 +72,12 @@ function AdminShoppingListItemDetails({ item, onHandQuantityChange, disabled }) 
                 </Grid>
                 <Grid item xs={6} sm={2.5}>
                     <Typography variant="body2" color="text.secondary">
-                        Needed: {roundNicely(item.aggregatedQuantity)}
+                        Needed: {roundNicely(item.aggregatedQuantity)} {item.unit}
+                        {item.originalQuantity && item.originalUnit && (item.originalQuantity !== item.aggregatedQuantity || item.originalUnit !== item.unit) && (
+                            <Typography component="span" variant="caption" sx={{ ml: 0.5, fontStyle: 'italic' }}>
+                                (orig. {roundNicely(item.originalQuantity)} {item.originalUnit})
+                            </Typography>
+                        )}
                     </Typography>
                 </Grid>
                 <Grid item xs={6} sm={3}>

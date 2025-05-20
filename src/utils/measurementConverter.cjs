@@ -284,12 +284,15 @@ function simplifyMeasurement(quantity, unit) {
 // or conversions that are not possible (e.g., weight to volume without density).
 // The NON_CONVERTIBLE_UNITS array and checks in functions help manage this.
 
-export {
-  conversionRatios,
-  NON_CONVERTIBLE_UNITS,
+// Export functions for use in other modules
+// export { normalizeUnit, convertMeasurement, simplifyMeasurement, NON_CONVERTIBLE_UNITS, conversionRatios };
+module.exports = {
   normalizeUnit,
   convertMeasurement,
   simplifyMeasurement,
+  NON_CONVERTIBLE_UNITS,
+  conversionRatios,
+  // also export the helper for testing if needed, or keep it internal
 };
 
 // Example Usage (for testing - uncomment to run with node):
@@ -397,3 +400,23 @@ console.log("Simplify 1 stick (to g for check): ", simplifyMeasurement(1, 'stick
 //    - Allow simplifying to smaller units if appropriate (e.g. 0.25 cup to 4 tbsp).
 // 3. Implement actual cross-system conversions in `convertMeasurement`.
 // 4. Add thorough testing (sub-task 7). 
+
+// --- 7. Testing (Placeholder/Example) ---
+// (Actual tests should be in a separate test file, e.g., testConverter.js)
+
+// module.exports allows these functions to be used in Node.js environments (e.g., Firebase Functions)
+// and also in frontend code if using a bundler like Webpack/Rollup that understands CommonJS.
+
+// --- Export for Node.js (Firebase Functions) and Bundlers ---
+module.exports = {
+  normalizeUnit,
+  convertMeasurement,
+  simplifyMeasurement,
+  NON_CONVERTIBLE_UNITS,
+  conversionRatios,
+  // If you need to export CROSS_SYSTEM_FACTORS or PREFERRED_SIMPLIFICATIONS for testing or other utils:
+  // CROSS_SYSTEM_FACTORS,
+  // PREFERRED_SIMPLIFICATIONS
+};
+
+/* Commented out ES6 export block removed */ 

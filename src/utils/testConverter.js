@@ -4,7 +4,7 @@ import {
   normalizeUnit,
   convertMeasurement,
   simplifyMeasurement,
-} from './measurementConverter.js';
+} from './measurementConverter.cjs';
 
 let testsPassed = 0;
 let testsFailed = 0;
