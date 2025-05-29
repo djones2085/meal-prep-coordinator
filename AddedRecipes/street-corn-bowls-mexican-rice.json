@@ -1,0 +1,72 @@
+{
+  "name": "Street Corn Bowls w/ Mexican Rice (Chicken or Beef)",
+  "description": "Grilled chicken or seasoned ground beef served over Mexican rice with a creamy street corn mixture and charred jalapeños.",
+  "status": "testing",
+  "baseYield": 1,
+  "baseYieldUnit": "serving",
+  "prepTime": "20 minutes (plus marinating time)",
+  "cookTime": "20 minutes",
+  "ingredients": [
+    { "name": "Dry White Rice", "quantity": 0.25, "unit": "cup" },
+    { "name": "Vegetable Oil (for rice)", "quantity": 0.5, "unit": "tsp" },
+    { "name": "Water (for rice)", "quantity": 0.75, "unit": "cup" },
+    { "name": "Tomato Sauce", "quantity": 1.25, "unit": "tbsp" },
+    { "name": "Mexican Seasoning", "quantity": 0.75, "unit": "tsp", "notes": "Blend: 1/4 tsp chili powder, 1/8 tsp cumin, 1/8 tsp garlic powder, 1/8 tsp onion powder, pinch of paprika" },
+    { "name": "Corn Kernels", "quantity": 0.75, "unit": "cup", "notes": "Fresh, frozen, or canned" },
+    { "name": "Mayonnaise", "quantity": 0.75, "unit": "tsp" },
+    { "name": "Sour Cream", "quantity": 0.75, "unit": "tsp" },
+    { "name": "Lime Juice (for corn)", "quantity": 0.375, "unit": "tsp", "notes": "3/8 tsp" },
+    { "name": "Chili Powder (for corn)", "quantity": 0.25, "unit": "tsp" },
+    { "name": "Cotija or Feta Cheese", "quantity": 1.5, "unit": "tbsp", "notes": "Crumbled, optional - see notes" },
+    { "name": "Fresh Cilantro (for corn)", "quantity": 0, "unit": "to taste", "notes": "Chopped" },
+    { "name": "Jalapeño", "quantity": 0.5, "unit": "unit", "notes": "Sliced and charred" },
+    { "name": "Salt & Black Pepper", "quantity": 0, "unit": "to taste" }
+  ],
+  "proteinOptions": [
+    {
+      "optionName": "Chicken",
+      "ingredients": [
+        { "name": "Boneless, Skinless Chicken Breast or Thigh", "quantity": 6, "unit": "oz" },
+        { "name": "Olive Oil", "quantity": 0.75, "unit": "tsp" },
+        { "name": "Lime Juice", "quantity": 0.75, "unit": "tsp" },
+        { "name": "Chili Powder", "quantity": 0.75, "unit": "tsp" },
+        { "name": "Ground Cumin", "quantity": 0.375, "unit": "tsp", "notes": "3/8 tsp" },
+        { "name": "Smoked Paprika", "quantity": 0.375, "unit": "tsp", "notes": "3/8 tsp" },
+        { "name": "Garlic Powder", "quantity": 0.25, "unit": "tsp" },
+        { "name": "Onion Powder", "quantity": 0.25, "unit": "tsp" }
+      ]
+    },
+    {
+      "optionName": "Beef",
+      "ingredients": [
+        { "name": "Ground Beef", "quantity": 6, "unit": "oz" },
+        { "name": "Olive Oil", "quantity": 0.75, "unit": "tsp" },
+        { "name": "Lime Juice", "quantity": 0.75, "unit": "tsp" },
+        { "name": "Chili Powder", "quantity": 0.75, "unit": "tsp" },
+        { "name": "Ground Cumin", "quantity": 0.375, "unit": "tsp", "notes": "3/8 tsp" },
+        { "name": "Smoked Paprika", "quantity": 0.375, "unit": "tsp", "notes": "3/8 tsp" },
+        { "name": "Garlic Powder", "quantity": 0.25, "unit": "tsp" },
+        { "name": "Onion Powder", "quantity": 0.25, "unit": "tsp" }
+      ]
+    }
+  ],
+  "instructions": [
+    "Prepare Protein Marinade: Choose Chicken or Beef. In a bowl, mix the corresponding ingredients listed under Protein Options (Olive Oil, Lime Juice, Chili Powder, Cumin, Smoked Paprika, Garlic Powder, Onion Powder).",
+    "Marinate Protein: Add chosen protein (6 oz chicken or 6 oz ground beef per serving) to the marinade. Season with salt and pepper. Marinate for at least 30 minutes (or up to 4 hours refrigerated).",
+    "Cook Protein: If using chicken, grill or pan-sear until internal temp reaches 165°F (75°C). If using ground beef, cook in a skillet until fully browned, drain excess fat.",
+    "Prepare Mexican Rice: In a small pan, heat 0.5 tsp vegetable oil over medium heat. Add 0.25 cup dry white rice and brown for ~2 minutes, stirring frequently. Add 0.75 cup water, 1.25 tbsp tomato sauce, and 0.75 tsp Mexican seasoning (blend: 1/4 tsp chili powder, 1/8 tsp cumin, 1/8 tsp garlic powder, 1/8 tsp onion powder, pinch of paprika). Stir, cover, and cook on high heat for 10 minutes. Turn off heat, keep covered on burner for 5 minutes, then remove from heat and let sit covered for 10 minutes.",
+    "Prepare Street Corn: Heat corn kernels (0.75 cup per serving). In a bowl, mix the warm corn with mayonnaise (0.75 tsp), sour cream (0.75 tsp), lime juice (0.375 tsp), and chili powder (0.25 tsp).",
+    "Street Corn Variation: For 'with cheese' version, stir in crumbled cotija/feta cheese (1.5 tbsp per serving). For 'without cheese', omit the cheese. Stir in chopped fresh cilantro to taste for either version.",
+    "Grill/Char Jalapeños: Grill or pan-sear sliced jalapeños (0.5 per serving) until softened and lightly charred.",
+    "Assemble Bowls: Layer Mexican rice in the bottom of each bowl. Top with cooked protein, street corn mixture, and charred jalapeño slices."
+  ],
+  "tags": ["bowl", "mexican", "street corn", "chicken", "beef", "mexican rice", "meal prep"],
+  "cookNotes": [
+    "Recipe base yield is 1 serving. Scale ingredients accordingly.",
+    "Protein can be marinated ahead of time.",
+    "Street corn can be made with or without cheese. Cheese listed in main ingredients is for the 'with cheese' version; omit if desired.",
+    "Mexican rice uses a 3:1 water-to-rice ratio for a softer texture, as intended."
+  ],
+  "imageUrl": "",
+  "timesPrepared": 1
+} 
