@@ -4,7 +4,7 @@ const { onSchedule } = require("firebase-functions/v2/scheduler");
 const { HttpsError, onCall } = require("firebase-functions/v2/https"); // Correctly import onCall from here
 const { logger } = require("firebase-functions"); // Use logger module
 const { onDocumentWritten } = require("firebase-functions/v2/firestore"); // Keep Firestore trigger import
-const { simplifyMeasurement } = require("./utils/measurementConverter.cjs");
+const convert = require("convert-units"); // Add this line
 
 // Initialize Firebase Admin SDK only once
 if (admin.apps.length === 0) {
@@ -176,13 +176,42 @@ async function _performAggregation(mealCycleId) {
     }
 
     const shoppingListItems = Object.values(aggregatedIngredients).map((ing) => {
-      const simplified = simplifyMeasurement(ing.quantity, ing.unit);
+      let simplifiedQuantity = ing.quantity;
+      let simplifiedUnit = ing.unit;
+      let normalizedUnit = ing.unit.toLowerCase();
+
+      try {
+        // Normalize common recipe units to what convert-units expects
+        if (normalizedUnit === "tbs" || normalizedUnit === "tablespoon" || normalizedUnit === "tablespoons") normalizedUnit = "Tbs";
+        else if (normalizedUnit === "teaspoon" || normalizedUnit === "teaspoons") normalizedUnit = "tsp";
+        else if (normalizedUnit === "fluid ounce" || normalizedUnit === "fluid ounces") normalizedUnit = "fl-oz";
+        else if (normalizedUnit === "ounce" || normalizedUnit === "ounces") normalizedUnit = "oz"; // for mass
+        else if (normalizedUnit === "gram" || normalizedUnit === "grams") normalizedUnit = "g";
+        else if (normalizedUnit === "kilogram" || normalizedUnit === "kilograms") normalizedUnit = "kg";
+        else if (normalizedUnit === "pound" || normalizedUnit === "pounds") normalizedUnit = "lb";
+        else if (normalizedUnit === "milliliter" || normalizedUnit === "milliliters") normalizedUnit = "ml";
+        else if (normalizedUnit === "liter" || normalizedUnit === "liters") normalizedUnit = "l";
+        else if (normalizedUnit === "cups") normalizedUnit = "cup";
+        else if (normalizedUnit === "pints") normalizedUnit = "pnt";
+        else if (normalizedUnit === "quarts") normalizedUnit = "qt";
+        else if (normalizedUnit === "gallons") normalizedUnit = "gal";
+        // Add other normalizations as needed, or ensure input units are already standard for convert-units
+
+        const best = convert(ing.quantity).from(normalizedUnit).toBest();
+        simplifiedQuantity = best.val;
+        simplifiedUnit = best.unit;
+      } catch (e) {
+        // If conversion fails (e.g., unknown unit like "clove", "pinch", "stick"), keep original
+        logger.warn(`(_performAggregation) Could not convert/simplify unit '${ing.unit}' (normalized to '${normalizedUnit}') for ingredient '${ing.name}'. Using original values. Error: ${e.message}`);
+        // simplifiedQuantity and simplifiedUnit are already set to ing.quantity and ing.unit by initialization
+      }
+
       return {
         name: ing.name,
-        unit: simplified.unit,
-        aggregatedQuantity: simplified.quantity,
+        unit: simplifiedUnit,
+        aggregatedQuantity: simplifiedQuantity,
         onHandQuantity: 0, // Initialize to 0
-        toBePurchasedQuantity: simplified.quantity, // Initially same as aggregated
+        toBePurchasedQuantity: simplifiedQuantity, // Initially same as aggregated
         originalQuantity: ing.quantity, // Optional: store original for reference
         originalUnit: ing.unit, // Optional: store original for reference
         // notes: "", // Optional: initialize if needed

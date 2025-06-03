@@ -17,6 +17,7 @@
     "@mui/material": "^7.0.2",
     "@mui/x-date-pickers": "^8.1.0",
     "@reduxjs/toolkit": "^2.6.1",
+    "convert-units": "^2.3.4",
     "date-fns": "^4.1.0",
     "firebase": "^11.6.0",
     "notistack": "^3.0.2",
