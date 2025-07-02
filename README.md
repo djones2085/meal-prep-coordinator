@@ -9,6 +9,8 @@ A web application for coordinating meal preparation among a group of people, man
     - Verify the `_performAggregation` Cloud Function correctly uses `convert-units`.
     - Test with various recipes and units to ensure shopping list items in Firestore are accurate.
     - Confirm frontend shopping list pages display the new units and quantities as expected.
+- **Data Cleanup: Ingredient Notes:**
+    - 🔘 Review and update ingredient notes in the `recipes` collection in Firestore to remove any static approximations (e.g., '(Approx 5 tbsp)') that may conflict with dynamic unit conversions.
 - **Recipe Input/Management Enhancements:**
     - 🟡 Address issues with the `Manual Add Recipe form` (consider UX improvements or explore AI-based recipe parsing for easier input).
     - 🔘 Implement `Edit Existing Recipe` functionality.
@@ -61,7 +63,7 @@ A web application for coordinating meal preparation among a group of people, man
     - 🔘 [Future]: Enhance security rules to restrict read access to notes by role (e.g., 'cook') by moving notes to a subcollection and applying role-based server-side validation for all CRUD operations on notes.
 - ✅ Status management
 - ✅ Shopping list generation (Basic) - *Enhanced to generate a structured `shoppingList` object in `mealCycle` doc via Cloud Function (`_performAggregation`). Includes item details for aggregated quantity, on-hand tracking, and to-be-purchased calculation. Status: `pending_approval` initially. Successfully deployed with `convert-units` library integration.*
-- ✅ Ensure intelligent unit conversions (e.g., 30 tsp to 1.25 cups) for practicality. - *Now using the `convert-units` library. Successfully deployed.*
+- ✅ Ensure intelligent unit conversions (e.g., 30 tsp to 1.25 cups) for practicality. - *Now using the `convert-units` library for backend aggregation and frontend display on `RecipeDetailPage`. Successfully deployed and tested.*
 
 
 ### Meal Cycle Workflow 🟡
@@ -85,11 +87,12 @@ A web application for coordinating meal preparation among a group of people, man
 
 ### Shopping & Cooking Workflow 🟡
 - ✅ Basic shopping list data generation (ingredients and quantities in mealCycle doc) - *Superseded by enhanced generation in Recipe Management. This item refers to the new structured list.*
-- ✅ **Measurement Conversion for Shopping Lists:** Implemented robust measurement conversion for ingredients during shopping list generation using the `convert-units` npm package. This includes:
+- ✅ **Measurement Conversion for Shopping Lists & Recipe Display:** Implemented robust measurement conversion for ingredients using the `convert-units` npm package. This includes:
     - Leveraging `convert-units` for comprehensive conversion ratios and standardized unit strings.
     - Handling non-convertible units gracefully (as supported by the library or by custom logic around it).
     - Integrating the `convert-units` library into the backend Cloud Function (`_performAggregation`) to store aggregated quantities with practical units (e.g., 96 tsp becomes 2 cups), while retaining original values for reference. *Successfully deployed.*
     - Updating frontend components (`ShopperShoppingListPage.jsx`, `AdminShoppingList.jsx`) to display simplified units/quantities correctly, with an option to view original values.
+    - ✅ `RecipeDetailPage.jsx` now also uses `convert-units` to display intelligently converted ingredient units when adjusting recipe yield, preferring common kitchen units.
     - Relying on the thorough testing of the `convert-units` library.
 - ✅ Shopping list: Admin approval step - *Backend function `handleApproveShoppingList` in `MealCycleManagementPage.jsx` used by `AdminShoppingList.jsx` component.*
 - ✅ Shopping list: Editable by admin/shopper - *'On hand' quantities can be edited after list approval.*

@@ -1,0 +1,51 @@
+{
+  "name": "Ramen Meal Prep with Sliced Pork Loin",
+  "description": "Complete meal prep ramen with pre-cooked sliced pork loin. Just add boiling water for a hearty one-meal-a-day portion.",
+  "status": "approved",
+  "baseYield": 4,
+  "baseYieldUnit": "servings",
+  "prepTime": "45 minutes (day before)",
+  "cookTime": "10 minutes (searing pork)",
+  "ingredients": [
+    { "name": "Pork Loin", "quantity": 2, "unit": "lb", "notes": "For slicing, 1/2 lb per serving" },
+    { "name": "Instant Ramen Noodles", "quantity": 8, "unit": "oz", "notes": "Discard seasoning packets, or use dried soba/rice noodles" },
+    { "name": "Miso Paste", "quantity": 4, "unit": "tsp", "notes": "White or red" },
+    { "name": "Soy Sauce", "quantity": 4, "unit": "tsp", "notes": "Or tamari" },
+    { "name": "Sesame Oil", "quantity": 2, "unit": "tsp" },
+    { "name": "Chili Oil", "quantity": 1, "unit": "tsp", "notes": "Or sriracha, optional for heat" },
+    { "name": "Chicken or Vegetable Bouillon Powder", "quantity": 2, "unit": "tsp" },
+    { "name": "Fresh Ginger", "quantity": 1, "unit": "tsp", "notes": "Grated, or 1/2 tsp dried ginger" },
+    { "name": "Garlic Powder", "quantity": 1, "unit": "tsp", "notes": "Or minced dried garlic" },
+    { "name": "Dried Shiitake Mushrooms", "quantity": 4, "unit": "tbsp", "notes": "Chopped" },
+    { "name": "Dried Seaweed", "quantity": 4, "unit": "tbsp", "notes": "Nori or wakame" },
+    { "name": "Shredded Carrots", "quantity": 1, "unit": "cup" },
+    { "name": "Green Onions", "quantity": 1, "unit": "cup", "notes": "Thinly sliced, separate white and green parts" },
+    { "name": "Freeze-dried Spinach", "quantity": 1, "unit": "cup", "notes": "Or kale/cabbage" },
+    { "name": "Dried Corn", "quantity": 4, "unit": "tbsp", "notes": "Or freeze-dried peas, optional" },
+    { "name": "Butcher Paper", "quantity": 4, "unit": "sheets", "notes": "12x12 inch sheets for wrapping pork" },
+    { "name": "Kitchen Twine", "quantity": 1, "unit": "roll", "notes": "Or food-safe tape for securing packets" },
+    { "name": "Olive Oil", "quantity": 1, "unit": "tbsp", "notes": "For searing pork" },
+    { "name": "Salt and Pepper", "quantity": 1, "unit": "pinch", "notes": "For seasoning pork" }
+  ],
+  "proteinOptions": [],
+  "instructions": [
+    "Cook the Pork Loin: Season 2 lbs pork loin with salt, pepper, and garlic powder. Sear in hot skillet with 1 tbsp oil over medium-high heat for 2-3 minutes per side until golden (internal temp ~130°F). Cool slightly, then slice thinly (1/8-inch). Divide into 4 portions (1/2 lb each).",
+    "Wrap Pork in Butcher Paper: Cut 4 sheets of butcher paper (~12x12 inches). Place one pork portion in center of each sheet. Fold paper tightly around pork, tucking edges to prevent leaks. Secure with kitchen twine or food-safe tape.",
+    "Prepare Flavor Base: In each of 4 meal prep containers, add: 1 tsp miso paste, 1 tsp soy sauce, 1/2 tsp sesame oil, 1/4 tsp chili oil (if using), 1/2 tsp bouillon powder, 1/4 tsp ginger, 1/4 tsp garlic powder, 1 tbsp dried shiitake mushrooms, and 1 tbsp dried seaweed.",
+    "Add Dry Ingredients: Place 2 oz dried noodles on top of flavor base in each container. Add 1/4 cup shredded carrots, 1/4 cup dried spinach/kale/cabbage, 1 tbsp dried corn/peas (if using), and white parts of green onions to each container.",
+    "Add Wrapped Pork: Place one butcher paper packet in each meal prep container, on top of or beside dry ingredients. This keeps all components in one container while maintaining pork separation.",
+    "Store: Reserve green onion greens and any fresh toppings in separate airtight containers. Seal meal prep containers and refrigerate for up to 3 days (shorter timeframe due to butcher paper breathability).",
+    "Day-Of Assembly: Remove container from fridge. Unwrap pork packet (discard/compost paper). Add sliced pork to container with noodles. Pour 2 cups boiling water over everything, ensuring pork and noodles are submerged. Stir gently to dissolve flavor base.",
+    "Final Steps: Cover and let sit 4-6 minutes until noodles are soft and pork is heated through (165°F). Add green onion greens and any fresh toppings. Serve hot."
+  ],
+  "tags": ["ramen", "meal prep", "pork", "asian", "one pot", "convenience", "umami"],
+  "cookNotes": [
+    "Store for maximum 3 days due to butcher paper breathability - shorter than plastic wrap storage.",
+    "Pork must reach 165°F when reheated with boiling water for food safety.",
+    "Optional fresh toppings: cilantro, sesame seeds, chili flakes, lime wedge.",
+    "Designed for one-meal-a-day diet with 1/2 lb pork per serving for substantial protein.",
+    "All components stored in single container for maximum convenience."
+  ],
+  "imageUrl": "",
+  "timesPrepared": 0
+} 

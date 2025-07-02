@@ -3,6 +3,7 @@ import { useParams, Link as RouterLink } from 'react-router-dom'; // Added Route
 import { doc, getDoc, updateDoc, arrayUnion, arrayRemove, Timestamp, collection } from 'firebase/firestore'; // Added updateDoc, arrayUnion, arrayRemove, Timestamp, collection
 import { db } from '../firebaseConfig'; // Import db instance
 import { useAuth } from '../contexts/AuthContext'; // Added useAuth
+import convertUnits from 'convert-units'; // Import convert-units
 import {
     Container,
     Typography,
@@ -43,7 +44,8 @@ function RecipeDetailPage() {
     const [recipe, setRecipe] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
-    const [displayYield, setDisplayYield] = useState(0); // State for adjustable yield
+    const [displayYield, setDisplayYield] = useState(1); // State for adjustable yield, default to 1
+    const [yieldInputValue, setYieldInputValue] = useState('1'); // State for the TextField's string value
 
     // State for recipe notes
     const [userProfile, setUserProfile] = useState(null); // For authorName
@@ -59,7 +61,8 @@ function RecipeDetailPage() {
             setError('');
             setLoading(true);
             setRecipe(null); // Reset recipe on fetch
-            setDisplayYield(0); // Reset display yield
+            setDisplayYield(1); // Reset display yield
+            setYieldInputValue('1'); // Reset yieldInputValue
             try {
                 const recipeDocRef = doc(db, 'recipes', recipeId); // Create document reference
                 const docSnap = await getDoc(recipeDocRef); // Fetch the document
@@ -67,7 +70,9 @@ function RecipeDetailPage() {
                 if (docSnap.exists()) {
                     const fetchedRecipe = { id: docSnap.id, ...docSnap.data() };
                     setRecipe(fetchedRecipe);
-                    setDisplayYield(fetchedRecipe.baseYield || 1); // Initialize displayYield
+                    const initialYield = fetchedRecipe.baseYield || 1;
+                    setDisplayYield(initialYield); // Initialize displayYield
+                    setYieldInputValue(initialYield.toString()); // Initialize yieldInputValue
                     console.log("Fetched recipe:", fetchedRecipe);
                 } else {
                     console.log("No such document!");
@@ -118,23 +123,46 @@ function RecipeDetailPage() {
     // Helper function to format ingredient display
     const formatIngredient = (ingredient, factor) => {
         let text = '';
-        // Scale quantity if it exists and is numeric
-        if (ingredient.quantity && typeof ingredient.quantity === 'number') {
-             const scaledQuantity = ingredient.quantity * factor;
-             text += `${roundNicely(scaledQuantity)} `;
-        } else if (ingredient.quantity) {
-             // Keep non-numeric quantities (like "to taste") as is
-             text += `${ingredient.quantity} `;
+        const originalQuantity = ingredient.quantity;
+        const originalUnit = ingredient.unit;
+
+        // Define common cooking volume units to prefer, and units to exclude
+        const commonVolumeUnitsToExclude = ['mm3', 'cm3', 'm3', 'km3', 'in3', 'ft3', 'yd3'];
+
+        if (originalQuantity && typeof originalQuantity === 'number') {
+            const scaledQuantity = originalQuantity * factor;
+            try {
+                const isVolume = originalUnit && convertUnits().possibilities('volume').includes(originalUnit.toLowerCase());
+
+                if (originalUnit && convertUnits().getUnit(originalUnit)) {
+                    const bestUnitOptions = isVolume ? { exclude: commonVolumeUnitsToExclude } : {};
+                    const best = convertUnits(scaledQuantity).from(originalUnit).toBest(bestUnitOptions);
+                    text += `${roundNicely(best.val)} ${best.unit} `;
+                } else {
+                    text += `${roundNicely(scaledQuantity)} `;
+                    if (originalUnit && originalUnit.toLowerCase() !== 'unit') {
+                        text += `${originalUnit} `;
+                    }
+                }
+            } catch (e) {
+                text += `${roundNicely(scaledQuantity)} `;
+                if (originalUnit && originalUnit.toLowerCase() !== 'unit') {
+                    text += `${originalUnit} `;
+                }
+            }
+        } else if (originalQuantity) {
+            text += `${originalQuantity} `;
+            if (originalUnit && originalUnit.toLowerCase() !== 'unit') {
+                text += `${originalUnit} `;
+            }
         }
 
-        if (ingredient.unit && ingredient.unit !== 'unit') {
-             text += `${ingredient.unit} `;
-        }
         text += ingredient.name;
-         if (ingredient.notes) {
+        // Display ingredient notes as they are
+        if (ingredient.notes) {
             text += ` (${ingredient.notes})`;
         }
-        return text;
+        return text.trim();
     };
 
     // Generate simple text for download/sharing
@@ -214,9 +242,35 @@ function RecipeDetailPage() {
         }
     };
 
-    const handleYieldChange = (event) => {
-         const newYield = Math.max(1, parseInt(event.target.value, 10) || 0); // Ensure at least 1
-         setDisplayYield(newYield);
+    const handleYieldInputChange = (event) => {
+        const rawValue = event.target.value;
+        setYieldInputValue(rawValue);
+
+        if (rawValue === '') {
+            // Allow input to be empty, displayYield remains the last valid number
+            // Or, if we want calculations to reflect "nothing" or "default" immediately:
+            // setDisplayYield(1); // Or some other indicator if needed
+        } else {
+            const num = parseInt(rawValue, 10);
+            if (!isNaN(num) && num >= 1) {
+                setDisplayYield(num);
+            } else if (!isNaN(num) && num < 1 && rawValue !== '') { // Handles "0" or negative
+                // If user types "0", let it be in input, but displayYield might still be last valid or 1
+                // On blur, this will be corrected to 1.
+            }
+        }
+    };
+
+    const handleYieldInputBlur = () => {
+        const num = parseInt(yieldInputValue, 10);
+        if (!isNaN(num) && num >= 1) {
+            setDisplayYield(num);
+            setYieldInputValue(num.toString());
+        } else {
+            // If input is empty, not a number, or less than 1, reset to 1
+            setDisplayYield(1);
+            setYieldInputValue("1");
+        }
     };
 
     // --- Notes Handlers ---
@@ -372,9 +426,10 @@ function RecipeDetailPage() {
                              label="Yield"
                              type="number"
                              size="small"
-                             value={displayYield}
-                             onChange={handleYieldChange}
-                             InputProps={{ inputProps: { min: 1 } }}
+                             value={yieldInputValue}
+                             onChange={handleYieldInputChange}
+                             onBlur={handleYieldInputBlur}
+                             InputProps={{ inputProps: { min: 1 } }} // min attribute is a browser hint
                              // sx={{ maxWidth: '100px', mr: 1 }}
                              // Let flexbox handle spacing, adjust max width if needed on xs
                              sx={{ maxWidth: { xs: '150px', sm: '100px' } }}

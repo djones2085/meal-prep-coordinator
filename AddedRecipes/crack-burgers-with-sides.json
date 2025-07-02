@@ -1,0 +1,42 @@
+{
+  "name": "Crack Burgers with Home Fries & Sautéed Bell Peppers",
+  "description": "Flavor-packed burgers with ranch, bacon, and cheddar, served with crispy home fries and sautéed bell peppers for a vibrant, complementary side.",
+  "status": "testing",
+  "baseYield": 5,
+  "baseYieldUnit": "servings",
+  "prepTime": "30 minutes",
+  "cookTime": "30-40 minutes",
+  "ingredients": [
+    { "name": "Ground Chuck", "quantity": 1.7, "unit": "lb" },
+    { "name": "Sour Cream", "quantity": 0.3, "unit": "cup", "notes": "Approx 5 tbsp" },
+    { "name": "Ranch Dressing Mix", "quantity": 1, "unit": "tbsp" },
+    { "name": "Cooked Bacon", "quantity": 10, "unit": "oz", "notes": "Crumbled, ~0.6 lbs" },
+    { "name": "Shredded Cheddar Cheese", "quantity": 4.7, "unit": "oz", "notes": "~1.25 cups" },
+    { "name": "Yukon Gold Potatoes", "quantity": 2, "unit": "lb", "notes": "cut into ½-inch cubes, unpeeled for texture" },
+    { "name": "Olive Oil", "quantity": 2, "unit": "tbsp", "notes": "for home fries" },
+    { "name": "Garlic Powder", "quantity": 1, "unit": "tsp", "notes": "for home fries" },
+    { "name": "Onion Powder", "quantity": 1, "unit": "tsp" },
+    { "name": "Smoked Paprika", "quantity": 1, "unit": "tsp", "notes": "for depth and slight smokiness" },
+    { "name": "Dried Thyme", "quantity": 0.5, "unit": "tsp", "notes": "optional, for herbaceous note" },
+    { "name": "Salt & Black Pepper", "quantity": "to taste", "unit": "", "notes": "for home fries" },
+    { "name": "Bell Peppers", "quantity": 1.3, "unit": "lb", "notes": "mix of red, yellow, and/or orange for color and sweetness, sliced into strips" },
+    { "name": "Olive Oil", "quantity": 1.5, "unit": "tbsp", "notes": "for bell peppers" },
+    { "name": "Yellow Onion", "quantity": 1, "unit": "small", "notes": "sliced, ~0.5 cup, for added sweetness" },
+    { "name": "Garlic Powder", "quantity": 1, "unit": "tsp", "notes": "for bell peppers" },
+    { "name": "Red Pepper Flakes", "quantity": 0.25, "unit": "tsp", "notes": "optional, for a slight kick" },
+    { "name": "Salt & Black Pepper", "quantity": "to taste", "unit": "", "notes": "for bell peppers" }
+  ],
+  "proteinOptions": [],
+  "instructions": [
+    "Prepare Burger Patties: In a large bowl, combine ground chuck, sour cream, ranch mix, crumbled bacon, and cheddar. Mix gently. Form into 5 equal patties.",
+    "Cook Burgers: Preheat grill or skillet (medium-high). Cook patties 4-5 minutes per side or to desired doneness. Keep warm.",
+    "Prepare Home Fries: Wash potatoes and cut into ½-inch cubes (leave skin on for texture). Pat dry to remove excess moisture.",
+    "Cook Home Fries: Heat 2 tbsp olive oil in a large skillet over medium heat. Add potatoes in a single layer. Cook undisturbed for 8-10 minutes until golden and crisp on one side. Flip, then add garlic powder, onion powder, smoked paprika, thyme (if using), salt, and pepper. Cook another 8-10 minutes, stirring occasionally, until crispy and tender. Keep warm.",
+    "Sauté Bell Peppers: In another skillet, heat 1.5 tbsp olive oil over medium heat. Add sliced bell peppers and onion. Cook 8-10 minutes, stirring occasionally, until softened and slightly caramelized. Add garlic powder, red pepper flakes (if using), salt, and pepper in the last 2 minutes. Stir well.",
+    "Serve: Plate one burger patty with a portion of home fries and sautéed bell peppers."
+  ],
+  "tags": ["burger", "bacon", "cheddar", "american", "home fries", "comfort food"],
+  "cookNotes": [],
+  "imageUrl": "",
+  "timesPrepared": 0
+} 
