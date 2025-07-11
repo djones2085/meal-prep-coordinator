@@ -1,0 +1,51 @@
+{
+  "name": "Pimento Cheese Shrimp & Grits with Beurre Blanc",
+  "description": "Creamy pimento cheese grits inspired by Bourbon Street Cafe in Tulsa, topped with sautéed shrimp, spicy Andouille sausage, crispy bacon, and a beurre blanc sauce for a New Orleans-style dish.",
+  "status": "testing",
+  "baseYield": 1,
+  "baseYieldUnit": "serving",
+  "prepTime": "20 minutes",
+  "cookTime": "45 minutes",
+  "ingredients": [
+    { "name": "Stone-Ground Grits", "quantity": 0.25, "unit": "cup" },
+    { "name": "Reduced-Sodium Chicken Broth", "quantity": 0.5, "unit": "cup" },
+    { "name": "Whole Milk", "quantity": 0.5, "unit": "cup" },
+    { "name": "Kosher Salt", "quantity": 0.25, "unit": "tsp" },
+    { "name": "Unsalted Butter", "quantity": 0.5, "unit": "tbsp" },
+    { "name": "Store-Bought Pimento Cheese", "quantity": 0.25, "unit": "cup", "notes": "e.g., Palmetto Cheese" },
+    { "name": "Half-and-Half or Heavy Cream", "quantity": 1, "unit": "tbsp", "notes": "Optional, for extra creaminess" },
+    { "name": "Large Shrimp (16/20 count)", "quantity": 0.4, "unit": "lb", "notes": "Peeled and deveined" },
+    { "name": "Smoked Andouille Sausage", "quantity": 3, "unit": "oz", "notes": "Sliced 1/4-inch thick" },
+    { "name": "Thick-Cut Bacon", "quantity": 1.5, "unit": "slices", "notes": "Chopped" },
+    { "name": "Minced Garlic", "quantity": 0.5, "unit": "tbsp" },
+    { "name": "Green Onions", "quantity": 0.25, "unit": "cup", "notes": "Sliced, divided" },
+    { "name": "Fresh Lemon Juice", "quantity": 0.5, "unit": "tbsp" },
+    { "name": "Hot Sauce", "quantity": 0, "unit": "to taste" },
+    { "name": "Salt & Freshly Ground Black Pepper", "quantity": 0, "unit": "to taste" },
+    { "name": "White Wine", "quantity": 2, "unit": "tbsp", "notes": "e.g., Sauvignon Blanc or reduced-sodium chicken broth" },
+    { "name": "Fresh Lemon Juice (for sauce)", "quantity": 0.5, "unit": "tbsp" },
+    { "name": "Finely Minced Shallots", "quantity": 0.5, "unit": "tbsp", "notes": "Optional" },
+    { "name": "Cold Unsalted Butter", "quantity": 2, "unit": "tbsp", "notes": "Cut into small pieces" },
+    { "name": "Kosher Salt (for sauce)", "quantity": 0, "unit": "pinch" },
+    { "name": "Freshly Ground Black Pepper (for sauce)", "quantity": 0, "unit": "pinch" }
+  ],
+  "instructions": [
+    "Prepare the Grits: In a medium saucepan, combine 0.5 cup reduced-sodium chicken broth and 0.5 cup whole milk. Bring to a boil over medium-high heat, then add 0.25 tsp kosher salt. Slowly whisk in 0.25 cup stone-ground grits to prevent lumps. Reduce heat to low, cover, and simmer for 35-45 minutes, stirring frequently (every 3-5 minutes) until thick and creamy. If the grits thicken too much, add 1-2 tbsp additional milk or broth to adjust consistency. Remove from heat, stir in 0.5 tbsp unsalted butter, 0.25 cup store-bought pimento cheese, and optional 1 tbsp half-and-half or heavy cream until melted and smooth. Taste and adjust seasoning with salt if needed. Cover and keep warm.",
+    "Cook the Bacon: In a large skillet, cook 1.5 slices chopped bacon over medium heat until crispy, about 6-8 minutes. Transfer bacon to paper towels to drain, reserving ~1/4 tbsp bacon grease in the skillet.",
+    "Brown the Sausage: Add 2 oz sliced Andouille sausage to the reserved bacon grease in the skillet. Cook over medium heat until browned, about 4-5 minutes. Remove sausage and set aside with the bacon.",
+    "Sauté the Shrimp: Add 0.5 tbsp minced garlic and half of the 0.25 cup sliced green onions (about 2 tbsp) to the skillet with the bacon grease. Sauté over medium heat for 1 minute until fragrant. Add 0.5 lb shrimp and cook until pink, about 2-3 minutes per side.",
+    "Season Shrimp: Drizzle shrimp with 0.5 tbsp fresh lemon juice and add hot sauce to taste. Season with salt and freshly ground black pepper as needed. Remove shrimp and set aside with the sausage and bacon.",
+    "Prepare Beurre Blanc Sauce: In the same skillet, add 2 tbsp white wine or chicken broth and 0.5 tbsp lemon juice (with 0.5 tbsp minced shallots if using). Simmer over medium heat until reduced by half, about 2-3 minutes. Reduce heat to low and gradually whisk in 2 tbsp cold unsalted butter, one piece at a time, until the sauce emulsifies and thickens. Do not let it boil. Season with a pinch of kosher salt and black pepper. Return shrimp and sausage to the skillet and toss briefly to coat in the sauce.",
+    "Combine and Serve: Spoon the pimento cheese grits into a bowl. Top with the shrimp, sausage, and bacon. Drizzle any remaining beurre blanc sauce over the top. Garnish with the remaining 2 tbsp sliced green onions. Serve immediately with extra hot sauce on the side if desired."
+  ],
+  "tags": ["shrimp", "sausage", "grits", "bacon", "southern", "comfort food", "pimento cheese", "beurre blanc", "cajun", "creole", "breakfast", "brunch", "dinner", "new orleans"],
+  "cookNotes": [
+    "Stone-Ground Grits: These take longer to cook (35-45 minutes) than old-fashioned grits and yield a coarser, more authentic texture. Stir frequently to prevent sticking or lumps.",
+    "Pimento Cheese: Store-bought pimento cheese (e.g., Palmetto Cheese) adds a tangy, creamy flavor. Adjust quantity slightly for desired taste, but 0.25 cup matches your original cheese amount.",
+    "Beurre Blanc: Add butter slowly to prevent the sauce from breaking. If it starts to separate, whisk vigorously off heat to emulsify.",
+    "Spiciness: Adjust hot sauce to your preference, as the Andouille and pimento cheese already provide flavor depth.",
+    "Storage: Best served immediately. Store leftovers separately (grits and toppings) in airtight containers in the refrigerator for up to 2 days. Reheat grits with a splash of milk or broth to restore creaminess; reheat shrimp and sausage gently to avoid overcooking."
+  ],
+  "imageUrl": "",
+  "timesPrepared": 0
+} 
