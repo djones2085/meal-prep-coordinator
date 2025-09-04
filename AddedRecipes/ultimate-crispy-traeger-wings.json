@@ -1,0 +1,41 @@
+{
+  "name": "Ultimate Crispy Traeger Wings (Sauce-Ready)",
+  "description": "A technique-focused recipe for achieving tender, juicy wings with a shatteringly crisp, smoky skin, creating the perfect canvas for your favorite sauce. The key is a two-temperature cooking process and a special dry coating.",
+  "status": "testing",
+  "baseYield": 3,
+  "baseYieldUnit": "lbs",
+  "prepTime": "15 minutes (+ 1 hour or overnight refrigeration)",
+  "cookTime": "55-65 minutes",
+  "ingredients": [
+    { "name": "Chicken Wings", "quantity": 3, "unit": "lbs", "notes": "Split into drumettes and flats, wingtips discarded" },
+    { "name": "Olive Oil or Avocado Oil", "quantity": 1, "unit": "tbsp" },
+    { "name": "Corn Starch", "quantity": 0.33, "unit": "cup" },
+    { "name": "Baking Powder", "quantity": 1, "unit": "tbsp", "notes": "Aluminum-free recommended" },
+    { "name": "Smoked Paprika", "quantity": 2, "unit": "tsp" },
+    { "name": "Garlic Powder", "quantity": 1, "unit": "tsp" },
+    { "name": "Onion Powder", "quantity": 1, "unit": "tsp" },
+    { "name": "Kosher Salt", "quantity": 1, "unit": "tsp" },
+    { "name": "Black Pepper", "quantity": 0.5, "unit": "tsp" },
+    { "name": "Your Favorite Wing Sauce", "quantity": 1, "unit": "to taste", "notes": "For serving, pre-warmed" },
+    { "name": "Blue Cheese or Ranch Dressing", "quantity": 1, "unit": "to serve", "notes": "Optional" },
+    { "name": "Celery Sticks", "quantity": 1, "unit": "to serve", "notes": "Optional" },
+    { "name": "Carrot Sticks", "quantity": 1, "unit": "to serve", "notes": "Optional" }
+  ],
+  "instructions": [
+    "Prep the Wings: Rinse wings under cold water. Pat them completely dry with paper towels. For best results, place on a wire rack over a baking sheet in the refrigerator, uncovered, for at least 1 hour or up to overnight to air-chill and dry the skin further.",
+    "Coat the Wings: In a large bowl, whisk together corn starch, baking powder, smoked paprika, garlic powder, onion powder, salt, and pepper. In a separate large bowl, toss the dried wings with oil. Sprinkle the dry mixture over the wings, tossing to get a thin, even, dusty coating.",
+    "The Smoke (Step 1 of Cook): Preheat Traeger grill to 225°F (with Super Smoke if available). Arrange wings in a single layer on the grates, not touching. Smoke for 30 minutes to render fat and infuse flavor.",
+    "The Crisp (Step 2 of Cook): Increase Traeger temperature to 450°F. Cook for another 25-35 minutes, flipping once halfway through. Wings are done when skin is golden brown, crispy, and an instant-read thermometer in the thickest part reads at least 175°F.",
+    "Sauce and Serve: Remove hot wings and place in a large, clean bowl. Pour pre-warmed sauce over the wings and toss to coat. Serve immediately with dressing and vegetable sticks."
+  ],
+  "tags": ["traeger", "wings", "smoked", "crispy", "chicken", "appetizer", "game day", "grill"],
+  "cookNotes": [
+    "The Science of Crisp: The corn starch draws out surface moisture and creates a thin, brittle crust. The baking powder raises the skin's pH, helping it break down proteins for better browning and crisping.",
+    "Drying is Critical: Do not skip the drying step. The drier the skin, the crispier the wing.",
+    "Internal Temperature: While chicken is safe at 165°F, wings are more tender and juicy when cooked to an internal temperature between 175°F and 185°F.",
+    "Sauce Temperature: Gently warm your sauce before tossing. Cold sauce on hot wings can reduce crispiness.",
+    "Equipment Needed: Traeger Pellet Grill, hardwood pellets (Hickory, Oak, or Competition Blend), large mixing bowl, wire rack, baking sheet, tongs, instant-read meat thermometer."
+  ],
+  "imageUrl": "",
+  "timesPrepared": 0
+}
