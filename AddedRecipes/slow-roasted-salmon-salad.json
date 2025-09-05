@@ -1,0 +1,46 @@
+{
+  "name": "Slow-Roasted Salmon Salad with Lemon-Dill Aioli",
+  "description": "Incredibly tender, flaky, and moist slow-roasted salmon, perfect for a high-end salad. All components are prepped on Sunday for quick and easy weekday assembly.",
+  "status": "testing",
+  "baseYield": 5,
+  "baseYieldUnit": "servings",
+  "prepTime": "45 minutes (for Sunday prep)",
+  "cookTime": "20-30 minutes (roasting salmon)",
+  "ingredients": [
+    { "name": "Salmon Fillet", "quantity": 2, "unit": "lb" },
+    { "name": "Olive Oil", "quantity": 1, "unit": "tbsp", "notes": "For drizzling on salmon" },
+    { "name": "Salt", "quantity": 0, "unit": "to taste", "notes": "For salmon and pickled onions" },
+    { "name": "Black Pepper", "quantity": 0, "unit": "to taste", "notes": "For salmon and aioli" },
+    { "name": "Mayonnaise", "quantity": 1, "unit": "cup", "notes": "Good quality, store-bought" },
+    { "name": "Large Lemon", "quantity": 1, "unit": "unit", "notes": "Zest and juice needed for aioli" },
+    { "name": "Fresh Dill", "quantity": 0.25, "unit": "cup", "notes": "Finely chopped" },
+    { "name": "Capers", "quantity": 1, "unit": "tbsp", "notes": "Rinsed and roughly chopped" },
+    { "name": "Celery", "quantity": 3.5, "unit": "stalks", "notes": "3-4 stalks, finely diced" },
+    { "name": "Shallot", "quantity": 1, "unit": "unit", "notes": "Finely diced" },
+    { "name": "Red Onion", "quantity": 1, "unit": "unit", "notes": "Thinly sliced, for pickling" },
+    { "name": "Apple Cider Vinegar", "quantity": 0.5, "unit": "cup", "notes": "For pickled onions" },
+    { "name": "Water", "quantity": 0.5, "unit": "cup", "notes": "For pickled onions" },
+    { "name": "Sugar", "quantity": 1, "unit": "tbsp", "notes": "For pickled onions" },
+    { "name": "Artisan Crackers", "quantity": 5, "unit": "servings", "notes": "e.g., Triscuits, for serving" }
+  ],
+  "proteinOptions": [],
+  "instructions": [
+    "Sunday Prep (Salmon): Preheat oven to 275°F (135°C). Place salmon on a baking sheet, drizzle with olive oil, and season liberally with salt and pepper. Roast for 20-30 minutes until it flakes easily. Cool completely, then gently flake into large pieces and divide among 5 airtight containers.",
+    "Sunday Prep (Aioli): In a bowl, mix mayonnaise, the zest and juice of one lemon, chopped dill, chopped capers, and freshly ground black pepper. Divide this mixture into 5 small, sealed condiment containers.",
+    "Sunday Prep (The Crunch): Finely dice the celery and shallot. Divide this mixture among 5 small bags or containers.",
+    "Sunday Prep (Pickled Onions): Thinly slice the red onion and pack it into a jar. In a saucepan, bring apple cider vinegar, water, sugar, and 1 tsp salt to a simmer. Pour the hot liquid over the onions. Let cool, then refrigerate. They will be ready in about an hour.",
+    "Sunday Prep (The Vehicle): Portion out crackers into 5 separate bags.",
+    "Weekday Assembly: To serve, grab one container of salmon, one aioli, and one bag of the celery/shallot mixture.",
+    "Weekday Assembly: Gently mix the salmon, aioli, and celery/shallot together in a bowl.",
+    "Weekday Assembly: Top with a desired amount of pickled red onions and serve with crackers."
+  ],
+  "tags": ["salmon", "salad", "meal prep", "slow-roasted", "aioli", "lemon", "dill", "lunch", "cold", "fish"],
+  "cookNotes": [
+    "Slow-roasting salmon at a low temperature yields an exceptionally moist and tender texture, perfect for salads.",
+    "Using a high-quality store-bought mayonnaise is a great shortcut for the lemon-dill aioli.",
+    "The quick-pickled red onions add a bright, acidic crunch and will last for several weeks in the refrigerator.",
+    "For the best texture and freshness, assemble the salad just before eating."
+  ],
+  "imageUrl": "",
+  "timesPrepared": 0
+}

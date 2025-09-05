@@ -1,0 +1,48 @@
+{
+  "name": "Chipotle Barbacoa Beef (Slow Cooker Meal Prep)",
+  "description": "Flavorful and tender chipotle barbacoa beef, designed for easy slow cooker 'dump & go' meal prep bags. The beef is seared for a deep flavor base and frozen with a chipotle-adobo sauce, ready to be slow-cooked during the week for effortless meals.",
+  "status": "testing",
+  "baseYield": 5,
+  "baseYieldUnit": "servings",
+  "prepTime": "40 minutes (for Sunday prep)",
+  "cookTime": "7-8 hours (low) or 4-5 hours (high)",
+  "ingredients": [
+    { "name": "Chuck Roast", "quantity": 3.5, "unit": "lb", "notes": "Approx 3-4 lbs, cut into 3-4 large chunks" },
+    { "name": "Oil", "quantity": 1, "unit": "tbsp", "notes": "For searing" },
+    { "name": "Kosher Salt", "quantity": 0, "unit": "to taste", "notes": "For searing beef generously" },
+    { "name": "Black Pepper", "quantity": 0, "unit": "to taste", "notes": "For searing beef generously" },
+    { "name": "White Onion", "quantity": 1, "unit": "large", "notes": "Roughly chopped" },
+    { "name": "Garlic Cloves", "quantity": 7, "unit": "cloves", "notes": "6-8 cloves, roughly chopped" },
+    { "name": "Chipotles in Adobo Sauce", "quantity": 1, "unit": "can", "notes": "7 oz can. Use half for less heat." },
+    { "name": "Apple Cider Vinegar", "quantity": 0.25, "unit": "cup" },
+    { "name": "Fresh Lime Juice", "quantity": 0.25, "unit": "cup" },
+    { "name": "Ground Cumin", "quantity": 1, "unit": "tbsp" },
+    { "name": "Dried Oregano", "quantity": 1, "unit": "tbsp" },
+    { "name": "Salt (for sauce)", "quantity": 2, "unit": "tsp" },
+    { "name": "Black Pepper (for sauce)", "quantity": 1, "unit": "tsp" },
+    { "name": "Beef or Chicken Broth (for sauce)", "quantity": 0.5, "unit": "cup" },
+    { "name": "Whole Cloves", "quantity": 12, "unit": "unit", "notes": "10-15 total (2-3 per bag)" },
+    { "name": "Bay Leaves", "quantity": 5, "unit": "unit", "notes": "1 per bag" },
+    { "name": "Beef Broth or Water (for cooking)", "quantity": 1.25, "unit": "cups", "notes": "1/4 cup per bag for cooking" }
+  ],
+  "proteinOptions": [],
+  "instructions": [
+    "Sunday Prep (Sear Beef): Cut chuck roast into 3-4 large chunks, pat dry, and season generously with salt and pepper. Heat oil in a large pan or on a griddle over high heat. Sear beef chunks on all sides until a deep brown crust forms. Let cool completely.",
+    "Sunday Prep (Aromatics & Sauce): Roughly chop the onion and garlic. In a blender, combine the chipotles in adobo, apple cider vinegar, lime juice, cumin, dried oregano, 2 tsp salt, 1 tsp black pepper, and 1/2 cup of beef broth. Blend until completely smooth.",
+    "Sunday Prep (Assemble Bags): Divide the cooled, seared beef chunks, chopped onion/garlic, and the chipotle sauce evenly among 5 freezer-safe bags. Add 2-3 whole cloves and 1 bay leaf to each bag.",
+    "Sunday Prep (Freeze): Squeeze as much air as possible out of the bags, seal, and lay them flat in the freezer for easy storage.",
+    "Weekday Cooking (Thaw): The night before cooking, move one bag from the freezer to the refrigerator to thaw.",
+    "Weekday Cooking (Cook): In the morning, dump the entire thawed contents of the bag into a slow cooker. Add an additional 1/4 cup of beef broth or water.",
+    "Weekday Cooking (Slow Cook): Cook on low for 7-8 hours or on high for 4-5 hours, until the beef is meltingly tender.",
+    "Weekday Cooking (Finish & Serve): Remove and discard the bay leaf. Shred the beef directly in the slow cooker with two forks (it should fall apart easily) and stir to combine with the sauce. Serve as desired."
+  ],
+  "tags": ["beef", "barbacoa", "chipotle", "slow cooker", "meal prep", "freezer meal", "mexican-inspired", "dump and go"],
+  "cookNotes": [
+    "Searing the meat is a critical step that builds a deep, rich flavor base through the Maillard reaction.",
+    "For a milder flavor, use only half of the chipotles in adobo sauce.",
+    "The beef is perfectly cooked when it shreds effortlessly with a fork.",
+    "This recipe is very versatile and is excellent for making bowls, tacos, or salads."
+  ],
+  "imageUrl": "",
+  "timesPrepared": 0
+}
