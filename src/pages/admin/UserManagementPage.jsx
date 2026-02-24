@@ -43,7 +43,7 @@ function UserManagementPage() {
     const [pendingRoleChange, setPendingRoleChange] = useState({ userId: null, newRoles: [] });
 
     // Placeholder for available roles. This might come from a config or be hardcoded.
-    const availableRoles = ['user', 'admin', 'cook', 'shopper', 'eater']; // Added 'eater' role
+    const availableRoles = ['user', 'admin', 'cook', 'shopper'];
 
     const theme = useTheme(); // Added
     const isMobile = useMediaQuery(theme.breakpoints.down('md')); // Added, using 'md' breakpoint
@@ -104,8 +104,8 @@ function UserManagementPage() {
                 roles: newRoles
             });
             // Optimistically update local state
-            setUsers(prevUsers => 
-                prevUsers.map(user => 
+            setUsers(prevUsers =>
+                prevUsers.map(user =>
                     user.id === userId ? { ...user, roles: newRoles } : user
                 )
             );
@@ -130,7 +130,7 @@ function UserManagementPage() {
                 <Typography variant="h6" gutterBottom>
                     User List
                 </Typography>
-                
+
                 {loading && (
                     <Box sx={{ display: 'flex', justifyContent: 'center', my: 3 }}>
                         <CircularProgress />
@@ -145,11 +145,11 @@ function UserManagementPage() {
                     isMobile ? (
                         <Box sx={{ mt: 2 }}>
                             {users.map((user) => (
-                                <UserCard 
-                                    key={user.id} 
-                                    user={user} 
-                                    availableRoles={availableRoles} 
-                                    onInitiateRoleChange={initiateRoleChange} 
+                                <UserCard
+                                    key={user.id}
+                                    user={user}
+                                    availableRoles={availableRoles}
+                                    onInitiateRoleChange={initiateRoleChange}
                                     isUpdating={loading} // Or a more specific per-user updating state if available
                                 />
                             ))}
@@ -199,9 +199,9 @@ function UserManagementPage() {
                     )
                 )}
             </Paper>
-            <Snackbar 
-                open={snackbarOpen} 
-                autoHideDuration={6000} 
+            <Snackbar
+                open={snackbarOpen}
+                autoHideDuration={6000}
                 onClose={handleSnackbarClose}
             >
                 <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: '100%' }}>

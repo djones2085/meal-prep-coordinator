@@ -60,9 +60,9 @@ function AcceptInvitePage() {
       return;
     }
     if (!password) { // Basic password check
-        setSignUpError('Please enter a password.');
-        setSignUpLoading(false);
-        return;
+      setSignUpError('Please enter a password.');
+      setSignUpLoading(false);
+      return;
     }
 
     try {
@@ -81,7 +81,7 @@ function AcceptInvitePage() {
         uid: user.uid,
         email: user.email,
         displayName: displayName.trim(),
-        roles: ['eater'], // Default role for invited users, can be customized
+        roles: ['user'], // Default role for invited users, can be customized
         locationStatus: 'carry_out', // Default
         householdId: inviteData.householdId || null, // Assign household if part of invite
         creationDate: serverTimestamp(),
@@ -111,7 +111,7 @@ function AcceptInvitePage() {
         // This case might mean they signed up independently before accepting.
         // Or it's a race condition if invite wasn't checked properly before navigating here.
         setSignUpError('This email address is already associated with an account. If this is you, please log in.');
-         // Optionally, you could try to link the invite to the existing account if that's desired UX.
+        // Optionally, you could try to link the invite to the existing account if that's desired UX.
       } else if (err.code === 'auth/weak-password') {
         setSignUpError('Password should be at least 6 characters.');
       } else {
@@ -143,16 +143,16 @@ function AcceptInvitePage() {
 
   if (signUpSuccess) {
     return (
-        <Container maxWidth="sm" sx={{ mt: 5 }}>
-            <Paper elevation={3} sx={{ p: 3, textAlign: 'center' }}>
-                <Typography variant="h5" color="primary" gutterBottom>Account Created!</Typography>
-                <Alert severity="success">
-                    Your account has been successfully created using the invitation for {inviteData.email}.<br />
-                    A verification email has been sent to your address. Please verify your email and then log in.
-                </Alert>
-                <Button variant="contained" onClick={() => navigate('/login')} sx={{ mt: 2 }}>Proceed to Login</Button>
-            </Paper>
-        </Container>
+      <Container maxWidth="sm" sx={{ mt: 5 }}>
+        <Paper elevation={3} sx={{ p: 3, textAlign: 'center' }}>
+          <Typography variant="h5" color="primary" gutterBottom>Account Created!</Typography>
+          <Alert severity="success">
+            Your account has been successfully created using the invitation for {inviteData.email}.<br />
+            A verification email has been sent to your address. Please verify your email and then log in.
+          </Alert>
+          <Button variant="contained" onClick={() => navigate('/login')} sx={{ mt: 2 }}>Proceed to Login</Button>
+        </Paper>
+      </Container>
     );
   }
 
@@ -167,19 +167,19 @@ function AcceptInvitePage() {
           Please set your display name and password to create your account.
         </Typography>
         <Box component="form" onSubmit={handleSignUp} noValidate sx={{ mt: 1 }}>
-           <TextField
-             margin="normal"
-             required
-             fullWidth
-             id="displayName"
-             label="Display Name"
-             name="displayName"
-             autoComplete="name"
-             autoFocus
-             value={displayName}
-             onChange={(e) => setDisplayName(e.target.value)}
-             disabled={signUpLoading}
-           />
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            id="displayName"
+            label="Display Name"
+            name="displayName"
+            autoComplete="name"
+            autoFocus
+            value={displayName}
+            onChange={(e) => setDisplayName(e.target.value)}
+            disabled={signUpLoading}
+          />
           <TextField // Email is from inviteData, not user input
             margin="normal"
             required
@@ -204,7 +204,7 @@ function AcceptInvitePage() {
             disabled={signUpLoading}
           />
           {signUpError && (
-            <Alert severity="error" sx={{ width: '100%', mt: 2, mb:1 }}>
+            <Alert severity="error" sx={{ width: '100%', mt: 2, mb: 1 }}>
               {signUpError}
             </Alert>
           )}
@@ -215,7 +215,7 @@ function AcceptInvitePage() {
             sx={{ mt: 3, mb: 2 }}
             disabled={signUpLoading}
           >
-            {signUpLoading ? <CircularProgress size={24}/> : 'Create Account & Accept Invite'}
+            {signUpLoading ? <CircularProgress size={24} /> : 'Create Account & Accept Invite'}
           </Button>
         </Box>
       </Paper>

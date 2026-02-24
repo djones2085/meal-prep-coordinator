@@ -25,22 +25,22 @@ function SignUpPage() {
 
     // Basic validation (can be enhanced)
     if (!displayName.trim()) {
-        setError('Please enter a display name.');
-        setLoading(false);
-        return;
+      setError('Please enter a display name.');
+      setLoading(false);
+      return;
     }
 
     if (password !== confirmPassword) {
-        setError('Passwords do not match.');
-        setLoading(false);
-        return;
+      setError('Passwords do not match.');
+      setLoading(false);
+      return;
     }
 
     const passwordErrors = getPasswordStrengthErrors(password);
     if (passwordErrors.length > 0) {
-        setError(passwordErrors.join(' ')); // Display all strength errors
-        setLoading(false);
-        return;
+      setError(passwordErrors.join(' ')); // Display all strength errors
+      setLoading(false);
+      return;
     }
 
     try {
@@ -60,7 +60,7 @@ function SignUpPage() {
         uid: user.uid,
         email: user.email,
         displayName: displayName.trim(), // Use the name from the form
-        roles: ['eater'], // Default role
+        roles: ['user'], // Default role
         locationStatus: 'carry_out', // Default location preference
         householdId: null, // Not assigned initially
         creationDate: serverTimestamp(), // Use server timestamp
@@ -107,19 +107,19 @@ function SignUpPage() {
           Sign Up
         </Typography>
         <Box component="form" onSubmit={handleSignUp} noValidate sx={{ mt: 1 }}>
-           <TextField
-             margin="normal"
-             required
-             fullWidth
-             id="displayName"
-             label="Display Name"
-             name="displayName"
-             autoComplete="name"
-             autoFocus
-             value={displayName}
-             onChange={(e) => setDisplayName(e.target.value)}
-             disabled={loading}
-           />
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            id="displayName"
+            label="Display Name"
+            name="displayName"
+            autoComplete="name"
+            autoFocus
+            value={displayName}
+            onChange={(e) => setDisplayName(e.target.value)}
+            disabled={loading}
+          />
           <TextField
             margin="normal"
             required

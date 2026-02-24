@@ -30,13 +30,18 @@
   - Resolved Firebase SDK/Node.js compatibility issues by using Node v20 via nvm.
   - Executed: `scripts/uploadRecipe.cjs` to upload all three recipes to Firestore.
 
-#### Session 1.2: User Role Recipe Access
+#### Session 1.2: User Role Recipe Access [Completed]
 - **Session Goal**: Give users with the "user" role access to the recipes library in the hamburger menu.
 - **Key Tasks**:
   1. Update layout/routing in the current web app to expose the Recipes link to the `user` role.
   2. Verify Firestore rules permit `user` read access to recipes.
 - **Required Context**: `src/components/Layout/Sidebar.jsx` (or similar layout component), Firestore rules.
 - **Definition of Done**: A "user" account can navigate to and view the recipes library.
+- **Artifacts / Technical Notes**:
+  - Verified `firestore.rules` already allow authenticated users read access to recipes.
+  - Verified `Layout.jsx` properly exposes the Recipes link to the `user` role.
+  - *Fix:* Changed default signup/invite role from `eater` to `user` in `SignUpPage.jsx` and `AcceptInvitePage.jsx` to resolve missing role access. Removed `eater` from admin `UserManagementPage.jsx`.
+  - Created `session_notes/session_notes_1.2.md`.
 
 #### Session 1.3: Cycle Summary Polish (Comments & Containers)
 - **Session Goal**: Surface order comments and container preferences on the meal cycle summary view.
