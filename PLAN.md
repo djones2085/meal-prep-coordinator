@@ -40,7 +40,7 @@
 - **Artifacts / Technical Notes**:
   - Verified `firestore.rules` already allow authenticated users read access to recipes.
   - Verified `Layout.jsx` properly exposes the Recipes link to the `user` role.
-  - *Fix:* Changed default signup/invite role from `eater` to `user` in `SignUpPage.jsx` and `AcceptInvitePage.jsx` to resolve missing role access. Removed `eater` from admin `UserManagementPage.jsx`.
+  - *Fix:* Changed default signup/invite role from `eater` to `user` in `src/pages/SignUpPage.jsx` and `src/pages/AcceptInvitePage.jsx` to resolve missing role access. Removed `eater` from admin `src/pages/admin/UserManagementPage.jsx`.
   - Created `session_notes/session_notes_1.2.md`.
 
 #### Session 1.3: Cycle Summary Polish (Comments & Containers)
@@ -51,8 +51,6 @@
 - **Required Context**: `src/pages/MealCycleManagementPage.jsx` (or equivalent summary component).
 - **Definition of Done**: Admins/Cooks can easily see all order comments and container types on the summary page.
 
-#### Session 1.4: Establish Recipe Parameters
-- **Session Goal**: half pound of the primary protein per serving. 
 
 ### Milestone 2: Backend Algorithm Rewrite
 
