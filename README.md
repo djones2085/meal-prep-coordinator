@@ -31,3 +31,6 @@ A cross-platform mobile and web application (transitioning to Flutter) designed 
 
 ---
 Refer to `PLAN.md` for historical completion status, remaining technical debt, and detailed execution milestones.
+
+## Project History
+- **[2026-02-24] Session 1.1 Completed**: Added "Chopped Cheese", "Roasted Tomato Basil Soup", and "High Protein Chili" recipes to the Firestore `recipes` database. Resolved Node.js/Firebase SDK compatibility issues and successfully uploaded the data using `scripts/uploadRecipe.cjs`.

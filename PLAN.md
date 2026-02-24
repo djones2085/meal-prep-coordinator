@@ -16,15 +16,19 @@
 
 ## Detailed Session Mapping (The Base Backlog)
 
-### Milestone 1: Critical Core Fixes & Data Entry
+### Milestone 1: Critical Core Fixes & Data Entry [In Progress]
 
-#### Session 1.1: Database Entry - Chopped Cheese
+#### Session 1.1: Database Entry - Chopped Cheese [Completed]
 - **Session Goal**: Add the "Chopped Cheese" recipe to the Firestore `recipes` collection.
 - **Key Tasks**:
   1. User will provide the Chopped Cheese recipe in plain text, convert to JSON/object conforming to the schema.
   2. Upload/insert it into Firestore.
 - **Required Context**: Firestore `recipes` schema.
 - **Definition of Done**: Chopped Cheese is visible in the database.
+- **Artifacts / Technical Notes**:
+  - Created: `AddedRecipes/chopped-cheese.json`, `AddedRecipes/roasted-tomato-basil-soup.json`, `AddedRecipes/high-protein-chili.json`.
+  - Resolved Firebase SDK/Node.js compatibility issues by using Node v20 via nvm.
+  - Executed: `scripts/uploadRecipe.cjs` to upload all three recipes to Firestore.
 
 #### Session 1.2: User Role Recipe Access
 - **Session Goal**: Give users with the "user" role access to the recipes library in the hamburger menu.
@@ -41,6 +45,9 @@
   2. Ensure dine-in vs carry-out container preferences are explicitly presented alongside each order (or accurately aggregated).
 - **Required Context**: `src/pages/MealCycleManagementPage.jsx` (or equivalent summary component).
 - **Definition of Done**: Admins/Cooks can easily see all order comments and container types on the summary page.
+
+#### Session 1.4: Establish Recipe Parameters
+- **Session Goal**: half pound of the primary protein per serving. 
 
 ### Milestone 2: Backend Algorithm Rewrite
 
