@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { collection, getDocs, query, orderBy, doc, updateDoc, where, getDoc, serverTimestamp } from 'firebase/firestore';
 // Import Firebase functions instance for calling callable functions
-import { getFunctions, httpsCallable } from "firebase/functions"; 
+import { getFunctions, httpsCallable } from "firebase/functions";
 import { db, functions as functionsInstance, auth } from '../../firebaseConfig'; // Import functionsInstance and auth
 import {
     PageContainer,
@@ -84,19 +84,19 @@ function MealCycleManagementPage() {
             const q = query(cyclesRef, orderBy("creationDate", "desc"));
             const querySnapshot = await getDocs(q);
             const cyclesList = querySnapshot.docs.map(doc => {
-                 const data = doc.data();
-                 return {
-                     id: doc.id,
-                     ...data,
-                     creationDate: data.creationDate?.toDate ? data.creationDate.toDate().toLocaleDateString() : 'N/A',
-                     orderDeadline: data.orderDeadline?.toDate ? data.orderDeadline.toDate().toLocaleString() : 'N/A',
-                     targetCookDate: data.targetCookDate?.toDate ? data.targetCookDate.toDate().toLocaleDateString() : 'N/A',
-                     // Keep aggregation fields directly for display
-                     totalMealCounts: data.totalMealCounts,
-                     totalCountsByProtein: data.totalCountsByProtein,
-                     dineInContainers: data.dineInContainers,
-                     carryOutContainers: data.carryOutContainers,
-                 }
+                const data = doc.data();
+                return {
+                    id: doc.id,
+                    ...data,
+                    creationDate: data.creationDate?.toDate ? data.creationDate.toDate().toLocaleDateString() : 'N/A',
+                    orderDeadline: data.orderDeadline?.toDate ? data.orderDeadline.toDate().toLocaleString() : 'N/A',
+                    targetCookDate: data.targetCookDate?.toDate ? data.targetCookDate.toDate().toLocaleDateString() : 'N/A',
+                    // Keep aggregation fields directly for display
+                    totalMealCounts: data.totalMealCounts,
+                    totalCountsByProtein: data.totalCountsByProtein,
+                    dineInContainers: data.dineInContainers,
+                    carryOutContainers: data.carryOutContainers,
+                }
             });
             setCycles(cyclesList);
         } catch (err) {
@@ -135,7 +135,7 @@ function MealCycleManagementPage() {
             console.error(`Error updating cycle ${cycleId} status:`, err);
             setError(`Failed to update status for cycle ${cycleId}.`);
             setAlertInfo({ open: true, message: `Failed to update status for cycle ${cycleId}.`, severity: 'error' });
-             // TODO: Better error display, maybe per row
+            // TODO: Better error display, maybe per row
         } finally {
             setUpdatingStatus(prev => ({ ...prev, [cycleId]: false }));
         }
@@ -180,7 +180,7 @@ function MealCycleManagementPage() {
             });
 
             if (!itemUpdated) {
-                console.warn("Item not found for update in shopping list:", {itemName, itemUnit});
+                console.warn("Item not found for update in shopping list:", { itemName, itemUnit });
                 setAlertInfo({ open: true, message: 'Error: Item not found in shopping list.', severity: 'warning' });
                 return;
             }
@@ -206,7 +206,7 @@ function MealCycleManagementPage() {
             }));
             setAlertInfo({ open: true, message: `'${itemName}' on-hand quantity updated.`, severity: 'success' });
 
-        } catch (err) { 
+        } catch (err) {
             console.error("Error updating shopping list item on-hand quantity:", err);
             setAlertInfo({ open: true, message: `Failed to update on-hand quantity: ${err.message}`, severity: 'error' });
         }
@@ -236,7 +236,7 @@ function MealCycleManagementPage() {
             setCycles(prevCycles => prevCycles.map(c => {
                 if (c.id === cycleId) {
                     // Ensure c.shoppingList exists before trying to spread it
-                    const existingShoppingList = c.shoppingList || { items: [], status: '' }; 
+                    const existingShoppingList = c.shoppingList || { items: [], status: '' };
                     return {
                         ...c,
                         shoppingList: {
@@ -389,8 +389,21 @@ function MealCycleManagementPage() {
             valueGetter: (cycle) => formatProteinCounts(cycle.totalCountsByProtein), // May need more complex getter for sorting
             sx: { minWidth: 200 }
         },
+        {
+            id: 'dineInContainers',
+            label: 'Dine-In',
+            render: (cycle) => cycle.dineInContainers !== undefined ? cycle.dineInContainers : '-',
+            valueGetter: (cycle) => cycle.dineInContainers,
+            sx: { minWidth: 100, textAlign: 'center' }
+        },
+        {
+            id: 'carryOutContainers',
+            label: 'Carry-Out',
+            render: (cycle) => cycle.carryOutContainers !== undefined ? cycle.carryOutContainers : '-',
+            valueGetter: (cycle) => cycle.carryOutContainers,
+            sx: { minWidth: 100, textAlign: 'center' }
+        },
         // Add other columns like dineInContainers, carryOutContainers if needed
-        // {
         //     id: 'actions',
         //     label: 'Actions',
         //     render: (cycle) => (
@@ -424,15 +437,15 @@ function MealCycleManagementPage() {
                 <Typography variant="h6" gutterBottom component="div">
                     Cycle Details: {cycle.chosenRecipe?.recipeName || 'N/A'}
                 </Typography>
-                
+
                 {/* Orders Table */}
-                <Typography variant="subtitle1" gutterBottom component="div" sx={{mt: 2}}>
+                <Typography variant="subtitle1" gutterBottom component="div" sx={{ mt: 2 }}>
                     Orders ({expandedCycleId === cycle.id ? cycleOrders.length : 0})
                 </Typography>
                 {loadingOrders && expandedCycleId === cycle.id && <LoadingSpinner />}
                 {ordersError && expandedCycleId === cycle.id && <Alert severity="error">{ordersError}</Alert>}
                 {!loadingOrders && !ordersError && expandedCycleId === cycle.id && cycleOrders.length > 0 && (
-                    <Paper elevation={1} sx={{mb:2}}>
+                    <Paper elevation={1} sx={{ mb: 2 }}>
                         <Table size="small" aria-label="orders">
                             <TableHead>
                                 <TableRow>
@@ -440,6 +453,7 @@ function MealCycleManagementPage() {
                                     <TableCell>Servings</TableCell>
                                     <TableCell>Protein Choices</TableCell>
                                     <TableCell>Container</TableCell>
+                                    <TableCell>Comments</TableCell>
                                     <TableCell>Ordered At</TableCell>
                                 </TableRow>
                             </TableHead>
@@ -453,7 +467,13 @@ function MealCycleManagementPage() {
                                         <TableCell>
                                             {order.items?.map(item => `${item.protein}: ${item.quantity}`).join(', ') || 'N/A'}
                                         </TableCell>
-                                        <TableCell>{formatStatus(order.locationStatus || 'carry_out')}</TableCell>
+                                        <TableCell>{formatStatus(order.userLocationStatus || order.locationStatus || 'carry_out')}</TableCell>
+                                        <TableCell>
+                                            {order.freeTextCustomization ? order.freeTextCustomization : ''}
+                                            {order.freeTextCustomization && order.selectedCustomizations?.length > 0 ? ' | ' : ''}
+                                            {order.selectedCustomizations?.length > 0 ? `Options: ${order.selectedCustomizations.join(', ')}` : ''}
+                                            {!order.freeTextCustomization && (!order.selectedCustomizations || order.selectedCustomizations.length === 0) ? 'None' : ''}
+                                        </TableCell>
                                         <TableCell>{order.orderTimestamp}</TableCell>
                                     </TableRow>
                                 ))}
@@ -462,13 +482,13 @@ function MealCycleManagementPage() {
                     </Paper>
                 )}
                 {!loadingOrders && !ordersError && expandedCycleId === cycle.id && cycleOrders.length === 0 && (
-                    <Typography variant="body2" sx={{my:1, fontStyle: 'italic'}}>No orders found for this cycle.</Typography>
+                    <Typography variant="body2" sx={{ my: 1, fontStyle: 'italic' }}>No orders found for this cycle.</Typography>
                 )}
 
                 {/* Shopping List Section */}
-                <Divider sx={{my:2}} />
+                <Divider sx={{ my: 2 }} />
                 {cycle.shoppingList && cycle.shoppingList.items && (  // Check for new shoppingList structure
-                    <AdminShoppingList 
+                    <AdminShoppingList
                         cycleId={cycle.id}
                         shoppingList={cycle.shoppingList} // Pass the whole shoppingList object
                         onApproveList={handleApproveShoppingList}
@@ -476,10 +496,10 @@ function MealCycleManagementPage() {
                     />
                 )}
                 {(!cycle.shoppingList || !cycle.shoppingList.items || cycle.shoppingList.items.length === 0) && (
-                     <Typography variant="body2" sx={{my:1, fontStyle: 'italic'}}>
-                         Shopping list not generated or is empty for this cycle.
-                         {cycle.status === 'ordering_closed' && !cycle.aggregationTimestamp && ' Aggregation may be pending.'}
-                     </Typography>
+                    <Typography variant="body2" sx={{ my: 1, fontStyle: 'italic' }}>
+                        Shopping list not generated or is empty for this cycle.
+                        {cycle.status === 'ordering_closed' && !cycle.aggregationTimestamp && ' Aggregation may be pending.'}
+                    </Typography>
                 )}
             </Box>
         );
