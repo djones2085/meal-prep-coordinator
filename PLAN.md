@@ -16,7 +16,7 @@
 
 ## Detailed Session Mapping (The Base Backlog)
 
-### Milestone 1: Critical Core Fixes & Data Entry [In Progress]
+### Milestone 1: Critical Core Fixes & Data Entry [Completed]
 
 #### Session 1.1: Database Entry - Chopped Cheese [Completed]
 - **Session Goal**: Add the "Chopped Cheese" recipe to the Firestore `recipes` collection.
@@ -43,13 +43,18 @@
   - *Fix:* Changed default signup/invite role from `eater` to `user` in `src/pages/SignUpPage.jsx` and `src/pages/AcceptInvitePage.jsx` to resolve missing role access. Removed `eater` from admin `src/pages/admin/UserManagementPage.jsx`.
   - Created `session_notes/session_notes_1.2.md`.
 
-#### Session 1.3: Cycle Summary Polish (Comments & Containers)
+#### Session 1.3: Cycle Summary Polish (Comments & Containers) [Completed]
 - **Session Goal**: Surface order comments and container preferences on the meal cycle summary view.
 - **Key Tasks**:
   1. Update the cycle summary UI so free-text comments attached to orders are fully visible.
   2. Ensure dine-in vs carry-out container preferences are explicitly presented alongside each order (or accurately aggregated).
 - **Required Context**: `src/pages/MealCycleManagementPage.jsx` (or equivalent summary component).
 - **Definition of Done**: Admins/Cooks can easily see all order comments and container types on the summary page.
+- **Artifacts / Technical Notes**:
+  - Added `Dine-In` and `Carry-Out` columns to the `cycles` DataTable in `src/pages/admin/MealCycleManagementPage.jsx`, utilizing pre-aggregated `dineInContainers` and `carryOutContainers` fields to improve UI performance.
+  - Updated the expanded cycle view's inner `Orders` table to include a `Comments` column, intelligently combining custom checklist options and free-text notes to save horizontal space.
+  - Adjusted the Container fallback format to properly handle legacy `locationStatus` data.
+  - Milestone 1 is now completed, preparing to move towards backend algorithm rewrites.
 
 
 ### Milestone 2: Backend Algorithm Rewrite
