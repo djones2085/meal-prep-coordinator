@@ -10,7 +10,9 @@ Add the "Chopped Cheese" recipe to the Firestore `recipes` collection.
 - Created `AddedRecipes/chopped-cheese.json` based on the user-provided recipe and `sample-recipe.json` schema.
 - Created `AddedRecipes/roasted-tomato-basil-soup.json` based on user-provided recipe and `sample-recipe.json` schema.
 - Created `AddedRecipes/high-protein-chili.json` based on user-provided recipe and `sample-recipe.json` schema.
+- Resolved Node.js/Firebase SDK compatibility issues by installing Homebrew and Node v20 via nvm.
+- Successfully ran `scripts/uploadRecipe.cjs` for all three recipes, generating new Firestore documents.
 
-## To Do
-- Upload/insert new recipes (Chopped Cheese, Tomato Soup, Chili) into Firestore (blocked on missing `serviceAccountKey.json`).
-- Commit and Push changes.
+## Blockers / Next Steps
+- Session 1.1 complete. No blockers.
+- Proceed to Phase 1.2: User Role Recipe Access.
