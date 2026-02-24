@@ -1,0 +1,132 @@
+{
+    "name": "High-Protein Meal Prep Chili",
+    "description": "This recipe strikes a balance between a standard chili and a 'carnivore' style. It uses 6 lbs of meat total, providing a hearty 6 oz portion of protein per serving without overwhelming the texture.",
+    "status": "approved",
+    "baseYield": 16,
+    "baseYieldUnit": "servings",
+    "prepTime": "20 mins",
+    "cookTime": "1 hr 15 mins",
+    "ingredients": [
+        {
+            "name": "Ground Beef (80/20)",
+            "quantity": 3,
+            "unit": "lbs"
+        },
+        {
+            "name": "Ground Sausage",
+            "quantity": 3,
+            "unit": "lbs"
+        },
+        {
+            "name": "Yellow Onions",
+            "quantity": 2,
+            "unit": "unit",
+            "notes": "Large, diced"
+        },
+        {
+            "name": "Bell Peppers",
+            "quantity": 2,
+            "unit": "unit",
+            "notes": "Green or Red, diced"
+        },
+        {
+            "name": "Garlic",
+            "quantity": 7,
+            "unit": "cloves",
+            "notes": "Minced"
+        },
+        {
+            "name": "Crushed Tomatoes",
+            "quantity": 2,
+            "unit": "cans",
+            "notes": "28 oz each"
+        },
+        {
+            "name": "Diced Tomatoes",
+            "quantity": 2,
+            "unit": "cans",
+            "notes": "14.5 oz each (Fire-roasted preferred)"
+        },
+        {
+            "name": "Tomato Paste",
+            "quantity": 1,
+            "unit": "can",
+            "notes": "6 oz"
+        },
+        {
+            "name": "Beef Broth",
+            "quantity": 4,
+            "unit": "cups"
+        },
+        {
+            "name": "Worcestershire Sauce",
+            "quantity": 2,
+            "unit": "tbsp",
+            "notes": "Adds savory depth"
+        },
+        {
+            "name": "Kidney or Black Beans",
+            "quantity": 3,
+            "unit": "cans",
+            "notes": "15 oz each, drained and rinsed"
+        },
+        {
+            "name": "Chili Powder",
+            "quantity": 6,
+            "unit": "tbsp",
+            "notes": "Approx. 1/3 cup + 2 tbsp"
+        },
+        {
+            "name": "Ground Cumin",
+            "quantity": 2,
+            "unit": "tbsp"
+        },
+        {
+            "name": "Smoked Paprika",
+            "quantity": 1,
+            "unit": "tbsp"
+        },
+        {
+            "name": "Dried Oregano",
+            "quantity": 1,
+            "unit": "tbsp"
+        },
+        {
+            "name": "Kosher Salt",
+            "quantity": 2,
+            "unit": "tsp",
+            "notes": "Start with less, as sausage is salty"
+        },
+        {
+            "name": "Black Pepper",
+            "quantity": 1,
+            "unit": "tbsp"
+        },
+        {
+            "name": "Cayenne Pepper",
+            "quantity": 1,
+            "unit": "tsp",
+            "notes": "Optional (for heat)"
+        }
+    ],
+    "proteinOptions": [],
+    "instructions": [
+        "The Browning (Blackstone Method): Preheat your Blackstone to medium-high heat. Add the ground beef, sausage, onions, and bell peppers directly to the griddle. Chop and mix constantly with spatulas until the meat is fully browned and the vegetables are softened (approx. 10–12 minutes).",
+        "Grease Management: Tilt the meat or use the scraper to separate the grease. Discard most of it, keeping about ¼ cup of fat for flavor.",
+        "The Transfer & Bloom: Transfer the browned meat and vegetable mixture into your large stockpot. Set heat to medium. Add the minced garlic, tomato paste, and all spices (chili powder, cumin, paprika, oregano, salt, pepper). Stir vigorously for 2 minutes. This toasts the spices and cooks the raw flavor out of the tomato paste.",
+        "The Simmer: Pour in the 4 cups beef broth, Worcestershire sauce, crushed tomatoes, diced tomatoes, and beans. Stir well to combine. Scrape the bottom of the pot to ensure nothing is sticking. Bring to a boil, then reduce heat to low.",
+        "The Long Cook: Simmer uncovered for 45 to 60 minutes. Note: Stir every 15 minutes to prevent scorching. If the chili becomes too thick for your liking, add an extra splash of broth or water.",
+        "Final Seasoning & Storage: Taste the chili. Add more salt or cayenne if needed.",
+        "Cooling: Allow the chili to cool significantly before dividing into meal prep containers to prevent condensation and spoilage."
+    ],
+    "tags": [
+        "chili",
+        "high-protein",
+        "carnivore-style",
+        "beef",
+        "sausage",
+        "meal prep"
+    ],
+    "imageUrl": "",
+    "timesPrepared": 0
+}

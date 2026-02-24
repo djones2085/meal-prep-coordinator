@@ -1,0 +1,86 @@
+{
+    "name": "Chopped Cheese",
+    "description": "A classic NYC bodega-style sandwich with ground beef, onions, melted cheese, lettuce, ketchup, and mayo.",
+    "status": "approved",
+    "baseYield": 10,
+    "baseYieldUnit": "meals",
+    "prepTime": "15 minutes",
+    "cookTime": "15 minutes",
+    "ingredients": [
+        {
+            "name": "80/20 Ground Beef",
+            "quantity": 5,
+            "unit": "lbs"
+        },
+        {
+            "name": "Yellow Onions",
+            "quantity": 3,
+            "unit": "unit",
+            "notes": "Finely diced, yielding about 4-5 cups"
+        },
+        {
+            "name": "Deli American Cheese",
+            "quantity": 30,
+            "unit": "slices",
+            "notes": "Not pre packaged, 3 slices per meal"
+        },
+        {
+            "name": "Adobo Seasoning (with pepper)",
+            "quantity": 2.5,
+            "unit": "tbsp"
+        },
+        {
+            "name": "Sazón (Culantro y Achiote)",
+            "quantity": 3,
+            "unit": "packets"
+        },
+        {
+            "name": "Hero or Hoagie Rolls",
+            "quantity": 10,
+            "unit": "rolls"
+        },
+        {
+            "name": "Shredded Lettuce",
+            "quantity": 1,
+            "unit": "bag"
+        },
+        {
+            "name": "Mayonnaise",
+            "quantity": 10,
+            "unit": "tbsp",
+            "notes": "1 Tbsp per meal"
+        },
+        {
+            "name": "Ketchup",
+            "quantity": 10,
+            "unit": "tbsp",
+            "notes": "1 Tbsp per meal"
+        }
+    ],
+    "proteinOptions": [],
+    "instructions": [
+        "Fire up your 36-inch griddle. Set one side to medium-high heat and the other side to medium-low.",
+        "Drop the diced onions onto the medium-high side and let them soften for 2-3 minutes.",
+        "Place the 5 lbs of ground beef directly onto the hot zone. Do not touch it for 3-4 minutes so it can develop a hard, brown crust.",
+        "Sprinkle the 2.5 Tablespoons of Adobo and 3 packets of Sazón evenly over the raw side of the beef.",
+        "Flip the beef. Grab your scrapers and aggressively chop the meat, mixing the softened onions and the seasoning evenly throughout.",
+        "Once the beef is fully browned and chopped, divide the massive pile into 10 equal portions directly on the griddle. (Slide them to the cooler side if they are cooking too fast).",
+        "Lay 3 slices of American cheese over each of the 10 piles.",
+        "Let the cheese melt for 30–45 seconds, then use your scraper to fold the melted cheese directly into each meat pile.",
+        "Remove from the heat immediately.",
+        "Transfer each cheesy meat pile into its own meal prep container. Let them cool completely before putting the lids on to prevent soggy cheese. Store in the fridge.",
+        "Slice all your hero rolls. Store them in a large airtight bag or breadbox at room temperature.",
+        "Store your shredded lettuce and sliced tomatoes in a separate container in the fridge, lined with a paper towel to absorb moisture.",
+        "TO EAT: Grab your pre-sliced roll(s) and toast them to your liking.",
+        "TO EAT: Microwave one meat container until the meat is hot and the cheese is melted and bubbling.",
+        "TO EAT: Spread 1 Tablespoon of mayo and 1 Tablespoon of ketchup on the toasted roll.",
+        "TO EAT: Load the hot beef onto the bread (or split it between bread and a bowl). Top immediately with a handful of the shredded lettuce."
+    ],
+    "tags": [
+        "beef",
+        "sandwich",
+        "meal prep"
+    ],
+    "imageUrl": "",
+    "timesPrepared": 0
+}

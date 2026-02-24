@@ -1,0 +1,85 @@
+{
+    "name": "High-End Roasted Tomato Basil Soup",
+    "description": "A creamy, dairy-free roasted tomato basil soup aerated with olive oil.",
+    "status": "approved",
+    "baseYield": 20,
+    "baseYieldUnit": "servings",
+    "prepTime": "15 minutes",
+    "cookTime": "1 hour 50 minutes",
+    "ingredients": [
+        {
+            "name": "Roma Tomatoes",
+            "quantity": 13,
+            "unit": "lbs",
+            "notes": "Halved lengthwise"
+        },
+        {
+            "name": "Garlic",
+            "quantity": 4,
+            "unit": "heads",
+            "notes": "Top 1/3 sliced off to expose cloves"
+        },
+        {
+            "name": "Olive Oil",
+            "quantity": 1.75,
+            "unit": "cups",
+            "notes": "Divided (High quality)"
+        },
+        {
+            "name": "Yellow Onions",
+            "quantity": 2,
+            "unit": "lbs",
+            "notes": "Chopped (approx. 4 large onions)"
+        },
+        {
+            "name": "Red Pepper Flakes",
+            "quantity": 1,
+            "unit": "tbsp"
+        },
+        {
+            "name": "San Marzano Tomatoes",
+            "quantity": 4,
+            "unit": "cans",
+            "notes": "28 oz each, whole peeled"
+        },
+        {
+            "name": "Chicken Stock",
+            "quantity": 3.75,
+            "unit": "quarts"
+        },
+        {
+            "name": "Sherry Vinegar",
+            "quantity": 0.33,
+            "unit": "cups",
+            "notes": "Or Balsamic"
+        },
+        {
+            "name": "Fresh Basil",
+            "quantity": 1,
+            "unit": "bunch",
+            "notes": "Leaves only"
+        },
+        {
+            "name": "Salt & Black Pepper",
+            "quantity": 1,
+            "unit": "to taste"
+        }
+    ],
+    "proteinOptions": [],
+    "instructions": [
+        "Roast: Preheat oven to 400°F (200°C). Arrange the halved Roma tomatoes and garlic heads on large baking sheets. Drizzle with half of the olive oil and season generously with salt and pepper. Roast for 45–50 minutes until tomatoes are collapsed and charred. Squeeze the roasted garlic cloves out of their skins and set aside; discard skins.",
+        "Sauté: In a 20-quart stock pot over medium-high heat, add the remaining olive oil. Add the onions and red pepper flakes. Sauté for 12–15 minutes until onions are golden brown.",
+        "Simmer: Add the roasted tomatoes (including all pan juices), roasted garlic, canned San Marzano tomatoes, and chicken stock to the pot. Bring to a boil, then reduce heat and simmer uncovered for 45 minutes.",
+        "Blend: Working in batches, transfer the soup to a high-speed blender. Add a portion of the fresh basil and Sherry vinegar to each batch. Blend on high until completely smooth and emulsified (approx. 45 seconds per batch). The high-speed blend will aerate the olive oil, creating a creamy texture without dairy.",
+        "Finish: Return the blended soup to the large pot. Taste and season with additional salt and pepper as needed. Heavy cream may be stirred into individual bowls at the time of serving if desired."
+    ],
+    "tags": [
+        "soup",
+        "tomato",
+        "basil",
+        "dairy-free option",
+        "meal prep"
+    ],
+    "imageUrl": "",
+    "timesPrepared": 0
+}
