@@ -463,9 +463,9 @@ function MealCycleManagementPage() {
                                         <TableCell component="th" scope="row">
                                             {order.userDisplayName || order.userId}
                                         </TableCell>
-                                        <TableCell>{order.totalServings}</TableCell>
+                                        <TableCell>{order.totalServings === 0 ? 'None for me' : order.totalServings}</TableCell>
                                         <TableCell>
-                                            {order.items?.map(item => `${item.protein}: ${item.quantity}`).join(', ') || 'N/A'}
+                                            {order.totalServings === 0 ? '-' : (order.items?.map(item => `${item.protein}: ${item.quantity}`).join(', ') || 'N/A')}
                                         </TableCell>
                                         <TableCell>{formatStatus(order.userLocationStatus || order.locationStatus || 'carry_out')}</TableCell>
                                         <TableCell>

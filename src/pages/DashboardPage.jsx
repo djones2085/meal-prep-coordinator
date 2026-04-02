@@ -335,10 +335,7 @@ function DashboardPage() {
         const totalServings = Object.values(orderQuantities)
             .map(q => (q === '' ? 0 : q)) // Convert empty strings to 0
             .reduce((sum, q) => sum + q, 0);
-        if (totalServings <= 0) {
-            setOrderValidationError("You must order at least one serving.");
-            return;
-        }
+        // Removed validation: 'totalServings <= 0' check. Users can now order 0.
 
         setIsSubmittingOrder(true);
 
@@ -419,31 +416,37 @@ function DashboardPage() {
 
         return (
             <Card sx={{ mt: 3 }}>
-                 <Box sx={{ p: 2 }}>
-                     <Typography variant="h6" gutterBottom>
-                         Order: {chosenRecipeDetails.name}
-                     </Typography>
+                <Box sx={{ p: 2 }}>
+                    <Typography variant="h6" gutterBottom>
+                        Order: {chosenRecipeDetails.name}
+                    </Typography>
 
                     {isOrderingOpen && activeCycle.orderDeadline && (
-                         <Typography variant="body2" color={deadlinePassed ? "error" : "text.secondary"} gutterBottom>
-                             Order Deadline: {activeCycle.orderDeadline.toLocaleString()}
-                             {deadlinePassed && " (Deadline Passed)"}
-                         </Typography>
-                     )}
+                        <Typography variant="body2" color={deadlinePassed ? "error" : "text.secondary"} gutterBottom>
+                            Order Deadline: {activeCycle.orderDeadline.toLocaleString()}
+                            {deadlinePassed && " (Deadline Passed)"}
+                        </Typography>
+                    )}
                     {!isOrderingOpen && activeCycle.status === 'planned' && (
-                        <Chip label="Ordering Not Yet Open" color="info" size="small" sx={{ mb: 1 }}/>
+                        <Chip label="Ordering Not Yet Open" color="info" size="small" sx={{ mb: 1 }} />
                     )}
 
-                    {(loadingOrderCheck || loadingRecipeDetails) && <LoadingSpinner size={30} sx={{ my: 2 }}/>}
+                    {(loadingOrderCheck || loadingRecipeDetails) && <LoadingSpinner size={30} sx={{ my: 2 }} />}
 
                     {showExistingOrder && (
                         <Box sx={{ my: 2, p: 2, border: '1px solid', borderColor: 'success.light', borderRadius: 1, bgcolor: 'success.ultralight' }}>
                             <Typography variant="subtitle1" gutterBottom sx={{ color: 'success.dark' }}>Your Current Order:</Typography>
-                            {userOrder.items.map(item => (
-                                <Typography key={item.protein} variant="body2" sx={{ color: 'success.dark' }}>
-                                    {item.protein}: {item.quantity}
+                            {userOrder.totalServings === 0 ? (
+                                <Typography variant="body2" sx={{ color: 'success.dark', fontStyle: 'italic', mb: 1 }}>
+                                    None for me
                                 </Typography>
-                            ))}
+                            ) : (
+                                userOrder.items.map(item => (
+                                    <Typography key={item.protein} variant="body2" sx={{ color: 'success.dark' }}>
+                                        {item.protein}: {item.quantity}
+                                    </Typography>
+                                ))
+                            )}
                             {userOrder.selectedCustomizations && userOrder.selectedCustomizations.length > 0 && (
                                 <Typography variant="body2" sx={{ mt: 1, color: 'success.dark' }}>
                                     Options: {userOrder.selectedCustomizations.join(', ')}
@@ -471,33 +474,33 @@ function DashboardPage() {
                             <Typography variant="subtitle1" gutterBottom>
                                 {isModifyingOrder ? "Modify Your Meal Quantities" : "Select Meal Quantities"}
                             </Typography>
-                             <Grid container spacing={2} sx={{ mb: 2 }}>
+                            <Grid container spacing={2} sx={{ mb: 2 }}>
                                 {chosenRecipeDetails.proteinOptions && chosenRecipeDetails.proteinOptions.length > 0 ? (
-                                     chosenRecipeDetails.proteinOptions.map(option => (
-                                         <Grid item xs={6} sm={4} key={option.optionName}>
-                                             <TextField
-                                                 label={option.optionName}
-                                                 type="number"
-                                                 value={orderQuantities[option.optionName] === '' ? '' : (orderQuantities[option.optionName] || 0)}
-                                                 onChange={(e) => handleQuantityChange(option.optionName, e.target.value)}
-                                                 inputProps={{ min: 0 }}
-                                                 size="small"
-                                                 fullWidth
-                                             />
-                                         </Grid>
-                                     ))
+                                    chosenRecipeDetails.proteinOptions.map(option => (
+                                        <Grid item xs={6} sm={4} key={option.optionName}>
+                                            <TextField
+                                                label={option.optionName}
+                                                type="number"
+                                                value={orderQuantities[option.optionName] === '' ? '' : (orderQuantities[option.optionName] || 0)}
+                                                onChange={(e) => handleQuantityChange(option.optionName, e.target.value)}
+                                                inputProps={{ min: 0 }}
+                                                size="small"
+                                                fullWidth
+                                            />
+                                        </Grid>
+                                    ))
                                 ) : (
-                                     <Grid item xs={6} sm={4}>
-                                         <TextField
-                                             label="Quantity"
-                                             type="number"
-                                             value={orderQuantities["default"] === '' ? '' : (orderQuantities["default"] === undefined && !chosenRecipeDetails?.proteinOptions?.length ? 1 : (orderQuantities["default"] || 0) )}
-                                             onChange={(e) => handleQuantityChange("default", e.target.value)}
-                                             inputProps={{ min: 0 }}
-                                             size="small"
-                                             fullWidth
-                                         />
-                                     </Grid>
+                                    <Grid item xs={6} sm={4}>
+                                        <TextField
+                                            label="Quantity"
+                                            type="number"
+                                            value={orderQuantities["default"] === '' ? '' : (orderQuantities["default"] === undefined && !chosenRecipeDetails?.proteinOptions?.length ? 1 : (orderQuantities["default"] || 0))}
+                                            onChange={(e) => handleQuantityChange("default", e.target.value)}
+                                            inputProps={{ min: 0 }}
+                                            size="small"
+                                            fullWidth
+                                        />
+                                    </Grid>
                                 )}
                             </Grid>
 
@@ -564,7 +567,7 @@ function DashboardPage() {
                         </Box>
                     )}
 
-                    {/* Display success/error messages */} 
+                    {/* Display success/error messages */}
                     {orderSuccess && (
                         <MuiAlert severity="success" sx={{ mt: 2 }}>{orderSuccess}</MuiAlert>
                     )}
@@ -573,15 +576,15 @@ function DashboardPage() {
                     )}
 
                 </Box>
-             </Card>
+            </Card>
         );
     };
 
     const renderWelcome = () => (
-         <Card sx={{ mt: 3, p: 2 }}>
-             <Typography variant="h5" gutterBottom>
-                 Welcome, {userProfile?.displayName || currentUser?.email}!
-             </Typography>
+        <Card sx={{ mt: 3, p: 2 }}>
+            <Typography variant="h5" gutterBottom>
+                Welcome, {userProfile?.displayName || currentUser?.email}!
+            </Typography>
             <Typography variant="body1">
                 Enter your order amount below.
             </Typography>
@@ -595,31 +598,31 @@ function DashboardPage() {
                         <List dense sx={{ width: 'fit-content' }}>
                             <ListItem disablePadding>
                                 <ListItemButton component={RouterLink} to="/admin/planning">
-                                    <ListItemIcon sx={{minWidth: 'auto', mr: 1.5}}><PlaylistAddIcon fontSize="small" /></ListItemIcon>
+                                    <ListItemIcon sx={{ minWidth: 'auto', mr: 1.5 }}><PlaylistAddIcon fontSize="small" /></ListItemIcon>
                                     <ListItemText primary="Plan New Meal Cycle" />
                                 </ListItemButton>
                             </ListItem>
                             <ListItem disablePadding>
                                 <ListItemButton component={RouterLink} to="/admin/cycles">
-                                    <ListItemIcon sx={{minWidth: 'auto', mr: 1.5}}><LoopIcon fontSize="small" /></ListItemIcon>
+                                    <ListItemIcon sx={{ minWidth: 'auto', mr: 1.5 }}><LoopIcon fontSize="small" /></ListItemIcon>
                                     <ListItemText primary="Manage Meal Cycles" />
                                 </ListItemButton>
                             </ListItem>
                             <ListItem disablePadding>
                                 <ListItemButton component={RouterLink} to="/admin/users">
-                                    <ListItemIcon sx={{minWidth: 'auto', mr: 1.5}}><PeopleAltIcon fontSize="small" /></ListItemIcon>
+                                    <ListItemIcon sx={{ minWidth: 'auto', mr: 1.5 }}><PeopleAltIcon fontSize="small" /></ListItemIcon>
                                     <ListItemText primary="Manage Users" />
                                 </ListItemButton>
                             </ListItem>
                             <ListItem disablePadding>
                                 <ListItemButton component={RouterLink} to="/admin/invites">
-                                    <ListItemIcon sx={{minWidth: 'auto', mr: 1.5}}><EmailIcon fontSize="small" /></ListItemIcon>
+                                    <ListItemIcon sx={{ minWidth: 'auto', mr: 1.5 }}><EmailIcon fontSize="small" /></ListItemIcon>
                                     <ListItemText primary="Manage Invites" />
                                 </ListItemButton>
                             </ListItem>
                             <ListItem disablePadding>
                                 <ListItemButton component={RouterLink} to="/admin/settings">
-                                    <ListItemIcon sx={{minWidth: 'auto', mr: 1.5}}><TuneIcon fontSize="small" /></ListItemIcon>
+                                    <ListItemIcon sx={{ minWidth: 'auto', mr: 1.5 }}><TuneIcon fontSize="small" /></ListItemIcon>
                                     <ListItemText primary="Application Settings" />
                                 </ListItemButton>
                             </ListItem>
@@ -653,10 +656,10 @@ function DashboardPage() {
                     {activeCycle ? (
                         renderOrderingSection()
                     ) : (
-                         <Card sx={{ mt: 3, p: 2, textAlign: 'center' }}>
-                             <Typography variant="h6" gutterBottom>
-                                 No Active Meal Cycle
-                             </Typography>
+                        <Card sx={{ mt: 3, p: 2, textAlign: 'center' }}>
+                            <Typography variant="h6" gutterBottom>
+                                No Active Meal Cycle
+                            </Typography>
                             <Typography color="text.secondary">
                                 There isn't an active meal cycle for ordering right now.
                             </Typography>

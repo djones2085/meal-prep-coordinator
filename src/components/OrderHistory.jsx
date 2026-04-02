@@ -74,7 +74,7 @@ function OrderHistory() {
                                         </Typography>
                                         <br />
                                         <Typography component="span" variant="body2" color="text.secondary">
-                                            Total Servings: {order.totalServings || 'N/A'}
+                                            Total Servings: {order.totalServings === 0 ? 'None for me' : (order.totalServings || 'N/A')}
                                         </Typography>
                                         {order.selectedCustomizations && order.selectedCustomizations.length > 0 && (
                                             <>
