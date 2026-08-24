@@ -1,0 +1,42 @@
+{
+  "name": "Cuban Sandwiches",
+  "description": "Authentic pressed Cuban sandwiches featuring slow-braised Mojo pork, sweet ham, Swiss cheese, and pickles on toasted rolls.",
+  "status": "approved",
+  "baseYield": 20,
+  "baseYieldUnit": "portions",
+  "prepTime": "12-24 hours (marinating)",
+  "cookTime": "5 hours",
+  "ingredients": [
+    { "name": "Bone-in pork shoulder (Boston Butt)", "quantity": 12, "unit": "lb" },
+    { "name": "Fresh garlic", "quantity": 20, "unit": "cloves", "notes": "Peeled" },
+    { "name": "Sour orange juice", "quantity": 1.5, "unit": "cups", "notes": "Substitute: 3/4 cup fresh orange juice + 3/4 cup fresh lime juice" },
+    { "name": "Extra virgin olive oil", "quantity": 0.75, "unit": "cup" },
+    { "name": "Fresh oregano", "quantity": 0.25, "unit": "cup", "notes": "Finely chopped" },
+    { "name": "Ground cumin", "quantity": 2, "unit": "tbsp" },
+    { "name": "Kosher salt", "quantity": 3, "unit": "tbsp" },
+    { "name": "Coarse black pepper", "quantity": 1, "unit": "tbsp" },
+    { "name": "Cuban or French rolls (6-inch)", "quantity": 40, "unit": "unit" },
+    { "name": "Premium sliced sweet ham", "quantity": 3.75, "unit": "lb", "notes": "Jamón dulce or Black Forest" },
+    { "name": "Gruyère or premium Swiss cheese", "quantity": 2.5, "unit": "lb", "notes": "Thinly sliced" },
+    { "name": "Dill pickle spears", "quantity": 32, "unit": "oz", "notes": "Sliced thin lengthwise" },
+    { "name": "Yellow mustard", "quantity": 1, "unit": "cup" },
+    { "name": "Unsalted butter (or rendered pork fat)", "quantity": 1, "unit": "cup", "notes": "Melted" }
+  ],
+  "proteinOptions": [],
+  "instructions": [
+    "Phase 1: The Meat Prep (Batch Cooking Day)",
+    "Blend the Marinade: In a Vitamix, combine the garlic, sour orange juice (or orange/lime mix), olive oil, oregano, cumin, kosher salt, and black pepper. Blend until completely smooth.",
+    "Marinate: Place the raw pork shoulders into a large, non-reactive container. Pour the marinade over the top, massaging it into the meat. Cover tightly and refrigerate for 12 to 24 hours.",
+    "The Braise: Preheat your oven to 300°F. Transfer the pork shoulders and all the marinade into a Le Creuset. Cover with the lid and roast for 4.5 to 5 hours. The pork is done when a meat thermometer reads 190°F internal and a probe slides in with zero resistance.",
+    "Cool & Store: Remove the Le Creuset from the oven and let the pork cool completely in its own juices. Do not slice it hot. Once cooled, remove the bone and slice the pork thinly. Store the sliced Mojo Pork and the sweet ham in large batch containers in the fridge.",
+    "Phase 2: Assembly & The Press (Day of Eating)",
+    "The Stack: When ready to eat, pull from your batch containers to build a 2-sandwich portion (which requires a total of 5 oz pork and 3 oz ham). Split two fresh rolls and spread exactly 1.2 teaspoons (1/4 oz) of mustard on the inside of each top bun. Layer each sandwich in this exact order: Bottom Bun, 0.5 oz Cheese, Pickles, 1.5 oz Ham, 2.5 oz Mojo Pork, 0.5 oz Cheese, Top Bun.",
+    "Heat the Griddle: Fire up the 36-inch Blackstone to medium heat (around 350°F).",
+    "The Press: Brush the griddle surface and the tops of the assembled rolls with melted butter or rendered pork fat. Place the two sandwiches on the griddle. Place a heavy cast iron press (or a heavy baking sheet weighed down with a pot) directly on top.",
+    "Toast: Press for 3 to 4 minutes per side, flipping once, until the bread is compressed, deeply golden brown, and the cheese is fully melted."
+  ],
+  "tags": ["cuban", "sandwich", "pork", "mojo", "ham", "swiss", "pickles", "pressed"],
+  "cookNotes": ["Yields 20 meal-prep portions (2 sandwiches per portion).", "1/2 lb meat per portion (5 oz pork, 3 oz ham)."],
+  "imageUrl": "",
+  "timesPrepared": 0
+}

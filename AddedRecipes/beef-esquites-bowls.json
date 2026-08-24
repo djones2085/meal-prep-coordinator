@@ -1,0 +1,48 @@
+{
+  "name": "Griddled Beef & Esquites Meal Prep Bowls",
+  "description": "Hearty meal prep bowls featuring seasoned griddled beef, roasted sweet potatoes, and thinned refried beans, all topped with a creamy, charred corn esquites mixture.",
+  "status": "approved",
+  "baseYield": 16,
+  "baseYieldUnit": "portions",
+  "prepTime": "45 minutes",
+  "cookTime": "45 minutes",
+  "ingredients": [
+    { "name": "Sweet potatoes", "quantity": 9, "unit": "lb", "notes": "Peeled and diced into 1/2-inch cubes" },
+    { "name": "Neutral oil", "quantity": 0.25, "unit": "cup", "notes": "For roasting" },
+    { "name": "Refried beans", "quantity": 5, "unit": "cans", "notes": "15 oz each" },
+    { "name": "Beef broth, water, or bacon grease", "quantity": 0.5, "unit": "cup", "notes": "To thin the beans" },
+    { "name": "Ground beef (or diced steak)", "quantity": 8, "unit": "lb" },
+    { "name": "Taco seasoning", "quantity": 1, "unit": "cup" },
+    { "name": "Sweet corn", "quantity": 5, "unit": "cans", "notes": "Drained and dried exceptionally well" },
+    { "name": "Jalapeños", "quantity": 4, "unit": "unit", "notes": "Finely diced, seeds removed for less heat" },
+    { "name": "Serrano peppers", "quantity": 4, "unit": "unit", "notes": "Finely diced" },
+    { "name": "Cotija cheese", "quantity": 1, "unit": "cup", "notes": "Crumbled" },
+    { "name": "High-smoke-point oil", "quantity": 2, "unit": "tbsp", "notes": "For the griddle" },
+    { "name": "Ripe avocados", "quantity": 4, "unit": "unit", "notes": "Pitted and scooped" },
+    { "name": "Mayonnaise", "quantity": 1, "unit": "cup" },
+    { "name": "Mexican crema (or sour cream)", "quantity": 1, "unit": "cup" },
+    { "name": "Lime juice", "quantity": 9, "unit": "limes", "notes": "Juice of 8-10 limes" },
+    { "name": "Tajín seasoning", "quantity": 1, "unit": "dash", "notes": "Heavy dash, to taste" },
+    { "name": "Salt and black pepper", "quantity": 0, "unit": "to taste" },
+    { "name": "Tortilla chips", "quantity": 1, "unit": "bag", "notes": "For serving" }
+  ],
+  "proteinOptions": [],
+  "instructions": [
+    "1. Roast the Sweet Potatoes: Preheat the oven to 425°F. Toss the diced sweet potatoes in a large bowl with neutral oil, salt, and pepper. Divide them evenly across 3-4 large rimmed baking sheets, ensuring they are spread out in a single layer. Bake for 25-30 minutes, rotating the pans halfway through, until deeply caramelized and tender.",
+    "2. Prep the Refried Beans: Place a heavy Dutch oven (like a Le Creuset) on the stove over medium-low heat. Add all the refried beans along with a splash of broth, water, or bacon grease. Stir continuously until heated through and smoothed out. The goal is a creamy, slightly loosened consistency. Keep warm.",
+    "3. Emulsify the Binder: Load the avocados, mayonnaise, crema, lime juice, salt, and a generous shake of Tajín into a Vitamix or high-powered blender. Blend on medium-high until completely smooth and vibrant green.",
+    "4. Fire Up the Griddle: Get a 36-inch griddle screaming hot and set up two cooking zones. THE VEGGIE ZONE (High Heat): Lay down a thin coat of oil and drop the dried corn. Let it sit untouched for a minute or two to develop a hard, dark char. Once blistered, toss it with the diced jalapeños and serranos just long enough to take the raw bite out of the peppers. Remove and let cool.",
+    "5. The Meat Zone: THE MEAT ZONE (Medium-High Heat): Drop the 8 pounds of beef. Work it across the surface, chopping and browning. Once cooked through, fold in the taco seasoning and splash a little water across the meat to hydrate the spices and coat the beef evenly. Remove from the heat.",
+    "6. Mix the Esquites: In a massive mixing bowl, fold the cooled, charred corn and pepper mix together with the blended avocado-crema and the crumbled cotija cheese until fully combined.",
+    "7. Assemble the Containers: Line up 16 meal prep containers and build in this specific order: Layer 1 (The Smear): Spread a layer of the thinned, warm refried beans directly onto the bottom. Layer 2 (The Bulk): Drop in an even portion of the roasted sweet potatoes. Layer 3 (The Protein): Portion exactly 0.5 lbs of the seasoned griddled beef onto the potatoes. Layer 4 (The Cap): Top the beef with a thick, generous scoop of the wet esquites mixture to seal everything in. Allow to cool slightly before capping with lids."
+  ],
+  "tags": ["beef", "esquites", "corn", "sweet potato", "mexican", "griddle", "meal prep", "avocado"],
+  "cookNotes": [
+    "Yields 16 servings with 0.5 lbs of protein per serving.",
+    "The avocado-crema binder acts as a sealant to keep the beef moist.",
+    "Dried corn is essential for a proper char on the griddle; do not skip drying it.",
+    "Serve with tortilla chips for crunch."
+  ],
+  "imageUrl": "",
+  "timesPrepared": 0
+}

@@ -1,0 +1,150 @@
+{
+    "name": "Blackened Salmon (or Cod) with Garlic Mashed Potatoes and Charred Asparagus",
+    "description": "Blackened Salmon or Cod with buttery garlic mashed potatoes and charred lemony asparagus.",
+    "status": "testing",
+    "baseYield": 22,
+    "baseYieldUnit": "serving",
+    "prepTime": "30 minutes",
+    "cookTime": "45 minutes",
+    "ingredients": [
+        {
+            "name": "Cooking Oil (for the griddle)",
+            "quantity": 0.25,
+            "unit": "cup"
+        },
+        {
+            "name": "Smoked Paprika",
+            "quantity": 4,
+            "unit": "tbsp"
+        },
+        {
+            "name": "Garlic Powder",
+            "quantity": 2,
+            "unit": "tbsp"
+        },
+        {
+            "name": "Onion Powder",
+            "quantity": 2,
+            "unit": "tbsp"
+        },
+        {
+            "name": "Dried Oregano",
+            "quantity": 2,
+            "unit": "tbsp"
+        },
+        {
+            "name": "Dried Thyme",
+            "quantity": 2,
+            "unit": "tbsp"
+        },
+        {
+            "name": "Kosher Salt",
+            "quantity": 2,
+            "unit": "tbsp"
+        },
+        {
+            "name": "Black Pepper",
+            "quantity": 1,
+            "unit": "tbsp"
+        },
+        {
+            "name": "Cayenne Pepper",
+            "quantity": 1,
+            "unit": "tbsp",
+            "notes": "Adjust down if you don't want a heavy kick"
+        },
+        {
+            "name": "Yukon Gold or Russet Potatoes",
+            "quantity": 10,
+            "unit": "lb",
+            "notes": "Peeled and quartered"
+        },
+        {
+            "name": "Heads of Garlic",
+            "quantity": 3,
+            "unit": "item"
+        },
+        {
+            "name": "Unsalted Butter",
+            "quantity": 1.5,
+            "unit": "cup",
+            "notes": "3 sticks"
+        },
+        {
+            "name": "Whole Milk or Heavy Cream",
+            "quantity": 2.5,
+            "unit": "cup",
+            "notes": "2 to 3 cups, warmed"
+        },
+        {
+            "name": "Fresh Asparagus",
+            "quantity": 6,
+            "unit": "lb",
+            "notes": "Woody ends snapped or trimmed off"
+        },
+        {
+            "name": "Olive Oil",
+            "quantity": 3,
+            "unit": "tbsp"
+        },
+        {
+            "name": "Lemons",
+            "quantity": 3,
+            "unit": "item",
+            "notes": "Cut into wedges or halved for squeezing"
+        },
+        {
+            "name": "Kosher Salt & Black Pepper",
+            "quantity": 0,
+            "unit": "to taste"
+        }
+    ],
+    "proteinOptions": [
+        {
+            "optionName": "Salmon",
+            "ingredients": [
+                {
+                    "name": "Salmon fillets",
+                    "quantity": 11,
+                    "unit": "lb",
+                    "notes": "Cut into ~8 oz portions, skin off"
+                }
+            ]
+        },
+        {
+            "optionName": "Cod",
+            "ingredients": [
+                {
+                    "name": "Cod or Pollock fillets",
+                    "quantity": 11,
+                    "unit": "lb",
+                    "notes": "Cut into ~8 oz portions, skin off"
+                }
+            ]
+        }
+    ],
+    "instructions": [
+        "Prep the Garlic & Potatoes: Slice the top quarter off the 3 heads of garlic, drizzle with oil, wrap in foil, and toss them in the oven at 400°F for 40 minutes until deeply roasted and soft. Toss the potatoes into your Le Creuset pot, cover with cold, heavily salted water, and bring to a boil. Simmer until fork-tender (about 15-20 minutes).",
+        "Mash the Potatoes: Drain the potatoes well and return them to the pot. Squeeze the roasted garlic cloves out of their skins directly into the pot. Add the butter and mash until melted. Gradually pour in the warmed milk or cream, mashing until you hit your preferred consistency. Season heavily with salt and pepper to taste. Set aside.",
+        "Fire Up the Griddle: Preheat your 36-inch Blackstone. Set one side to medium-high (for the fish) and the other to medium (for the asparagus). Toss the trimmed asparagus with olive oil, salt, and pepper.",
+        "Cook the Asparagus: Throw the asparagus onto the medium-heat side of the griddle. Cook for 5-7 minutes, rolling them occasionally, until they are blistered and tender-crisp. Squeeze the fresh lemons over the asparagus right before pulling them off the heat.",
+        "Blacken the Fish: Mix the Blackened Seasoning (smoked paprika, garlic powder, onion powder, dried oregano, dried thyme, kosher salt, black pepper, cayenne pepper) in a bowl. Generously coat the tops of your 8 oz fish portions with the blackened seasoning mixture. Oil the medium-high side of the griddle. Place the fish down. Cook for 4-5 minutes per side. The spices will create a dark, intensely flavorful crust. Pull when cooked through and flaky.",
+        "Pack the Meals: Line up your 22 containers. Add an 8 oz piece of blackened fish to each. Add a standard scoop (about 1 cup) of garlic mashed potatoes. Divide the charred asparagus evenly among the containers.",
+        "Storage and Reheating: Refrigerate for up to 4-5 days. Reheat in the microwave for 1.5 to 2 minutes. The butter in the potatoes will melt back down, and the heavy blackened crust on the fish holds up perfectly to the microwave."
+    ],
+    "tags": [
+        "blackened fish",
+        "salmon",
+        "cod",
+        "meal prep",
+        "mashed potatoes",
+        "asparagus",
+        "griddle"
+    ],
+    "cookNotes": [
+        "Cayenne pepper can be adjusted down based on spice preference.",
+        "The heavy blackened crust holds up perfectly to microwaving for 1.5 to 2 minutes."
+    ],
+    "imageUrl": "",
+    "timesPrepared": 0
+}

@@ -1,3 +1,8 @@
+// --- Polyfill for Node 25 compatibility with old dependencies ---
+if (typeof SlowBuffer === 'undefined') {
+    global.SlowBuffer = Buffer;
+}
+
 // Import Firebase Admin SDK and Node.js File System module
 const admin = require('firebase-admin');
 const fs = require('fs');
@@ -68,8 +73,8 @@ async function uploadRecipeFromJson(filePath) {
 
     // --- Basic Validation (Optional but Recommended) ---
     if (!recipeData || typeof recipeData !== 'object') {
-         console.error("Error: Invalid JSON data. Expected an object.");
-         process.exit(1);
+        console.error("Error: Invalid JSON data. Expected an object.");
+        process.exit(1);
     }
     if (!recipeData.name || typeof recipeData.name !== 'string' || !recipeData.name.trim()) {
         console.error("Error: Recipe data must include a non-empty 'name' field (string).");
